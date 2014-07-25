@@ -1,10 +1,9 @@
-<<<<<<< HEAD
-I will beat you all to it! This is the first test from Tyson. Silvia changed this test!
-=======
+I will beat you all to it! Lies! You did not. 
+This is the first test from Tyson. Silvia changed this test!
+
 I'm editing multiple lines. Fix that!
 
 This is the millionth test from Tyson. Silvia changed this test!
->>>>>>> 196971159fb70b1617b87c22c458796bc5a1a4a2
 
 This is a test from Tyson. Supercalifragaliciousexpialidocious!
 
