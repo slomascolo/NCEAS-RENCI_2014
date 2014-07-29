@@ -1,0 +1,95 @@
+---
+title: "Pesticides"
+author: "Tyson Wepprich"
+date: "Monday, July 28, 2014"
+output: pdf_document
+---
+Goal:
+County-level pesticide use data in 2007 from NC, OH, MI, CA
+(Are we worried about which chemicals in particular? Or maybe just top 10 most used? PCA?)
+
+Data source:
+Estimated Annual Agricultural Pesticide Use for Counties of the Conterminous United States, 1992-2009
+http://pubs.usgs.gov/ds/752/
+
+Thelin, G.P., and Stone, W.W., 2013, Estimation of annual agricultural pesticide use for counties of the conterminous United States, 1992-2009: U.S. Geological Survey Scientific Investigations Report 2013-5009, 54 p.
+
+
+Census 2010 County Data from https://www.census.gov/geo/maps-data/data/gazetteer2010.html
+Column  Label	Description
+Column 1	USPS 	United States Postal Service State Abbreviation
+Column 2	GEOID 	Geographic Identifier - fully concatenated geographic code (State FIPS and County FIPS)
+Column 3 	ANSICODE 	American National Standards Institute code
+Column 4	NAME 	Name
+Column 5 	POP10 	2010 Census population count.
+Column 6 	HU10 	2010 Census housing unit count.
+Column 7	ALAND 	Land Area (square meters) - Created for statistical purposes only.
+Column 8	AWATER 	Water Area (square meters) - Created for statistical purposes only.
+Column 9	ALAND_SQMI 	Land Area (square miles) - Created for statistical purposes only.
+Column 10	AWATER_SQMI 	Water Area (square miles) - Created for statistical purposes only.
+Column 11	INTPTLAT 	Latitude (decimal degrees) First character is blank or "-" denoting North or South latitude respectively.
+Column 12 	INTPTLONG 	Longitude (decimal degrees) First character is blank or "-" denoting East or West longitude respectively.
+
+```{r combine text files, echo = FALSE}
+setwd("C:/Users/Tyson/Desktop/Pesticides")
+
+filenames <- list.files()
+EPA.high <- do.call("rbind", lapply(filenames[grep("high", filenames)], read.table, header = TRUE, sep = "\t"))
+EPA.low <- do.call("rbind", lapply(filenames[grep("low", filenames)], read.table, header = TRUE, sep = "\t"))
+
+pest.states.low <- EPA.low[which(EPA.low$STATE_FIPS_CODE %in% c(6, 26, 37, 39)), ]
+pest.states.high <- EPA.high[which(EPA.high$STATE_FIPS_CODE %in% c(6, 26, 37, 39)), ]
+
+fips <- read.csv("fips_codes.txt", header = TRUE)
+names(fips) <- c("State", "STATE_FIPS_CODE", "COUNTY_FIPS_CODE", "County.Name", "ANSI.class")
+fips <- fips[which(fips$STATE_FIPS_CODE %in% c(6, 26, 37, 39)), ]
+#create new column for ID to match census data
+fips$GEOID <- paste(fips$STATE_FIPS_CODE, formatC(fips$COUNTY_FIPS_CODE, width = 3, format = "d", flag = "0"), sep = "")
+
+county.data.low <- merge(pest.states.low, fips)
+county.data.high <- merge(pest.states.high, fips)
+
+pest.2007.high <- county.data.high[which(county.data.high$YEAR == 2007), ]
+pest.2007.low <- county.data.low[which(county.data.low$YEAR == 2007), ]
+
+#Bring in county data from 2010 US Census (from factfinder online database)
+census <- read.table("Gaz_counties_national.txt", header = TRUE, sep = "\t")
+
+pest.2007.h <- merge(pest.2007.high, census)
+pest.2007.l <- merge(pest.2007.low, census)
+# 
+# total.kg <- tapply(pest.2007.high$KG, pest.2007.high$COMPOUND, sum)
+# hist(total.kg[total.kg>10000], breaks = 1000)
+
+write.csv(pest.2007.h, file = "pest.2007.high.csv", row.names = FALSE)
+write.csv(pest.2007.l, file = "pest.2007.low.csv", row.names = FALSE)
+
+
+```
+Right tail skew on pesticide distribution, sulfur is #1.
+Try PCA by county?
+
+
+```{r distribution of use}
+
+library(dplyr)
+data <- read.csv("pest.2007.high.csv", header = TRUE)
+
+#create function to get top chemicals for county and state
+RankChems <- function(x){
+  temp <- x[order(-x$KG), ]
+  out <-  1:dim(temp)[1]
+}
+
+Top10State <- data %>% group_by(State, COMPOUND) %>% summarise(State.Total = sum(KG)) %>% group_by(State) %>% mutate(State.rank = rank(-State.Total)) %>% filter(State.rank <= 10)
+
+Top5NC.County <- data %>% filter(State == "NC") %>% group_by(County.Name) %>% mutate(County.rank = rank(-KG)) %>% filter(County.rank <=5)
+Top5 <- Top5NC.County[, c("COMPOUND", "KG", "County.Name", "County.rank")]
+
+
+pca.data <- scale(env.data[, -c(1,2,6,7)])
+test.pca <- princomp(pca.data)
+
+
+```
+
