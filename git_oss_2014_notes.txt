@@ -1,0 +1,493 @@
+    1  /Users/kellyg/Dropbox/CATIE\ 2008-09/CATIE\ DATA\ ARCHIVES/Q\&A\ Fabrice\ 7-2-08/lista ; exit;
+    2  /Users/kellyg/Downloads/requestionaboutplantsciencesgsrfellowship\ 2/Pay\ Disposition\ form ; exit;
+    3  /Users/kellyg/Downloads/requestionaboutplantsciencesgsrfellowship\ 2/Pay\ Disposition\ form ; exit;
+    4  make
+    5  ls
+    6  curl --get 'https://api.twitter.com/1.1/' --header 'Authorization: OAuth oauth_consumer_key="suWqdtvlO8UIJ6ZkfJ1VTAgqI", oauth_nonce="4bfe68ea6260f014a93ffe2898464d0c", oauth_signature="8nJbh%2B9NXu0ccMJwI1sKKuqHLmE%3D", oauth_signature_method="HMAC-SHA1", oauth_timestamp="1403384876", oauth_token="", oauth_version="1.0"' --verbose
+    7  pwd
+    8  ls
+    9  cd
+   10  cd..
+   11  cd ..
+   12  ls
+   13  cd setup/
+   14  cd ..
+   15  history
+   16  cd ..
+   17  cd
+   18  ls
+   19  mkdir Testing
+   20  ls
+   21  cd Testing/
+   22  ls
+   23  cd Testing
+   24  echo "Hi my name is Milo and I like grain" >test.txt
+   25  cat echo
+   26  echo "Hi my name is Milo and I like grain" >test.txt
+   27  cat test.txt
+   28  rm test.txt
+   29  echo test.txt
+   30  cat test.txt
+   31  ls
+   32  ls -l
+   33  pwd
+   34  cd
+   35  ~
+   36  ls
+   37  ls -l
+   38  man mkdir
+   39  vim
+   40  nano KG_Notes_OSS_Training_2014.docx
+   41  pwd
+   42  echo "Hi this Kelly looking for ET. Phone home please." > ETtest.text
+   43  cat ETtest.text
+   44  echo "this is added new text" >> ETtest.text
+   45  cat ETtest.text
+   46  echo "this is added new text and again its new" >> ETtest.text
+   47  cat ETtest.text
+   48  echo "this is added new text and again its new" >> ETtest.text
+   49  cat ETtest.text
+   50  head - 1 ETtest.text
+   51  head -1
+   52  head -1 ETtest.text
+   53  rm ETtest.text
+   54  pwd
+   55  ls
+   56  cd Desktop
+   57  ls
+   58  ls -l
+   59  cd "KG Desktop"
+   60  ls -1
+   61  ~
+   62  ls
+   63  pwd
+   64  cd ..
+   65  ls
+   66  cd Sample\ Size\ \&\ Power\ Analysis/
+   67  ls -l
+   68  ~
+   69  cd ~
+   70  ls
+   71  cd Desktop
+   72  ls
+   73  cd "OSS 2014"
+   74  which nano
+   75  nano practice
+   76  mwd practice
+   77  mkdir practice
+   78  echo "Hi my name is Milo and I like grain" >test.txt
+   79  rm test.txt
+   80  cd practice
+   81  echo "Hi my name is Milo and I like grain" >test.txt
+   82  wc text.txt
+   83  cd practice
+   84  cd ~
+   85  ls
+   86  cd Desktop
+   87  ls
+   88  cd "OSS 2014"
+   89  ls
+   90  cd practice
+   91  wc test.txt
+   92  wc -l text.txt
+   93  pwd
+   94  ls
+   95  cd Desktop
+   96  ls
+   97  cd "OSS 2014"
+   98  cd sampledata
+   99  for filein paleo*
+  100  for file in paleo*; do  wc -l $file; done
+  101  cd ~
+  102  man bash
+  103  cd Desktop
+  104  ls
+  105  cd "OSS 2014"
+  106  cd practice
+  107  cd sampledata
+  108  echo $@
+  109  chmod u+x simple.sh 
+  110  ls -la simple.sh
+  111  ./simple.sh hello world
+  112  more simple.sh 
+  113  more simple.sh 
+  114  ls -l
+  115  more simple.sh 
+  116  pwd
+  117  ls -la sim*
+  118  more simple1.sh 
+  119  ls -l
+  120  chmod u+x simple1.sh 
+  121  ./simple1.sh
+  122  ./simple1/sh Hi there this is fun to script
+  123  ls -l
+  124  ./simple1.sh Hi
+  125  ./simple1.sh Hi there it is fun to script
+  126  ./simple1.sh Hi there it is fun to script
+  127  grep O paleomammals.txt
+  128  cd sampledata
+  129  pwd
+  130  grep O
+  131  man bash
+  132  cd Desktop
+  133  cd "OSS 2014"
+  134  ls
+  135  cd sampledata
+  136  grep O paleo-mammals.txt
+  137  grep -v -c O paleo-mammals.txt 
+  138  pwd
+  139  sed ‘Mega/d’ paleo-mammals.txt
+  140  ls
+  141  sed 'Mega/d' paleo-mammals.txt
+  142  sed 's/robust/rubust/g' paleo-mammals.txt
+  143  tail -20 paleo-mammals.txt | sed 's/robust/rubust/g'|grep rubust
+  144  find . -name tree -print
+  145  find . -name tree.csv -print
+  146  find . -name 'tree.*' -print
+  147  find . -name 'paleo.*' -print
+  148  find . -name 'paleo*' -print
+  149  find . -name 'paleo*' -print -exec grep Mega{} \;
+  150  cd Desktop
+  151  cd "OSS 2014"
+  152  cd sampledata
+  153  ls
+  154  ps
+  155  man ps
+  156  git --help
+  157  git config --global user.name "Kelly Garbach"
+  158  git config --global user.email "kgarbach@gmail.com"
+  159  git config --global color.ui "auto"
+  160  git config --global core.editor
+  161  git config --global core.editor emacs
+  162  git config --global core.editor nano
+  163  git config --global core.editor "subl -n -w"
+  164  subl
+  165  mk dir
+  166  mk dir milo
+  167  mkdir milo
+  168  cd milo
+  169  git init
+  170  ls -a
+  171  e horse
+  172  e horse.txt
+  173  nano
+  174  which sublime
+  175  which subl
+  176  ps
+  177  ps -edf
+  178  ps -edf | grep sub
+  179  ps -edf | grep subl
+  180  subl
+  181  spotlight subl
+  182  ls
+  183  cat horse.txt
+  184  pwd
+  185  git add horse.txt
+  186  git commit -m "Saving some information about Milo the Wonder Horse" 
+  187  git log
+  188  git status
+  189  git diff
+  190  git add horse.txt
+  191  git commit -m "Told everyone more about Milo The Wonder Horse"
+  192  git log
+  193  e horse.txt
+  194  git status
+  195  git checkout -- horse.txt
+  196  git status
+  197  git add cat.txt horse.txt
+  198  git status
+  199  git commit -m "more about Milo and news about Ninja"
+  200  git log
+  201  git blame horse.txt
+  202  git HEAD~1 horse.txt # shows most recent changes
+  203  git HEAD~1 horse.txt 
+  204  git remote add origin https://github.com/KellyGarbach/Milo.git
+  205  git remote -v
+  206  git push origin mater
+  207  git push origin master
+  208  git push origin master
+  209  git push origin master
+  210  git pull origin master
+  211  git clone https://github.com/KellyGarbach/ninja.git
+  212  ls
+  213  cd ..
+  214  git clone https://github.com/KellyGarbach/ninja.git
+  215  cd ninja
+  216  ls
+  217  touch kelly.txt
+  218  ls
+  219  get status
+  220  git stats
+  221  git status
+  222  nano
+  223  git status
+  224  git add kelly.txt
+  225  status
+  226  git status
+  227  git commit -m "talk about my edit\!"
+  228  git push
+  229   git push origin master
+  230  get pull 
+  231  git pull
+  232  git status
+  233  git log
+  234  git push origin master
+  235  git remote add https://github.com/gvwilson/ninja.git
+  236  remote -v
+  237  git remote -v
+  238  git remote add upstream https://github.com/gvwilson/ninja.git"
+  239  git remote add upstream https://github.com/gvwilson/ninja.git
+  240  git remote add upstream https://github.com/gvwilson/ninja.git"
+  241  git remote add upstream https://github.com/gvwilson/ninja.git
+  242  q
+  243  git remote add upstream "https://github.com/gvwilson/ninja.git"
+  244  git remote -v
+  245  git push origin master 
+  246  git pull upstream master
+  247  git remote -v
+  248  git pull upstream master
+  249  nano
+  250  nano .git/config
+  251  git remote -v
+  252  git pull upstream master
+  253  git pull upstream master
+  254  ls
+  255  nano benc.txt
+  256  git add benc.txt
+  257  status
+  258  git status
+  259  cat benc.txt
+  260  git commit -m "Kelly's additions to ben's doc"
+  261  git pull upstream master
+  262  git status
+  263  mkdir store
+  264  cd store
+  265  git init
+  266  global color.ui true
+  267  git config --global color.ui true
+  268  git status
+  269  touch practice.txt
+  270  git status
+  271  git commit -m "created a new file called practice.txt"
+  272  git commit practice.txt
+  273  git status
+  274  git add practice.txt
+  275  git status
+  276  git commit -m "made a new file"
+  277  git status
+  278  touch readthis.txt
+  279  git add --all
+  280  git status
+  281  git commit -m "added a second file to read"
+  282  git log
+  283  clear
+  284  pwd
+  285  ls
+  286  cd ..
+  287  ls
+  288  mkdir oss_git
+  289  cd oss_git
+  290  git clone https://github.com/KellyGarbach/oss_2014.git
+  291  ls
+  292  cd oss_2014/
+  293  ls
+  294  touch silly.txt
+  295  nano
+  296  ls
+  297  nano silly.txt
+  298  git status
+  299  git add oss_2014/
+  300  git add oss_2014/
+  301  cd ..
+  302  git add oss_2014/
+  303  cd oss_2014
+  304  git add --all
+  305  ls
+  306  git status
+  307  git commit
+  308  git commit -m "add driving and silly files"
+  309  git clone https://github.com/slomascolo/NCEAS-RENCI_2014.git
+  310  cd ..
+  311  ls
+  312  cd oss_2014
+  313  ls
+  314  cd NCEAS-RENCI_2014
+  315  ls
+  316  nano test.tyson.txt 
+  317  git commit -m "Kelly updates Tyson's typing"
+  318  git add
+  319  git add test.tyson.txt
+  320  git status
+  321  git commit -m "update to Tyson"
+  322  git push origin master
+  323  git pull origin master
+  324  nano test.tyson.txt
+  325  add test.tyson.txt 
+  326  git add test.tyson.txt 
+  327  git status
+  328  git commit -m "Kelly changes file"
+  329  git push origin master
+  330  git pull origin master
+  331  git add test.tyson.txt 
+  332  git status
+  333  git commit -m "kelly adds changes"
+  334  git push origin master
+  335  git log
+  336  git blame
+  337  git add tyson.test.txt
+  338  pwd
+  339  ls
+  340  git status
+  341  git add test.tyson.txt 
+  342  git commit -m "kelly updates conflict boom"
+  343  git push origin master
+  344  git pull origin master
+  345  git pull origin master
+  346  git status
+  347  git add test.tyson.txt 
+  348  git commit -m "kelly change attempt 2"
+  349  git push origin master
+  350  git pull origin master
+  351  git add test.tyson.txt 
+  352  git committ -m "for reals update by kelly"
+  353  git commit -m "kellys update"
+  354  git push origin master
+  355  git pull origin master
+  356  git add test.tyson.txt 
+  357  git commit -m "for really reals"
+  358  git status
+  359  git push origin master
+  360  touch newfile.txt
+  361  git status
+  362  git status
+  363  nano newfile.txt 
+  364  git diff
+  365  git add newfile.txt 
+  366  git diff
+  367  git diff --cached
+  368  ls
+  369  clear
+  370  ssh garbach@isis.nceas.ucsb.edu
+  371  ssh garbach@isis.nceas.ucsb.edu
+  372  ssh garbach@isis.nceas.ucsb.edu
+  373  ssh garbach@isis.nceas.ucsb.edu
+  374  ssh stealey@isis.nceas.ucsb.edu
+  375  clear
+  376  exit
+  377  ssh garbach@isis.nceas.ucsb.edu
+  378  exit
+  379  exit
+  380  sudo ln -s /Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl /usr/local/bin/sublime
+  381  ls
+  382  ls /usr/local/bin
+  383  ls -l /usr/local/bin
+  384  pwd
+  385  ls -al
+  386  git config --global core.editor "/usr/local/bin/sublime -n -w"
+  387  cd milo
+  388  ls
+  389  git status
+  390  git commit
+  391  git pull
+  392  git status
+  393  git add ninja/
+  394  git status
+  395  git commit
+  396  git commit
+  397  q
+  398  ~
+  399  ls
+  400  cd ..
+  401  ls
+  402  pwd
+  403  git clone https://github.com/NCEAS/training.wiki.git
+  404  cd training.wiki/
+  405  git log
+  406  pwd
+  407  ls
+  408  cd training.wiki/
+  409  cd ..
+  410  ls
+  411  git clone https://github.com/NCEAS/training
+  412  clear
+  413  ls
+  414  cd oss_git/
+  415  ls
+  416  git pull origin master
+  417  cd oss_git
+  418  ls
+  419  cd ..
+  420  ls
+  421  cd oss_git/
+  422  git status
+  423  cd training
+  424  cd training/
+  425  q
+  426  q
+  427  ~
+  428  pwd
+  429  ls
+  430  cd training/
+  431  ls
+  432  git status
+  433  git pull origin master
+  434  git status
+  435  git pull origin master
+  436  git status
+  437  git status
+  438  git pull origin master
+  439  clear
+  440  cd ..
+  441  ls
+  442  cd oss_git/
+  443  ls
+  444  touch bikes.csv
+  445  add bikes.csv
+  446  git add bikes.csv
+  447  cd ..
+  448  pwd
+  449  ps
+  450  pl
+  451  ssh kgarbach@isis.scease.ucsb.edu
+  452  ssh garbach@isis.nceas.ucsb.edu
+  453  ssh kgarbach@isis.nceas.ucsb.edu
+  454  ssh garbach@isis.nceas.ucsb.edu
+  455  clear
+  456  pwd
+  457  ls
+  458  cd git_NCEAS-RENCI_2014/
+  459  mkdir git_oss_project_2014
+  460  cd git_oss_project_2014/
+  461  git clone https://github.com/slomascolo/NCEAS-RENCI_2014
+  462  git status
+  463  rmdir git_oss_project_2014
+  464  cd ..
+  465  pwd
+  466  cd ..
+  467  pwd
+  468  git rm -rf /Users/kellyg/git_NCEAS-RENCI_2014/git_oss_project_2014/
+  469  git rm -rf /Users/kellyg/.Trash/git_NCEAS-RENCI_2014/git_oss_project_2014/
+  470  pwd
+  471  cd..
+  472  cd ..
+  473  cd ..
+  474  pwd
+  475  ls
+  476  cd ..
+  477  pwd
+  478  ls
+  479  q
+  480  pwd
+  481  ls
+  482  mkdir git_oss_project_2014
+  483  cd git_oss_project_2014/
+  484  pwd
+  485  git clone https://github.com/slomascolo/NCEAS-RENCI_2014
+  486  git status
+  487  pwd
+  488  ls
+  489  cd NCEAS-RENCI_2014/
+  490  ls
+  491  git status
+  492  git pull origin master
+  493  history > git_oss_2014_notes.txt
