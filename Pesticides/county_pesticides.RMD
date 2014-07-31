@@ -71,24 +71,41 @@ Try PCA by county?
 
 
 ```{r distribution of use}
-
+setwd("C:/Users/Tyson/Desktop/Pesticides")
+library(tidyr)
 library(dplyr)
+library(reshape2)
 data <- read.csv("pest.2007.high.csv", header = TRUE)
 
-#create function to get top chemicals for county and state
-RankChems <- function(x){
-  temp <- x[order(-x$KG), ]
-  out <-  1:dim(temp)[1]
-}
+#These lines find the top 10 pesticides by use in each county
+test <- data %>% mutate(County.density = KG / ALAND) %>% group_by(State) %>% mutate(Num.Counties = length(unique(GEOID)))
+test2 <- test %>% group_by(GEOID) %>% mutate(County.rank = rank(-County.density))
+test3 <- test2 %>% filter(County.rank <=10) %>% data.frame()
+TopCounty <- droplevels.data.frame(test3)
 
-Top10State <- data %>% group_by(State, COMPOUND) %>% summarise(State.Total = sum(KG)) %>% group_by(State) %>% mutate(State.rank = rank(-State.Total)) %>% filter(State.rank <= 10)
+a <- TopCounty %>% group_by(COMPOUND, State) %>% summarise(prop.counties = n()/Num.Counties[1]) %>% data.frame()
+b <- a %>% arrange(State, prop.counties)
+chems <- unique(b$COMPOUND[b$prop.counties >= .5])
 
-Top5NC.County <- data %>% filter(State == "NC") %>% group_by(County.Name) %>% mutate(County.rank = rank(-KG)) %>% filter(County.rank <=5)
-Top5 <- Top5NC.County[, c("COMPOUND", "KG", "County.Name", "County.rank")]
+chem.data <- TopCounty[which(TopCounty$COMPOUND %in% chems), ]
+
+# Top10State <- data %>% group_by(State, COMPOUND) %>% summarise(State.Total = sum(KG)) %>% group_by(State) %>% mutate(State.rank = rank(-State.Total)) %>% filter(State.rank <= 10)
+# 
+# Top5NC.County <- data %>% filter(State == "NC") %>% group_by(GEOID) %>% mutate(County.rank = rank(-KG)) %>% filter(County.rank <=5)
+# Top5 <- Top5NC.County[, c("COMPOUND", "KG", "County.Name", "County.rank")]
 
 
-pca.data <- scale(env.data[, -c(1,2,6,7)])
+pca.data <- chem.data[, c("GEOID", "State", "County.density", "COMPOUND")]
+test <- dcast(pca.data, GEOID + State ~ COMPOUND, mean, value.var = "County.density", fill = 0)
+
+#test <- chem.data %>% group_by(GEOID) %>% summarise(COMPOUND, County.density, fill = 0) %>% group_by(GEOID)
+
+#try different states
+pca.data <- scale(test[test$State == "NC", -c(1:2)])
+pca.data <- pca.data[ , apply(pca.data, 2, function(x) !any(is.na(x)))]
 test.pca <- princomp(pca.data)
+summary(test.pca)
+biplot(test.pca)
 
 
 ```
