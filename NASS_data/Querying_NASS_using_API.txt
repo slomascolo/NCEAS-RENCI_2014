@@ -1,0 +1,11 @@
+Querying NASS using APIs
+
+#guide to param definition:
+http://quickstats.nass.usda.gov/api#param_define – parameters for defining
+
+#selecting params from the website
+http://quickstats.nass.usda.gov/#B058466E-9C80-317C-A526-DCCB1F9C389D 
+
+#then you put somehting like the below into your browser.  The > indicates it needs to write it out to the file, you'll probably want to specify a path as well
+
+curl "http://quickstats.nass.usda.gov/api/api_GET/?key=9F632BDB-8D16-36F6-A454-76C72F2D4362&source_desc=CENSUS&sector_desc=CROPS&group_desc=FIELD%20CROPS&statisticcat_desc=PRODUCTION&state_alpha=VA&format=csv" > usdadata.csv
