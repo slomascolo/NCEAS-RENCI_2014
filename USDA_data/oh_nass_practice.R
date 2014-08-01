@@ -20,7 +20,7 @@ head(oh_nass) #check that col is added
 #df = datatable; in my case oh_nass = datatable
 
 commodity_df <- data.frame(Commodity=unique(oh_nass$Commodity), crop_group=rep(NA, length=length(unique(oh_nass$Commodity))))
-head(commodity_df) #check it out= WIN!
+head(commodity_df) #check it out
 dim(commodity_df) #you'll need the dim for hardcoding in crop_group
 
 # from here you can: 1) save to csv and add manually outside of R (e.g. in a spreadsheet)
@@ -162,6 +162,31 @@ dim(item_details_df)
 x = oh_nass$Data.Item
 x = function(oh_nass$Data.Item[i])
 
+# convert to list of characters for parsing
+x <- lapply(item_details_df[[1]], as.character)
+class(x)
+
+# split into list of factors based on words that appear after the hyphen
+y <- x
+for(i in 1:length(x)) {
+  y[i] <- data.frame(strsplit(strsplit(x[[i]], "- ")[[1]][-1], " "), stringsAsFactors = TRUE)
+}
+class(y)
+class(y[[1]][1])
+
+
+
+# split into list of factors based on words that appear after the hyphen
+y <- x
+for(i in 1:length(x)) {
+  y[i] <- data.frame(strsplit(strsplit(x[[i]], "- ")[[1]][-1], " "), stringsAsFactors = TRUE)
+}
+class(y)
+class(y[[1]][1])
+---
+  
+  
+
 #Experiment w/ string splitting, EMMA method
 #x = "commodity - something, something"
 #x = df$commdity_desc[i]
@@ -172,16 +197,15 @@ x = oh_nass$Data.Items[]
 strsplit(x, "-")[[1]][-1] # this will give you the thing after the hyphen
 
 #x = oh_nass$Data.Items[i] # error, can't find object i
-x <- oh_nass$Data.Item
-x <- as.character(x)
-class(x)
-head(x)
-#strsplit(x, "-")[[1]][-1] #error, non-character argument
-y<-sapply(strsplit(x, "-"), function(str) {paste(rev(str))}) #string split, rev order
-head(y)
-dim(oh_nass)
-dim(commodity_df)
-data_items_col1<-unlist(lapply(y,function(z) z[1])) #extracts the first element of the list and makes a vector
-head(data_items_col1)
+#x <- oh_nass$Data.Item
+#x <- as.character(x)
 
-cropprod.segmented.split3<-gsub(" ", "", cropprod.segmented.split3)
+#Olivia - Late night experiment
+#strsplit(x, "-")[[1]][-1] #error, non-character argument
+#y<-sapply(strsplit(x, "-"), function(str) {paste(rev(str))}) #string split, rev order
+#head(y)
+#dim(oh_nass)
+#dim(commodity_df)
+#data_items_col1<-unlist(lapply(y,function(z) z[1])) #extracts the first element of the list and makes a vector
+#head(data_items_col1)
+#cropprod.segmented.split3<-gsub(" ", "", cropprod.segmented.split3)
