@@ -2,13 +2,13 @@
 #original data is "ohio_crops_all_nass_2012.csv" and is posted to GitHub
 #last update by KG 7-31-14
 
+#STEP 1, Group the Crops into 10 "functional groups"
 getwd()
 setwd("/Users/kellyg/git_oss_project_2014/NCEAS-RENCI_2014/USDA_data")
 oh_nass = read.csv("ohio_crops_all_nass_2012.csv", head = TRUE)
 head(oh_nass)
 tail(oh_nass)
 dim (oh_nass) #look at the dimensions of raw data from nass
-#attach(oh_nass) #attach raw data from nass
 
 oh_nass["crop_group"] <- NA #new col filled with NA, place holder for crop_group
 oh_nass["include_items"] <-NA #new col, place holder for inluded_items
@@ -23,17 +23,20 @@ commodity_df <- data.frame(Commodity=unique(oh_nass$Commodity), crop_group=rep(N
 head(commodity_df) #check it out= WIN!
 dim(commodity_df) #you'll need the dim for hardcoding in crop_group
 
-# from here you can 1) save to csv and add manually outside of R (in excel)
+# from here you can: 1) save to csv and add manually outside of R (e.g. in a spreadsheet)
 # 2) hardcode in R
-# this is an option for hardcoing in R
+# this is option 2) hardcoding in R
 #dataframe[row,col] <-"assign this thing to the position specified"
+
+commodity_df[6,] #emma's trick is to hold down "command", hit "enter" 
+#the trick runs just this line; thus will show what's in row 6
+#repeated for each row during hard coding
+#trick also works with running multiple rows as a subset; highlight & "command enter"
 commodity_df[1,2] <- "fruits_nuts"
 commodity_df[2,2] <- "fieldcrops"
 commodity_df[3,2] <- "fieldcrops"
 commodity_df[4,2] <- "other"
 commodity_df[5,2] <- "veg_melon"
-commodity_df[6,] #emma's trick is to hit "command enter" this runs just this line, 
-#trick also works with running multiple rows as a subset; highlight & "command enter"
 commodity_df[6,2] <- "berries"
 commodity_df[7,2] <- "berries"
 commodity_df[8,2] <- "berries"
@@ -141,3 +144,44 @@ commodity_df[109,2] <- "other"
 commodity_df[110,2] <- "veg_melon"
 commodity_df[111,2] <- "veg_melon"
 commodity_df[112,2] <- "other"
+
+#check results of hardcoding
+dim(commodity_df)
+head(commodity_df)
+
+# Write CSV 
+write.csv(commodity_df, file = "crop_group.csv")
+
+#STEP 2, Split the Data.Item into usable pieces
+
+#make a blank list
+item_details_df <- data.frame(Data.Item=unique(oh_nass$Data.Item), item_details_df=rep(NA, length=length(unique(oh_nass$Data.Item))))
+head(item_details_df) #check it out
+dim(item_details_df) 
+
+x = oh_nass$Data.Item
+x = function(oh_nass$Data.Item[i])
+
+#Experiment w/ string splitting, EMMA method
+#x = "commodity - something, something"
+#x = df$commdity_desc[i]
+#strsplit(x, "-")[[1]][-1] # this will give you the thing after the hyphen
+
+#x = oh_nass$Data.Items
+x = oh_nass$Data.Items[]
+strsplit(x, "-")[[1]][-1] # this will give you the thing after the hyphen
+
+#x = oh_nass$Data.Items[i] # error, can't find object i
+x <- oh_nass$Data.Item
+x <- as.character(x)
+class(x)
+head(x)
+#strsplit(x, "-")[[1]][-1] #error, non-character argument
+y<-sapply(strsplit(x, "-"), function(str) {paste(rev(str))}) #string split, rev order
+head(y)
+dim(oh_nass)
+dim(commodity_df)
+data_items_col1<-unlist(lapply(y,function(z) z[1])) #extracts the first element of the list and makes a vector
+head(data_items_col1)
+
+cropprod.segmented.split3<-gsub(" ", "", cropprod.segmented.split3)
