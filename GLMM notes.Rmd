@@ -25,15 +25,19 @@ Suggest separate analyses for the following responses:
 
 ## Predictors
 * Forest cover
+* Protected areas (as distinct from forest)
 * Intensity - yield/acre by crop/crop group (TBC)
 * Area of said crop (TBC)
+* some kind of fragmentation index of average farms/crops and forest cover
 * Pesticides - will have to be by crop, but could then be aggregated to group.
-Another way of trying to nabble out the yield-vs-intensity could be to add a multiplier for fertilised land to the 'intensity' scale (easy enough, I think it's in NASS)
+Another way of trying to nabble out the yield-vs-intensity could be to add a multiplier for fertilised land to the 'intensity' scale (easy enough, I think it's in NASS). Or lumped as pesticides, fungicides and herbicides.  Or look at historical application of since-banned pesticides and their rates and change from 'historic' (pre pesticide) application to 'modern' (so only two time points)
 * For a time sequence, change in land cover proportions (forest, crop, etc) since last measure
+
 ## Random effects
 Some thoughts
 
 ```
 + (1|State_population/County_population) #these are all getting at pesky urbanisation effects we may choose to incorporate as fixed effects once we sought the main ones
 + (1|size_urban_area)
++ (state/county|populationsize) #an alternative to the above, random slope
 ```
