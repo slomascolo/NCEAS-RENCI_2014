@@ -8,10 +8,20 @@ output: html_document
 Model forms part of a multi-level analysis.  We use the county level for this analysis, over time as well.  In addition, we'll do path modelling to make our projections for the relationship structure explicit, and hopefully, some spatially explicit local-scale modelling.
 
 ## Response variables
-Suggest separate analyses for the following. 
+Suggest separate analyses for the following responses:
+
 * Birds (within and among functional groups, as discussed)
 * Pollinators (bees)
 * Water quality (maybe, if we can get it)
+
+
+```{r results='asis', echo=FALSE}
+  library(xtable)
+  data_eg <- data.frame(species = c("birdspecies_a", "birdspecies_b", "birdspecies_c", "birdspecies_d"), habitat = c("farm", "farm", "forest", "forest"), food = c("insect", "grain", "fruit", "insect"), disturbance = c("intolerant", "tolerant", "intolerant", "tolerant"))
+  print(xtable(data_eg),type='html')
+```
+
+
 
 ## Predictors
 * Forest cover
