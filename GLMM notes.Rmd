@@ -1,43 +1,88 @@
 ---
-title: "Thoughts on models for project"
-author: "Olivia Burge"
+title: "Mixed models analysis: biodiversity and agriculture"
+author: "Team Agriculture"
 date: "4 August 2014"
-output: html_document
+output: pdf_document
 ---
 ## Context
-Model forms part of a multi-level analysis.  We use the county level for this analysis, over time as well.  In addition, we'll do path modelling to make our projections for the relationship structure explicit, and hopefully, some spatially explicit local-scale modelling.
+Model forms part of a multi-level analysis, looking at the effects of rural production variables on biodiversity over time. Level of replication is county.
 
-## Response variables
-Suggest separate analyses for the following responses:
+## Questions
+1. Incorporation of repeated measures time variable - necessary to have as fixed and random, or just fixed? (see potential random effects spec below)
+2. Spatial autocorrelation beyond a (1|State/County) approach.  Abutting county neighbours nested within state? 
+3. Sensitivity of the model to predictors: is this a separate question better dealt with by say, boosted regression trees? NB by sensitivity I mean, if we change each parameter (in turn) by 10%, which has the biggest change on the model, and what is the relevant changes.  I am __pretty__ sure I mean something different to effect size here, but I'm also borrowing the term from biodiversity offsetting. 
+4. General optimisation/suggestions?
 
-* Birds (within and among functional groups, as discussed)
+## Prediction
+We would like to predict whether the response slope is positive or negative in the following factual scenarios:
+
+1. Pesticide usage risk decreases by c(10, 50, 80)%; land use change continues on current trajectory; and
+2. Pesticide usage risk decreases by c(10, 50, 80)%; cropping yield and area of fertilised land increase; land use change plateaus; and
+3. Pesticide usage risk continues as now; cropping types shift towards c("x", "y") crops; average farmsize decreases; and
+4. [suggestions? - __Kelly__ any specific questions that lead on from the Mineau paper?]
+
+### Predictors (details)
+```
+predictor.matrix <- expand.grid(
+  pesticide = c("continued_trajectory", "plateau", "decreasing", "increasing"), #numeric 
+  cropping_area = numeric; ha/county ha or ha/total non-urban ha,
+  forest_cover = numeric, potential fragmentation multiplier,
+  average_farmsize * yield = #numeric,
+  time = 1997 - 2012 (at minimum))
+  
+where: 
+- pesticide = application/ha * risk * ha * crop (or some measure thereof) (**)
+- cropping_area = proportion of county in crops (+/- split into fert/unfert),
+and crops are split into functional groups (so yes, 
+either multiple separate predictors or a ??multivariate predictor)
+- average_farmsize*yield (+/- fert) is aimed at getting a measure of intensity of the cropping
+
+(**) Unecessary level of detail: Another way of trying to nabble out the 
+yield-vs-intensity could be to add a multiplier for fertilised land to the 'intensity' 
+scale (easy enough, I think it's in NASS). Or lumped as pesticides, fungicides and herbicides.  
+Or look at historical application of since-banned pesticides and their rates and change 
+from 'historic' (pre pesticide) application to 'modern' (so only two time points)
+```
+
+### Random effects
+We'd like to take account of:
+
+* Repeated measures 
+* Differing rates of population growth
+* State-level regulation (i.e. nesting within state)
+* Urban area (where not accounted for in the fixed effects)
+* Spatial autocorrelation
+
+Proposing to do this using the following syntax:
+```
++ (1|State/County); or (State/County|time_period)  #these are all getting at pesky 
+urbanisation effects we may choose to incorporate as fixed effects later
++ (1|size_urban_area); or (size_urban_area/time_period)
++ (1|populationsize) 
++ Abutting neighbour analysis nested within state (**)
+
+(**) I know how to do a distance matrix for use in (partial) mantels but I have no 
+experience in its implementation in mixed models, or the use of nearest neighbour-type 
+specs (yet).
+```
+
+## Response variables 
+Suggest separate models for the following responses:
+
+* Birds (within and among functional groups)
 * Pollinators (bees)
-* Water quality (maybe, if we can get it)
-
+* Water quality
 
 ```{r results='asis', echo=FALSE}
   library(xtable)
-  data_eg <- data.frame(species = c("birdspecies_a", "birdspecies_b", "birdspecies_c", "birdspecies_d"), habitat = c("farm", "farm", "forest", "forest"), food = c("insect", "grain", "fruit", "insect"), disturbance = c("intolerant", "tolerant", "intolerant", "tolerant"))
-  print(xtable(data_eg),type='html')
+  data_eg <- data.frame(
+    species = c("birdspecies_a", "birdspecies_b", "birdspecies_c", "birdspecies_d"), 
+    habitat_functional_group = c("farm", "farm", "forest", "forest"), 
+    food = c("insect", "grain", "fruit", "insect"), 
+    disturbance = c("intolerant", "tolerant", "intolerant", "tolerant"))
+table_eg <- xtable(data_eg, type = 'html', caption = "Conceptual layout of functional groups bird data")
+print.xtable(table_eg, comment = FALSE, caption.placement = "top")
 ```
 
 
 
-## Predictors
-* Forest cover
-* Protected areas (as distinct from forest)
-* Intensity - yield/acre by crop/crop group (TBC)
-* Area of said crop (TBC)
-* some kind of fragmentation index of average farms/crops and forest cover
-* Pesticides - will have to be by crop, but could then be aggregated to group.
-Another way of trying to nabble out the yield-vs-intensity could be to add a multiplier for fertilised land to the 'intensity' scale (easy enough, I think it's in NASS). Or lumped as pesticides, fungicides and herbicides.  Or look at historical application of since-banned pesticides and their rates and change from 'historic' (pre pesticide) application to 'modern' (so only two time points)
-* For a time sequence, change in land cover proportions (forest, crop, etc) since last measure
-
-## Random effects
-Some thoughts
-
-```
-+ (1|State_population/County_population) #these are all getting at pesky urbanisation effects we may choose to incorporate as fixed effects once we sought the main ones
-+ (1|size_urban_area)
-+ (state/county|populationsize) #an alternative to the above, random slope
-```
