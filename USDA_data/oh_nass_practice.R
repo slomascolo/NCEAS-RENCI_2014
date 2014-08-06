@@ -155,46 +155,81 @@ write.csv(commodity_df, file = "crop_group.csv")
 #STEP 2, Split the Data.Item into usable pieces
 
 #make a blank list
-item_details_df <- data.frame(Data.Item=unique(oh_nass$Data.Item), item_details_df=rep(NA, length=length(unique(oh_nass$Data.Item))))
-head(item_details_df) #check it out
-dim(item_details_df) 
+#item_details_df <- data.frame(Data.Item=unique(oh_nass$Data.Item), item_details_df=rep(NA, length=length(unique(oh_nass$Data.Item))))
+#head(item_details_df) #check it out
+#dim(item_details_df) 
 
-x = oh_nass$Data.Item
-x = function(oh_nass$Data.Item[i])
+#Tyson's go at it
+library(stringr)
 
+CropType <- function(x){
+  return(unlist(str_split(x, " - ", n = 2))[1])
+}
+
+CropVars <- function(x){
+  return(unlist(str_split(x, " - ", n = 2))[2])
+}
+
+#EMMA's input add new columns, don't have to create a blank column first
+item_details_df$CropType <- unlist(lapply(item_details_df$Data.Item, CropType))
+item_details_df$CropVars <- unlist(lapply(item_details_df$Data.Item, CropVars))
+
+#check it out!
+unique(item_details_df$CropVars)
+class(CropVars) #this returns "function" 
+
+oh_nass_grps = merge(oh_nass, commodity_df, by="Commodity", all.x=TRUE, all.y=TRUE) #new data table with crop_group written in
+
+to_merge = item_details_df[,c("Data.Item","CropVars")] #preppring to merge, selecting only the 2 cols of interest
+
+oh_nass_grps_vars = merge(oh_nass_grps, to_merge, by="Data.Item", all.x=TRUE, all.y=TRUE) #merge the CropVars in; 
+#note that key is NOT the var of interest, just matches across rows 
+
+##STOP HERE. OLDER STUFF BELOW!
+
+##
+#TYSON's go at it w/ edits from KELLY
+#library(stringr)
+#crop_new <- function(x){
+#  return(unlist(str_split(x, " - ", n = 2))[1])
+#}
+#crop_vars <- function(x){
+#  return(unlist(str_split(x, " - ", n = 2))[2])
+#}
+#
+#add new columns, don't have to create a blank column first
+#item_details_df$crop_new <- unlist(lapply(item_details_df$Data.Item, crop_new))
+#item_details_df$crop_vars <- unlist(lapply(item_details_df$Data.Item, crop_vars))
+#check it out!
+#unique(item_details_df$crop_vars)
+
+#MIKE's suggestions
 # convert to list of characters for parsing
-x <- lapply(item_details_df[[1]], as.character)
-class(x)
+#x <- lapply(item_details_df[[1]], as.character)
+#class(x)
 
 # split into list of factors based on words that appear after the hyphen
-y <- x
-for(i in 1:length(x)) {
-  y[i] <- data.frame(strsplit(strsplit(x[[i]], "- ")[[1]][-1], " "), stringsAsFactors = TRUE)
-}
-class(y)
-class(y[[1]][1])
+#y <- x
+#for(i in 1:length(x)) {
+#  y[i] <- data.frame(strsplit(strsplit(x[[i]], "- ")[[1]][-1], " "), stringsAsFactors = TRUE)
+#}
+#class(y)
+#class(y[[1]][1])
+#head(y)
 
 
-
-# split into list of factors based on words that appear after the hyphen
-y <- x
-for(i in 1:length(x)) {
-  y[i] <- data.frame(strsplit(strsplit(x[[i]], "- ")[[1]][-1], " "), stringsAsFactors = TRUE)
-}
-class(y)
-class(y[[1]][1])
----
-  
-  
 
 #Experiment w/ string splitting, EMMA method
 #x = "commodity - something, something"
 #x = df$commdity_desc[i]
 #strsplit(x, "-")[[1]][-1] # this will give you the thing after the hyphen
 
+#x = oh_nass$Data.Item
+#x = function(oh_nass$Data.Item[i]) # this returns an error since it can't locate i
+
 #x = oh_nass$Data.Items
-x = oh_nass$Data.Items[]
-strsplit(x, "-")[[1]][-1] # this will give you the thing after the hyphen
+#x = oh_nass$Data.Items[]
+#strsplit(x, "-")[[1]][-1] # this will give you the thing after the hyphen
 
 #x = oh_nass$Data.Items[i] # error, can't find object i
 #x <- oh_nass$Data.Item
