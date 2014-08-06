@@ -1,0 +1,86 @@
+---
+title: "Biodiversity, land use change and agriculture: mixed models analysis"
+author: "Team Agriculture"
+date: "6 August 2014"
+output: pdf_document
+---
+## Context
+Patterns: We are investigating the influence of land use type, measured across a gradient of increasing intensity, on bird diversity
+ 
+_Patterns Approach_: We will map land use change over the past 10 years to evaluate changes in patch size, arrangement, and proportion of total area dedicated to natural areas, agriculture, suburban, and urban land (increasing listed in increasing order) and associated correlations with bird diversity (an easily observable indicator of vertebrate diversity, gathered through citizen science data). This analysis will be done at the county scale.
+
+Process: How does land use intensification—measured as crop yield & pesticide application rates—influence bird species richness and composition in different feeding guilds (functional groups)?
+ 
+_Process Approach_: We will map USDA agricultural land use data to evaluate changes in crop groups (e.g., orchards, major grains, vegetables, pasture, etc.), considering both crop production, and pesticide application rate as indicators of intensity. This analysis will be done at the county scale.
+
+## Questions for discussion
+1. In some cases we will have time in as a fixed effect, where we want to predict based on current trends.  In others we will only have it in as a random effect.  Where we have it in as a fixed effect, is there a clear best option between (for example, for random effects which change over time) raw pop size; proportion pop size over time; or scaling and centering popsize? 
+2. Spatial autocorrelation beyond a (1|State/County) approach.  Abutting county neighbours nested within state? Or full distance matrix based on central lat/lon of county?
+3. Any suggestions for accounting for the fact  biodiversity measures are point estimates of a random size (citizen science data) (and annual) whereas the rest of our variables are by county, and predominantly 5 yearly?
+
+## Analysis hierarchy
+We would like to predict whether the response slope is positive or negative (and magnitude) in the following factual scenarios (for example):
+
+1. Broad scale - land use change
+    a. Key disperser/pollinator species (univariate) and bird functional group (univariate) and among bird functional groups (multivariate; NMDS and permanova [adonis]) as a response to land use change; and
+    b. Same as above as a response to metrics of land use intensity.
+2. Finer grained - land management (examples only, using univariate responses above)
+    a. Projection: 
+        i. pesticide usage risk decreases by c(10, 50, 80)%; land use change continues on current trajectory; and
+        ii. pesticide usage risk decreases by c(10, 50, 80)%; cropping yield and area of fertilised land increase; land use change plateaus.
+    b. Prediction:
+        i. Predicting effect of land use changes on functional group diversity (etc)
+
+### Variables
+Patterns predictor variables: Land use land cover data (NLCD).  
+Patterns response variables: Bird diversity data (eBird).
+
+Process predictor variables: Agricultural land uses, crop production per area (#/acre), pesticide applied.
+Process response variables: Bird diversity data (eBird; functional groups determined from literature).
+
+### Random effects
+We'd like to take account of:
+
+* Repeated measures 
+* Differing rates of population growth
+* State-level regulation (i.e. nesting within state)
+* Urban area (where not accounted for in the fixed effects)
+* Spatial autocorrelation
+* Soil types (probably, main soil type in state)
+
+We are proposing to do this using the following syntax:
+```
++ (1|State/County); or (State/County|time_period)  #these are all getting at pesky 
+urbanisation effects we may choose to incorporate as fixed effects later
++ (1|size_urban_area); or (size_urban_area/time_period)
++ (1|populationsize) 
++ Abutting neighbour analysis nested within state
++ (1|soil_type)
+
+```
+
+## Response variables 
+Suggest separate models for the following responses:
+
+* Birds (within and among functional groups)
+  - Grassland
+  - Forest
+  - Anthropogenic
+* Pollinators (bees)
+* Water quality
+
+```{r results='asis', echo=FALSE}
+  library(xtable)
+  data_eg <- data.frame(
+    species = c("birdspecies_a", "birdspecies_b", "birdspecies_c", "birdspecies_d"), 
+    habitat_functional_group = c("farm", "farm", "forest", "forest"), 
+    food = c("insect", "grain", "fruit", "insect"), 
+    disturbance = c("intolerant", "tolerant", "intolerant", "tolerant"))
+table_eg <- xtable(data_eg, type = 'latex', caption = "Conceptual layout of functional groups bird data")
+print.xtable(table_eg, comment = FALSE, caption.placement = "top")
+```
+
+
+### Family for response variables
+1. Poisson for count data (presence only obviously)
+2. Binomial to look at present bird levels as a proportion of historical levels (later)
