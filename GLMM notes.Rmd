@@ -85,4 +85,6 @@ print.xtable(table_eg, comment = FALSE, caption.placement = "top")
 ```
 
 
-
+### Family for response variables
+1. Poisson for count data (presence only obviously)
+2. Binomial to look at present bird levels as a proportion of historical levels
