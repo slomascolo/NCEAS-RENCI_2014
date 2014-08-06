@@ -5,10 +5,10 @@ date: "6 August 2014"
 output: pdf_document
 ---
 ## Context
-This model forms part of a multi-level analysis, looking at the effects of rural production variables on biodiversity over time. Level of replication is county.x`
+This model forms part of a multi-level analysis, looking at the effects of rural production variables on biodiversity over time. Level of replication is county.
 
 ## Questions
-1. In some cases we will have time in as a fixed effect, where we want to predict based on current trends.  In others we will only have it in as a random effect.  Where we have it in as a fixed effect, is there a clear best option between raw pop size; proportion pop size over time; or scaling and centering popsize? 
+1. In some cases we will have time in as a fixed effect, where we want to predict based on current trends.  In others we will only have it in as a random effect.  Where we have it in as a fixed effect, is there a clear best option between (for example, for random effects which change over time) raw pop size; proportion pop size over time; or scaling and centering popsize? 
 2. Spatial autocorrelation beyond a (1|State/County) approach.  Abutting county neighbours nested within state? Or full distance matrix based on central lat/lon of county?
 3. Any suggestions for accounting for the fact  biodiversity measures are point estimates of a random size (citizen science data) (and annual) whereas the rest of our variables are by county, and predominantly 5 yearly?
 
