@@ -1,0 +1,63 @@
+---
+title: "Organic Farms"
+author: "Tyson Wepprich"
+date: "Thursday, July 31, 2014"
+output: html_document
+---
+Goal: Density of organic farms in US
+Data: CSV of certified Organic farms in 2013. (2010- available)
+
+
+```{r}
+setwd("C:/Users/Tyson/REPO/NCEAS-RENCI_2014/Pesticides")
+library(ggmap)
+
+farms <- read.csv("cert.org.farms.2013.csv", header = TRUE)
+states <- c("California", "Michigan", "North Carolina", "Ohio")
+
+farms.cut <- farms[which(farms$State %in% states), ]
+farms.cut$location <- paste(farms.cut$Physical_Address, farms.cut$City, farms.cut$State, sep = ",")
+farms.OH <- farms.cut[farms.cut$State == "Ohio", ]
+
+#attempting to geocode to get lat/long from addresses
+out <- geocode(farms.OH$location, output = "all")
+save(out, file = "OHfarm.RData")
+
+#replace row with "wa court house"
+test <- geocode("8034 Miami Trace Rd Sw,Washington Court House,Ohio", output = "all")
+replace <- grep("Wa Court", farms.OH$location, ignore.case = TRUE)
+out[[replace]] <- test
+
+farms.OH$lat <- NA
+farms.OH$lon <- NA
+farms.OH$geocode.status <- NA
+farms.OH$county <- NA
+for (i in 1:dim(farms.OH)[1]){
+  farms.OH$lat[i] <- out[[i]]$results[[1]]$geometry$location$lat
+  farms.OH$lon[i] <- out[[i]]$results[[1]]$geometry$location$lng
+  farms.OH$geocode.status[i] <- out[[i]]$status
+  if (length(grep("administrative_area_level_2", unlist(out[[i]]$results[[1]]$address_components))) == 1){
+  farms.OH$county[i] <- unlist(out[[i]]$results[[1]]$address_components)[[grep("administrative_area_level_2", unlist(out[[i]]$results[[1]]$address_components)) - 1]]
+  }else{
+    farms.OH$county[i] <- NA
+  }
+  }
+
+OH.org.farm.coords <- farms.OH[, c("ID", "Status", "lat", "lon")]
+OH.org.farm.coords <- OH.org.farm.coords[which(OH.org.farm.coords$Status == "Certified"),]
+write.csv(OH.org.farm.coords, file = "OH.org.farms.csv", row.names = FALSE)
+
+
+quickOHmap <- qmap("Lancaster, OH", zoom = 7, legend = "bottomleft")
+
+r <- quickOHmap +
+      geom_point(aes(x = lon, y = lat), data = farms.OH)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

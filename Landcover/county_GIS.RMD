@@ -1,0 +1,433 @@
+---
+title: "County analysis of OH"
+author: "Tyson Wepprich"
+date: "Tuesday, August 05, 2014"
+output: html_document
+---
+Goals:
+County-level metrics of land cover.
+From NLCD rasters on land cover, LC change, and crop data.
+Chracterize counties by land use, change, and crop patch diversity.
+
+```{r}
+library(rgdal)
+library(raster)
+library(plotKML)
+setwd("C:/Users/Tyson/Desktop/OSS_GIS")
+
+
+test.file <- "oh_lc.tif"
+r <- raster(test.file)
+hasValues(r)
+inMemory(r)
+plot(r)
+
+#slow reprojection, install FW tools
+proj4string(r) <- CRS("+init=epsg:5070")
+r_p <- reproject(r)
+
+co.shp <- "county_OH"
+OHco <- readOGR(dsn = getwd(), layer = co.shp)
+proj4string(OHco) <- CRS("+init=epsg:5070")
+OHco_p <- reproject(OHco)
+
+results <- list()
+for (i in 1:length(unique(OHco_p$GEOID))){
+  co_sub <- OHco_p[OHco_p$GEOID == unique(OHco_p$GEOID)[i], ]
+  co_lc <- extract(r, co_sub)
+  counts <- lapply(co_lc, table)
+  pct <- lapply(counts, FUN=function(x){x / sum(x)})
+  results[[i]] <- pct
+  }
+save(results, file = "lc_OH.RData")  
+
+```
+
+
+Now summarize land cover by county, control by land area, since many counties have much Lake Erie area. Need to 
+```{r}
+library(plyr)
+library(dplyr)
+
+load(file = "lc_OH.RData")
+
+landclass <- data.frame(Value = c(11, 12, 21, 22, 23, 24, 31, 41, 42, 43, 51, 52, 71, 72, 73, 74, 81, 82, 90, 95), Class = c("Open water", "Ice.snow", "Developed.open", "Developed.low", "Developed.med", "Developed.high", "Barren", "Forest.dec", "Forest.evg", "Forest.mix", "Scrub.dwarf", "Shrub", "Herb.grass", "Herb.sedge", "Herb.lichens", "Herb.moss", "Cult.hay", "Cult.crops", "Wetlands.wood", "Wetlands.herb"))
+
+lc_long <- data.frame()
+for (i in 1:length(results)){
+  GEOID <- unique(OHco_p$GEOID)[i]
+  Prop.area <- unlist(results[[i]])
+  Value <- c(names(unlist(results[[i]])))
+  temp <- data.frame(GEOID,Prop.area,Value)
+  lc_long <- rbind(lc_long, temp)
+}
+
+co_desc <- OHco_p@data
+co_desc <- co_desc[, c("GEOID", "NAME", "ALAND", "AWATER", "INTPTLAT", "INTPTLON")]
+
+county_lc <- merge(lc_long, co_desc)
+
+a <- county_lc %>% group_by(GEOID, Value) %>% mutate(prop.land.area = Prop.area * (ALAND + AWATER) / ALAND) %>% data.frame()
+
+#Need to remove water and No data
+plot(a$Prop.area, a$prop.land.area)
+
+#translation table to reclass land cover values
+#translation table to reclass land cover values
+tt <- cbind(c("0", landclass$Value), c("missing", "water", "ice", "urb", "urb", "urb", "urb", "barren", "forest", "forest", "forest", rep("grass_shrub", 6), "agr", "agr", "wetlands", "wetlands"))
+
+a$reclass = as.factor(tt[ match(a$Value, tt[, 1]), 2] )
+
+b <- ddply(a, .(GEOID, reclass), mutate,
+           Class.prop = sum(prop.land.area))
+
+county_lc <- b[b$reclass %in% c("agr", "urb", "forest", "grass_shrub", "wetlands"), c("GEOID", "NAME", "ALAND", "INTPTLAT", "INTPTLON", "reclass", "Class.prop")]
+
+county_lc <- county_lc[-(which(duplicated(county_lc))), ]
+write.csv(county_lc, file = "county_lc2006.csv", row.names = FALSE)
+
+```
+
+Repeat for other years of Land Cover measures 2011
+
+```{r}
+
+
+library(rgdal)
+library(raster)
+library(plotKML)
+setwd("C:/Users/Tyson/Desktop/OSS_GIS")
+
+
+test.file <- "CDL_soil/land_use_land_cover/nlcd_oh_utm17.tif"
+r <- raster(test.file)
+hasValues(r)
+inMemory(r)
+plot(r)
+
+# #slow reprojection, install FW tools
+# proj4string(r) <- CRS("+init=epsg:5070")
+# r_p <- reproject(r)
+
+co.shp <- "county_OH"
+OHco <- readOGR(dsn = getwd(), layer = co.shp)
+OHco_p <- spTransform(OHco, CRS(proj4string(r)))
+
+results <- list()
+for (i in 76:length(unique(OHco_p$GEOID))){
+  co_sub <- OHco_p[OHco_p$GEOID == unique(OHco_p$GEOID)[i], ]
+  co_lc <- extract(r, co_sub)
+  counts <- lapply(co_lc, table)
+  pct <- lapply(counts, FUN=function(x){x / sum(x)})
+  results[[i]] <- pct
+  }
+save(results, file = "lc_OH2011.RData") 
+
+load(file = "lc_OH2011.RData")
+
+library(plyr)
+library(dplyr)
+
+landclass <- data.frame(Value = c(11, 12, 21, 22, 23, 24, 31, 41, 42, 43, 51, 52, 71, 72, 73, 74, 81, 82, 90, 95), Class = c("Open water", "Ice.snow", "Developed.open", "Developed.low", "Developed.med", "Developed.high", "Barren", "Forest.dec", "Forest.evg", "Forest.mix", "Scrub.dwarf", "Shrub", "Herb.grass", "Herb.sedge", "Herb.lichens", "Herb.moss", "Cult.hay", "Cult.crops", "Wetlands.wood", "Wetlands.herb"))
+
+lc_long <- data.frame()
+for (i in 1:length(results)){
+  GEOID <- unique(OHco_p$GEOID)[i]
+  Prop.area <- unlist(results[[i]])
+  Value <- c(names(unlist(results[[i]])))
+  temp <- data.frame(GEOID,Prop.area,Value)
+  lc_long <- rbind(lc_long, temp)
+}
+
+co_desc <- OHco_p@data
+co_desc <- co_desc[, c("GEOID", "NAME", "ALAND", "AWATER", "INTPTLAT", "INTPTLON")]
+
+county_lc <- merge(lc_long, co_desc)
+
+a <- county_lc %>% group_by(GEOID, Value) %>% mutate(prop.land.area = Prop.area * (ALAND + AWATER) / ALAND) %>% data.frame()
+
+#Need to remove water and No data
+plot(a$Prop.area, a$prop.land.area)
+
+#translation table to reclass land cover values
+tt <- cbind(c("0", landclass$Value), c("missing", "water", "ice", "urb", "urb", "urb", "urb", "barren", "forest", "forest", "forest", rep("grass_shrub", 6), "agr", "agr", "wetlands", "wetlands"))
+
+a$reclass = as.factor(tt[ match(a$Value, tt[, 1]), 2] )
+
+b <- ddply(a, .(GEOID, reclass), mutate,
+           Class.prop = sum(prop.land.area))
+
+county_lc <- b[b$reclass %in% c("agr", "urb", "forest", "grass_shrub", "wetlands"), c("GEOID", "NAME", "ALAND", "INTPTLAT", "INTPTLON", "reclass", "Class.prop")]
+
+county_lc <- county_lc[-(which(duplicated(county_lc))), ]
+write.csv(county_lc, file = "county_lc2011.csv", row.names = FALSE)
+
+
+
+```
+
+Let's try raster processing in parallel for fun for 2001 NLCD data. Also need to merge raster files.
+
+
+```{r}
+
+library(rgdal)
+library(raster)
+library(plotKML)
+library(plyr)
+library(dplyr)
+
+setwd("C:/Users/Tyson/Desktop/OSS_GIS/NLCD 2001")
+
+files <- character()
+for (i in 1:4){
+  files[i] <- paste(dir()[i], "/", dir()[i], ".tif", sep = "")
+}
+
+r1 <- raster(files[1])
+r2 <- raster(files[2])
+r3 <- raster(files[3])
+r4 <- raster(files[4])
+
+#merge or mosaic, overlapping but merge did fine I think
+x <- list(r1, r2, r3, r4)
+x$filename <- 'OH_NLCD2001.tif'
+x$overwrite <- TRUE
+m <- do.call(merge, x)
+
+# #slow reprojection, install FW tools
+# proj4string(r) <- CRS("+init=epsg:5070")
+# r_p <- reproject(r)
+
+co.shp <- "county_OH"
+OHco <- readOGR(dsn = getwd(), layer = co.shp)
+OHco_p <- spTransform(OHco, CRS(proj4string(m)))
+
+library(parallel)
+system.time({
+
+    ### Make function and try it out before parallelizing
+    ### ########################################################
+#     RasterToCounty <- function(GEOID){
+#       co_sub <- OHco_p[OHco_p$GEOID == GEOID, ]
+#       co_lc <- extract(m, co_sub)
+#       counts <- lapply(co_lc, table)
+#       pct <- lapply(counts, FUN=function(x){x / sum(x)})
+#       return(list(GEOID, pct))
+#     }
+# 
+#     test <- lapply(unique(OHco_p$GEOID)[1:2], RasterToCounty)
+    
+    ### set up cluster call
+    ### ######################################################
+    cl <- makePSOCKcluster(3)
+
+    clusterExport(cl, c("OHco_p", "RasterToCounty", "m"))
+    junk <- clusterEvalQ(cl, c(library(raster), library(rgdal)))
+
+    ### read into raster format using parallel version of lapply
+    ### #################
+    Results.par <- parLapply(cl, unique(OHco_p$GEOID), RasterToCounty)
+
+    ### stop the cluster
+    ### #########################################################
+    stopCluster(cl)
+})
+
+
+save(Results.par, file = "lc_OH2001.RData") 
+
+load(file = "lc_OH2001.RData")
+
+landclass <- data.frame(Value = c(11, 12, 21, 22, 23, 24, 31, 41, 42, 43, 51, 52, 71, 72, 73, 74, 81, 82, 90, 95), Class = c("Open water", "Ice.snow", "Developed.open", "Developed.low", "Developed.med", "Developed.high", "Barren", "Forest.dec", "Forest.evg", "Forest.mix", "Scrub.dwarf", "Shrub", "Herb.grass", "Herb.sedge", "Herb.lichens", "Herb.moss", "Cult.hay", "Cult.crops", "Wetlands.wood", "Wetlands.herb"))
+
+results <- Results.par
+
+lc_long <- data.frame()
+for (i in 1:length(results)){
+  GEOID <- unique(OHco_p$GEOID)[i]
+  Prop.area <- unlist(results[[i]])
+  Value <- c(names(unlist(results[[i]])))
+  temp <- data.frame(GEOID,Prop.area,Value)
+  lc_long <- rbind(lc_long, temp)
+}
+
+co_desc <- OHco_p@data
+co_desc <- co_desc[, c("GEOID", "NAME", "ALAND", "AWATER", "INTPTLAT", "INTPTLON")]
+
+county_lc <- merge(lc_long, co_desc)
+
+a <- county_lc %>% group_by(GEOID, Value) %>% mutate(prop.land.area = Prop.area * (ALAND + AWATER) / ALAND) %>% data.frame()
+
+#Need to remove water and No data
+plot(a$Prop.area, a$prop.land.area)
+
+#translation table to reclass land cover values
+tt <- cbind(c("0", landclass$Value), c("missing", "water", "ice", "urb", "urb", "urb", "urb", "barren", "forest", "forest", "forest", rep("grass_shrub", 6), "agr", "agr", "wetlands", "wetlands"))
+
+a$reclass = as.factor(tt[ match(a$Value, tt[, 1]), 2] )
+
+b <- ddply(a, .(GEOID, reclass), mutate,
+           Class.prop = sum(prop.land.area))
+
+county_lc <- b[b$reclass %in% c("agr", "urb", "forest", "grass_shrub", "wetlands"), c("GEOID", "NAME", "ALAND", "INTPTLAT", "INTPTLON", "reclass", "Class.prop")]
+
+county_lc <- county_lc[-(which(duplicated(county_lc))), ]
+write.csv(county_lc, file = "county_lc2001.csv", row.names = FALSE)
+```
+
+Bring 2001, 2006, 2011 land cover county summaries together. Do PCA?
+
+```{r}
+library(reshape2)
+setwd("C:/Users/Tyson/Desktop/OSS_GIS")
+
+lc01 <- read.csv("county_lc2001.csv", header = TRUE)
+lc01$year <- 2001
+lc06 <- read.csv("county_lc2006.csv", header = TRUE)
+lc06$year <- 2006
+lc11 <- read.csv("county_lc2011.csv", header = TRUE)
+lc11$year <- 2011
+
+pca.data <- lc01[, c("GEOID", "reclass", "Class.prop")]
+test <- dcast(pca.data, GEOID ~ reclass, value.var = "Class.prop", fill = 0)
+
+#test <- chem.data %>% group_by(GEOID) %>% summarise(COMPOUND, County.density, fill = 0) %>% group_by(GEOID)
+
+#try different states
+pca.data <- scale(test[, -1])
+# pca.data <- pca.data[ , apply(pca.data, 2, function(x) !any(is.na(x)))]
+test.pca <- princomp(pca.data)
+summary(test.pca)
+biplot(test.pca)
+loadings(test.pca)
+
+```
+
+
+
+
+
+
+Soils for each county: 
+Giving up on this. Map of soil taxonomy in US shows that most of OH is same class. The CRA (Common Resource Area) that I was going to use is based on things besides soils, like human needs and aspirations or shit like that. It's a fuzzy definition and no GIS tool in R really overlays polygons on polygons to summarize attributes from one to another.
+
+```{r}
+
+
+library(rgdal)
+library(raster)
+library(plotKML)
+library(rgeos)
+setwd("C:/Users/Tyson/Desktop/OSS_GIS/CDL_soil/soils")
+
+soils <- "cra_a_oh"
+CRA <- readOGR(dsn = getwd(), layer = soils)
+
+co.shp <- "county_OH"
+OHco <- readOGR(dsn = getwd(), layer = co.shp)
+OHco_p <- spTransform(OHco, CRS(proj4string(CRA)))
+
+test <- aggregate(OHco_p, CRA, max)
+
+```
+
+
+
+NLCD Change products
+```{r, echo=FALSE}
+setwd("C:/Users/Tyson/Desktop/OSS_GIS")
+library(rgdal)
+library(raster)
+library(plotKML)
+library(parallel)
+library(plyr)
+library(dplyr)
+
+# r1 <- raster("area_11_changeproduct/area11_changeproduct5k_111907.img")
+# r2 <- raster("area_08_changeproduct/area08_changeproduct5k_111907.img")
+
+#too slow: did this in QGIS
+#chg90s <- mosaic(r1,r2,fun=mean, filename="lc_change_90s")
+
+chg90s <- raster("OH_change.tif")
+
+co.shp <- "county_OH"
+OHco <- readOGR(dsn = getwd(), layer = co.shp)
+OHco_p <- spTransform(OHco, CRS(proj4string(chg90s)))
+
+system.time({
+
+    ### Make function and try it out before parallelizing
+    ### ########################################################
+    RasterToCounty <- function(GEOID){
+      co_sub <- OHco_p[OHco_p$GEOID == GEOID, ]
+      co_lc <- extract(chg90s, co_sub)
+      counts <- lapply(co_lc, table)
+      pct <- lapply(counts, FUN=function(x){x / sum(x)})
+      return(list(GEOID, pct))
+    }
+
+#     test <- lapply(unique(OHco_p$GEOID)[1:2], RasterToCounty)
+    
+    ### set up cluster call
+    ### ######################################################
+    cl <- makePSOCKcluster(3)
+
+    clusterExport(cl, c("OHco_p", "RasterToCounty", "chg90s"))
+    junk <- clusterEvalQ(cl, c(library(raster), library(rgdal)))
+
+    ### read into raster format using parallel version of lapply
+    ### #################
+    Results.par <- parLapply(cl, unique(OHco_p$GEOID), RasterToCounty)
+
+    ### stop the cluster
+    ### #########################################################
+    stopCluster(cl)
+})
+
+
+save(Results.par, file = "lc_OHchg90s.RData") 
+
+load("lc_OHchg90s.RData")
+results <- Results.par
+
+###WHAT IS THE BLANK VALUE NAME? Just the index number, removed below
+
+lc_long <- data.frame()
+for (i in 1:length(results)){
+  GEOID <- unique(OHco_p$GEOID)[i]
+  Prop.area <- unlist(results[[i]])[-1]
+  Value <- c(names(unlist(results[[i]])))[-1]
+  temp <- data.frame(GEOID,Prop.area,Value)
+  lc_long <- rbind(lc_long, temp)
+}
+
+co_desc <- OHco_p@data
+co_desc <- co_desc[, c("GEOID", "NAME", "ALAND", "AWATER", "INTPTLAT", "INTPTLON")]
+
+county_lc <- merge(lc_long, co_desc)
+
+a <- county_lc %>% group_by(GEOID, Value) %>% mutate(prop.land.area = Prop.area * (ALAND + AWATER) / ALAND) %>% data.frame()
+
+#Need to remove water and No data
+plot(a$Prop.area, a$prop.land.area)
+
+#translation table to reclass land cover values
+# tt <- cbind(c("0", landclass$Value), c("missing", "water", "ice", "urb", "urb", "urb", "urb", "barren", "forest", "forest", "forest", rep("grass_shrub", 6), "agr", "agr", "wetlands", "wetlands"))
+# 
+# a$reclass = as.factor(tt[ match(a$Value, tt[, 1]), 2] )
+
+a$Value <- as.character(a$Value)
+# b <- ddply(a, .(GEOID, Value), mutate,
+#            Class.prop = sum(prop.land.area))
+# 
+# county_lc <- b[b$reclass %in% c("agr", "urb", "forest", "grass_shrub", "wetlands"), c("GEOID", "NAME", "ALAND", "INTPTLAT", "INTPTLON", "reclass", "Class.prop")]
+
+# county_lc <- county_lc[-(which(duplicated(county_lc))), ]
+
+#FIGURE OUT HOW TO USE CHANGE MATRIX LATER
+write.csv(a, file = "OH_LCchg90s.csv", row.names = FALSE)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
