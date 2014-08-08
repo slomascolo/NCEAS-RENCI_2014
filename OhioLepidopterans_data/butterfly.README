@@ -1,0 +1,27 @@
+Metadata for butterflies.csv
+
+Summary: 2007 butterfly counts made by volunteers with Ohio Lepidopterists
+Roughly weekly counts along set transects from April through October
+Count each species within 5m box of observer as they walk along transect.
+
+Description of columns:
+SiteID: unique ID for each site
+SeqID: unique ID for each survey (site x date)
+duration: length survey took in minutes
+SiteDate: date of survey SeqID
+Week: monitoring week, Week 1 starts April 1. Max 31, most only go to 25.
+mean.temp: Fahrenheit, recorded by observer from thermometer or weather reports
+mean.cloud: % cover, recorded by observer
+mean.wind: mph, recorded by observer or weather reports
+start.hour: hour of day when survey started
+ord.date: ordinal day of year of survey
+num.species: Total number of species observed during a survey SeqID
+CommonName: name of species observed, if none seen, "None seen that day"
+Total: number of butterflies counted for the species in that row
+Num.Obs: number of observers doing survey
+Longitude: longitude of site
+Latitude: latitude of site
+mean.500: % Impervious surface within 500m radius of site Lat/Long, from NLCD
+std.500: standard error in estimate of impervious surface
+
+
