@@ -1,10 +1,7 @@
 ### Just load this from the git:, it's in the NCEAS-RENCI_2014 folde
 load(file = "models.Rdata")
 
-
-
 require(stringr)
-
 
 ## Response: butterflies, data #####
 butterfly.diversity <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/Bflydata.by.county.csv", header = T)
@@ -148,7 +145,7 @@ mod8 <- glmmadmb(data = bird_insec, Shannon ~ sum_insect : Year + (1|geoid.facto
 summary(mod8)
 coefplot2(mod8)
 
-landcover_2001_wide$Year <- "2000"
+landcover_2001_wide$Year <- "2001"
 landcover_2006_wide$Year <- "2005"
 landcover_2011_wide$Year <- "2009"
 landcover_all_wide <- rbind(landcover_2001_wide, landcover_2006_wide, landcover_2011_wide)
@@ -179,6 +176,7 @@ mod12 <- glmmadmb(data = bird_insec_land,
                   family = "gaussian")
 summary(mod12)
 
+
 coefplot2(mod12)
 
 mod13 <- glmmadmb(data = bird_insec_land, 
@@ -188,4 +186,17 @@ summary(mod13)
 
 coefplot2(mod13)
 
+
 save.image(file = "/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/models.Rdata")
+
+## Moran's i
+mod10 <- glmmadmb(data = bird_insec_land, 
+                  Shannon ~ agr + urb + Year (1|geoid.factor/Route.factor),
+                  family = "gaussian")
+summary(mod10)
+levels(as.factor(bird_insec_land$Year))
+mod10_grid <- expand.grid(
+  agr = seq(from = 0, to = 100, by = 0.1),
+  urb = seq(from = 0, to = 65, by = 0.1),
+  Year = c())
+## 
