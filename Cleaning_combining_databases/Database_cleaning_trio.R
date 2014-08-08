@@ -8,11 +8,12 @@ head(fips_state_index)
 
 toupper
 # Ebird
+str(ebird_sample2)
 ebird_sample2$state_variable <- toupper(ebird_sample2$STATE_PROVINCE)
 head(ebird_sample2)
 ebird_sample2$county_variable <- toupper(ebird_sample2$COUNTY)
 ebird_sample2$state_id <- gsub(pattern = "([A-Z]\\w)+(\\W)", replacement = "", x = ebird_sample2$state_id)
-
+write.csv(ebird_sample2, file = "/Users/Liv/Dropbox/NCEAS/quickstats/ebirdsample2.txt")
 ebird_sample2$state_id2<-ebird_sample2$state_id ## for later
 ebird_sample2$state_id<-merge(ebird_sample2["state_id"],fips_state_index[,c("state_initials", "state_fips")], by.x = "state_id", by.y = "state_initials")[,2] #works!
 
