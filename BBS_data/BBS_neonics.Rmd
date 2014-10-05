@@ -1,0 +1,244 @@
+---
+title: 'Ohio: BBS bird abundance'
+author: "Olivia Burge"
+date: "5 October 2014"
+output: html_document
+---
+
+# Task one: the traits
+I've saved a csv of common birds in steep decline from Kelly's xlsx.  The only change I made in excel was deleting the apostrophes as they looked _nasty_ when read in.  Otherwise, nada.  I haven't set a working directory for this and used full paths because I like that.  But if you guys give me a stern talking to I will.  Slash I will once I put all this stuffs in one place.
+
+```{r, include = FALSE}
+#best you be changing the repos. Whatever repos you usually use isn't picked up 
+#when knitting and you need to install and it just throws an error.
+if(!require(ggplot2)){
+    install.packages("ggplot2", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(ggplot2)
+}
+if(!require(lme4)){
+    install.packages("lme4", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(lme4)
+}
+if(!require(tidyr)){
+    install.packages("tidyr", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(tidyr)
+}
+if(!require(stringr)){
+    install.packages("stringr", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(stringr)
+}
+if(!require(grid)){
+  install.packages("grid", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(grid)
+}
+if(!require(RCurl)){
+  install.packages("RCurl", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(RCurl)
+}
+if(!require(dplyr)){
+  install.packages("dplyr", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(dplyr)
+}
+````
+
+````{r, results = "hide", cache=TRUE}
+traits_commmon_steep <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/commonbirds_steepdecline_traits.csv")
+str(traits_commmon_steep)
+
+#subsetting just the birds that are in Ohio and eat insect
+traits_commmon_steep_insectohio <- as.data.frame(traits_commmon_steep %>%
+  filter(ohio_presence > 0 & diet == "insects"))
+
+str(traits_commmon_steep_insectohio)
+
+#because we use it later
+traits_commmon_steep_insectohio$common_name <- factor(toupper(traits_commmon_steep_insectohio$common_name))
+
+#which birds are we looking at? :
+levels(traits_commmon_steep_insectohio$common_name)
+```
+
+#Task two - AOU codes for bird species
+
+Next I also had to import the AOU codes because those are used in BBS, so we have a common 'key'. 
+
+````{r, results = "hide"}
+AOU_codes <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/AOU_codes.csv")
+
+# merge the AOU codes into the ohio data
+traits_commmon_steep_insectohio2 <- as.data.frame(inner_join(AOU_codes, traits_commmon_steep_insectohio))
+
+head(traits_commmon_steep_insectohio2)
+````
+
+# Task three: BBS data
+I got the BBS data from: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles//50-StopData/1997ToPresent_SurveyWide/Fifty7.zip.  The metadata is available: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles//FiftySt.txt.
+
+````{r, results = "hide"}
+ohio_BBS <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/fifty7.csv")
+head(ohio_BBS)
+
+# merge with the traits data
+ohio_BBS_insect <- as.data.frame(inner_join(ohio_BBS, traits_commmon_steep_insectohio2))
+ohio_BBS_insect$common_name<-factor(ohio_BBS_insect$common_name)
+head(ohio_BBS_insect)
+
+#now we need to locate the routes in each county.  I read in the file Tyson had already located for us:
+ohio_BBS_routes_countiesraw <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/BBSdata.by.county.csv")
+head(ohio_BBS_routes_countiesraw)
+ohio_BBS_routes_countiesraw2 <- ohio_BBS_routes_countiesraw[!duplicated(ohio_BBS_routes_countiesraw$Route), c(1,4,5,6,7)]
+ 
+#and then joined the two
+ohio_BBS_birds <- inner_join(ohio_BBS_insect, ohio_BBS_routes_countiesraw2)
+head(ohio_BBS_birds)
+names(ohio_BBS_birds)
+
+# created a column of sums for all the stops on each route:
+ohio_BBS_birds$route_abundance <- rowSums(ohio_BBS_birds[grep("^Stop[0-9]+", names(ohio_BBS_birds))])
+#using grep means even if the columns change position, we will still get the right ones for rowsums.
+
+```
+
+Next up: a summary.  Some counties have more than one route.  Thought on this? 
+
+# Summarising data
+
+````{r}
+ohio_BBS_birds_summary <- ohio_BBS_birds %>%
+  group_by(year, GEOID, common_name) %>%
+  summarise(mean_abund = mean(route_abundance),
+            sd = sd(route_abundance),
+            n = n()) %>%
+  mutate(sem_abund = sd/sqrt(n))
+
+#which(ohio_BBS_birds_summary$n>1)
+#names(ohio_BBS_birds_summary)
+
+ggplot(ohio_BBS_birds_summary, aes(x = year, y = mean_abund))+
+  geom_line(aes(colour = GEOID, group = GEOID))+
+  facet_wrap(~common_name, scales = "free") +
+  theme_bw()+
+  theme(legend.position = "bottom")
+````
+
+# Getting a version of the neonics
+
+```{r, results = "hide", cache=TRUE}
+setwd("/Users/Liv/ebd_US_relMay-2014/raw_pesticides/")
+#this is from Tyson's work.
+
+filenames <- list.files()
+pesticides_raw <- do.call("rbind", lapply(filenames[grep("high", filenames)], read.table, header = TRUE, sep = "\t"))
+
+pesticides_raw_ohio <- pesticides_raw[which(pesticides_raw$STATE_FIPS_CODE == 39), ]
+
+rm(pesticides_raw) #cos it's massive
+
+names(pesticides_raw_ohio)
+
+#getting the neonics out
+neonics_raw_ohio <- pesticides_raw_ohio %>% 
+  filter(COMPOUND %in% c("ACETAMIPRID", "CLOTHIANIDIN", "IMIDACLOPRID", "THIAMETHOXAM"))
+
+ggplot(neonics_raw_ohio, aes(x = YEAR, y = KG))+
+  geom_point()+
+  facet_wrap(~COMPOUND)
+#similar to Tyson's. Phew.
+
+````
+
+## Controlling for county area
+Metadata:
+GCT-PH1 population, Housing Units, Area, and Density:  2010 - State -- County / County Equivalent
+
+NOTE: For information on confidentiality protection, nonsampling error, and definitions, see  http://www.census.gov/prod/cen2010/doc/sf1.pdf.
+
+Available from: http://factfinder2.census.gov/faces/tableservices/jsf/pages/productview.xhtml?src=bkmk 
+
+
+```{r, results = "hide", cache=TRUE}
+ohio_facts<-read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/DEC_10_SF1_GCTPH1/DEC_10_SF1_GCTPH1.ST05_with_ann.csv")
+
+head(ohio_facts)
+names(ohio_facts)
+ohio_facts_r <- ohio_facts[ , c(2, 3, 5, 7, 10:14)]
+head(ohio_facts_r)
+names(ohio_facts_r) <- c("state_fips", "state", "GEOID", "county",
+                         "total_area", "total_water", "total_land",
+                         "popdens_sqmile", "housedens_sqmile")
+
+#FIPS codes and tidying the double header row!
+
+#now to merge
+neonics_raw_ohio$county_id<-str_pad(neonics_raw_ohio$COUNTY_FIPS_CODE, 3, "left", pad = "0")
+neonics_raw_ohio$GEOID <- paste(neonics_raw_ohio$STATE_FIPS_CODE, neonics_raw_ohio$county_id, sep = "")
+
+ohio_facts_r <- ohio_facts_r[-c(1,2),]
+neonics_facts_ohio <- merge(neonics_raw_ohio, ohio_facts_r)
+
+neonics_facts_ohio$total_land<-as.numeric(neonics_facts_ohio$total_land)
+neonics_facts_ohio$kg_density <- neonics_facts_ohio$KG/neonics_facts_ohio$total_land
+
+#not quite the same as Tyson's:
+ggplot(neonics_facts_ohio, aes(x = YEAR, y = kg_density)) +
+         geom_point()+
+         facet_wrap(~COMPOUND)+
+         theme_bw()
+````
+
+# Data reading done (almost)
+
+````{r, results = "hide", cache=TRUE}
+names(ohio_BBS_birds_summary)<-toupper(names(ohio_BBS_birds_summary))
+neonics_facts_ohio$GEOID<-as.numeric(neonics_facts_ohio$GEOID)
+ohio_insects <- merge(neonics_facts_ohio[neonics_facts_ohio$YEAR >= 1996 & neonics_facts_ohio$YEAR <=2009,], ohio_BBS_birds_summary[ohio_BBS_birds_summary$YEAR >= 1996 & ohio_BBS_birds_summary$YEAR <=2009,], by = c("YEAR", "GEOID"))
+
+# without doing it for each county, response looks pretty poisson
+ggplot(ohio_BBS_birds_summary, aes(x = MEAN_ABUND))+
+  geom_histogram()+
+  theme_bw()+
+  facet_wrap(~COMMON_NAME, scales = "free")
+
+#more graphs. I had a play. Excluded the two species as very low occurrence.
+
+ggplot(subset(ohio_insects,ohio_insects$YEAR %in% c(2004,2007, 2009) & !ohio_insects$COMMON_NAME %in% c("BLACK TERN", "BLACKPOLL WARBLER")), aes(y = log(MEAN_ABUND), x = log(kg_density)))+
+  geom_point(aes(colour = factor(YEAR)))+
+  scale_colour_brewer(type = "qual", palette = "Dark2")+
+  geom_smooth(aes(colour = factor(YEAR)), method = lm)+
+  theme_bw()+
+  facet_grid(COMPOUND~COMMON_NAME, scales = "free")+
+  coord_fixed()
+
+ggplot(subset(ohio_insects, !ohio_insects$COMMON_NAME %in% c("BLACK TERN", "BLACKPOLL WARBLER")), aes(y = log(MEAN_ABUND), x = YEAR))+
+  geom_point(aes(colour = factor(COMMON_NAME)))+
+  scale_colour_brewer(type = "qual", palette = "Dark2", guide = FALSE)+
+  geom_smooth(aes(colour = factor(COMMON_NAME)), method = lm)+
+  theme_bw()+
+  facet_grid(COMMON_NAME~COMPOUND, scales = "free")+
+  coord_fixed()
+````
+
+# First attempt at modelling
+
+```{r}
+ohio_insects_wide <- spread(ohio_insects, key = COMPOUND, value = kg_density) 
+
+ohio_insects_wide$GEOID<-as.factor(ohio_insects_wide$GEOID)
+ohio_insects_wide$county<-as.factor(ohio_insects_wide$county)
+ohio_insects$MEAN_ABUND <- round(ohio_insects$MEAN_ABUND) #poisson requires integers
+ohio_insects_wide$MEAN_ABUND <- round(ohio_insects_wide$MEAN_ABUND)
+
+#fails.  I had one working
+try(mod1 <- glm(data=ohio_insects_wide, MEAN_ABUND ~ COMMON_NAME:(CLOTHIANIDIN + ACETAMIPRID + IMIDACLOPRID+THIAMETHOXAM) + county, family = poisson))
+try(summary(mod1))
+
+### i think i need to go back and put in wide levels of compound and put zero where not recorded######
+try(mod1_pred <- predict(mod1, type = "response"))
+
+#works.  But this is not the wide version and only one species, otherwise the interactions get messy.
+mod2<- glm(data= ohio_insects[ohio_insects$COMMON_NAME == "CHIMNEY SWIFT",], MEAN_ABUND ~ kg_density:COMPOUND,
+           family = "poisson")
+summary(mod2)
+
+save.image(file = "BBS_pest.Rdata")
+````

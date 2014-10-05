@@ -1,0 +1,10 @@
+base
+bitops
+dplyr
+ggplot2
+lme4
+Matrix
+Rcpp
+RCurl
+stringr
+tidyr
