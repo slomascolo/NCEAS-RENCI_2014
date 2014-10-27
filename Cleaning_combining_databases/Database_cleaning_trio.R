@@ -6,6 +6,7 @@ fips_state_index<-read.csv(file = "/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_20
 str(fips_state_index)
 head(fips_state_index)
 
+
 toupper
 # Ebird
 str(ebird_sample2)
@@ -16,6 +17,7 @@ ebird_sample2$state_id <- gsub(pattern = "([A-Z]\\w)+(\\W)", replacement = "", x
 write.csv(ebird_sample2, file = "/Users/Liv/Dropbox/NCEAS/quickstats/ebirdsample2.txt")
 ebird_sample2$state_id2<-ebird_sample2$state_id ## for later
 ebird_sample2$state_id<-merge(ebird_sample2["state_id"],fips_state_index[,c("state_initials", "state_fips")], by.x = "state_id", by.y = "state_initials")[,2] #works!
+
 
 head(ebird_sample2)
 

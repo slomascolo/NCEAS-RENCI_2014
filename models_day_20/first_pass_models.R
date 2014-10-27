@@ -1,5 +1,5 @@
 ### Just load this from the git:, it's in the NCEAS-RENCI_2014 folde
-load(file = "models.Rdata")
+load(file = "/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/models.Rdata")
 
 require(stringr)
 
@@ -10,6 +10,7 @@ butterfly.diversity$geoid<-butterfly.diversity[,5]
 head(butterfly.diversity)
 View(butterfly.diversity)
 length(unique(butterfly.diversity$geoid))
+
 
 ## Response: birds
 bird.diversity.BBS <- read.csv(file = "/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBSdata.by.county.csv", header = T)
@@ -77,7 +78,7 @@ landcover_2001 <- read.csv(file =  "OHcounty_lc2001.csv")
 head(landcover_2001)
 require(reshape2)
 landcover_2001_wide <- dcast(landcover_2001, GEOID + NAME + ALAND + INTPTLAT + INTPTLON ~ reclass, value.var = "Class.prop")
-data.wide <- dcast(origdata.long, subject + sex ~ condition, value.var="measurement")
+#data.wide <- dcast(origdata.long, subject + sex ~ condition, value.var="measurement")
 head(landcover_2001_wide)
 length(unique(landcover_2001_wide$GEOID)) # 88 
 landcover_2001_wide$geoid <- landcover_2001_wide$GEOID
@@ -176,7 +177,6 @@ mod12 <- glmmadmb(data = bird_insec_land,
                   family = "gaussian")
 summary(mod12)
 
-
 coefplot2(mod12)
 
 mod13 <- glmmadmb(data = bird_insec_land, 
@@ -195,8 +195,47 @@ mod10 <- glmmadmb(data = bird_insec_land,
                   family = "gaussian")
 summary(mod10)
 levels(as.factor(bird_insec_land$Year))
+
 mod10_grid <- expand.grid(
   agr = seq(from = 0, to = 100, by = 0.1),
   urb = seq(from = 0, to = 65, by = 0.1),
-  Year = c())
-## 
+  Year = c(2001, 2005, 2009))
+
+mod10_grid_agr <- expand.grid(
+  agr = seq(from = 0, to = 100, by = 0.1),
+  urb = c(10, 40, 70),
+  Year = 2009)
+
+mod10_grid_urb <- expand.grid(
+  agr = c(10,40,70),
+  urb = seq(from = 0, to = 65, by = 0.1),
+  Year = c(2001, 2005, 2009))
+
+mod10_predict <- predict(mod10, newdata = mod10_grid, type = "response", se.fit = TRUE)
+summary(mod10)
+mod10_grid_agr$mod10_predict_agr_response <- predict(mod10, newdata = mod10_grid_agr, type = "response")
+
+ggplot(mod10_grid_agr, aes(x = agr, y = mod10_predict_agr_response, colour = factor(urb)))+
+  geom_point()+
+  theme_bw()
+bird_insec_land$fitted<-fitted(mod10)
+bird_insec_land_2009<-subset(bird_insec_land, bird_insec_land$Year == 2009, drop = TRUE)
+head(bird_insec_land_2009)
+ggplot(data = bird_insec_land_2009, aes(x = agr, y = Shannon))+
+  geom_point()+
+  geom_smooth(method = gam, formula = y ~ poly(x,2))+
+  theme_bw()+
+  labs(x = "Proportion of agricultural land", y = "Bird diversity (shannon index)")
+
+
+mod10_grid_urb$mod10_predict_urb_response <- predict(mod10, newdata = mod10_grid_urb, type = "response")
+
+mod10_predict_agr <- predict(mod10, newdata = mod10_grid_agr, type = "link", se.fit = TRUE)
+
+mod10_predict_urb <- predict(mod10, newdata = mod10_grid_urb, type = "link", se.fit = TRUE)
+
+
+require(nlme)
+mod1.nlme <- nlme(data = bird_insec_land, 
+                 Shannon ~ agr + urb + (1|geoid.factor/Route.factor),
+                 family = "gaussian")
