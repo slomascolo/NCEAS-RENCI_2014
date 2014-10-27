@@ -2,7 +2,7 @@
 title: 'Ohio: BBS bird abundance'
 author: "Olivia Burge"
 date: "5 October 2014"
-output: html_document
+output: pdf_document
 ---
 
 # Task one: the traits
@@ -39,10 +39,11 @@ if(!require(dplyr)){
   install.packages("dplyr", repos = 'http://cran.stat.auckland.ac.nz/')
   library(dplyr)
 }
+
 ````
 
-````{r, results = "hide", cache=TRUE}
-traits_commmon_steep <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/commonbirds_steepdecline_traits.csv")
+````{r, results = "hide", cache=FALSE}
+traits_commmon_steep <- read.csv("raw_data/commonbirds_steepdecline_traits.csv")
 str(traits_commmon_steep)
 
 #subsetting just the birds that are in Ohio and eat insect
@@ -63,7 +64,7 @@ levels(traits_commmon_steep_insectohio$common_name)
 Next I also had to import the AOU codes because those are used in BBS, so we have a common 'key'. 
 
 ````{r, results = "hide"}
-AOU_codes <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/AOU_codes.csv")
+AOU_codes <- read.csv("raw_data/AOU_codes.csv")
 
 # merge the AOU codes into the ohio data
 traits_commmon_steep_insectohio2 <- as.data.frame(inner_join(AOU_codes, traits_commmon_steep_insectohio))
@@ -75,7 +76,7 @@ head(traits_commmon_steep_insectohio2)
 I got the BBS data from: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles//50-StopData/1997ToPresent_SurveyWide/Fifty7.zip.  The metadata is available: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles//FiftySt.txt.
 
 ````{r, results = "hide"}
-ohio_BBS <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/fifty7.csv")
+ohio_BBS <- read.csv("raw_data/fifty7.csv")
 head(ohio_BBS)
 
 # merge with the traits data
@@ -84,7 +85,7 @@ ohio_BBS_insect$common_name<-factor(ohio_BBS_insect$common_name)
 head(ohio_BBS_insect)
 
 #now we need to locate the routes in each county.  I read in the file Tyson had already located for us:
-ohio_BBS_routes_countiesraw <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/BBSdata.by.county.csv")
+ohio_BBS_routes_countiesraw <- read.csv("raw_data/BBSdata.by.county.csv")
 head(ohio_BBS_routes_countiesraw)
 ohio_BBS_routes_countiesraw2 <- ohio_BBS_routes_countiesraw[!duplicated(ohio_BBS_routes_countiesraw$Route), c(1,4,5,6,7)]
  
@@ -123,12 +124,14 @@ ggplot(ohio_BBS_birds_summary, aes(x = year, y = mean_abund))+
 
 # Getting a version of the neonics
 
-```{r, results = "hide", cache=TRUE}
-setwd("/Users/Liv/ebd_US_relMay-2014/raw_pesticides/")
+```{r, results = "hide", cache=FALSE}
 #this is from Tyson's work.
+filenames <- list.files(path = "raw_data/raw_pesticides/", recursive = TRUE, full.names = TRUE) 
+#I've amended the line above so that we can get the file paths as well 
+#(the recursive and full.names options).
 
-filenames <- list.files()
-pesticides_raw <- do.call("rbind", lapply(filenames[grep("high", filenames)], read.table, header = TRUE, sep = "\t"))
+pesticides_raw <- do.call("rbind", lapply(filenames[grep("high", filenames)], 
+                                          read.table, header = TRUE, sep = "\t"))
 
 pesticides_raw_ohio <- pesticides_raw[which(pesticides_raw$STATE_FIPS_CODE == 39), ]
 
@@ -156,8 +159,8 @@ NOTE: For information on confidentiality protection, nonsampling error, and defi
 Available from: http://factfinder2.census.gov/faces/tableservices/jsf/pages/productview.xhtml?src=bkmk 
 
 
-```{r, results = "hide", cache=TRUE}
-ohio_facts<-read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/DEC_10_SF1_GCTPH1/DEC_10_SF1_GCTPH1.ST05_with_ann.csv")
+```{r, results = "hide", cache=FALSE}
+ohio_facts<-read.csv("raw_data/DEC_10_SF1_GCTPH1/DEC_10_SF1_GCTPH1.ST05_with_ann.csv")
 
 head(ohio_facts)
 names(ohio_facts)
@@ -239,6 +242,5 @@ try(mod1_pred <- predict(mod1, type = "response"))
 mod2<- glm(data= ohio_insects[ohio_insects$COMMON_NAME == "CHIMNEY SWIFT",], MEAN_ABUND ~ kg_density:COMPOUND,
            family = "poisson")
 summary(mod2)
-
 save.image(file = "BBS_pest.Rdata")
 ````
