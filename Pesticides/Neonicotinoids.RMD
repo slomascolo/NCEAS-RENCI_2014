@@ -1,0 +1,212 @@
+---
+title: "Neonicotinoids in OH"
+author: "Tyson Wepprich"
+date: "Thursday, October 02, 2014"
+output: pdf_document
+---
+Rapid fire science team tackles neonicotinoid effects on birds and butterflies.
+
+
+
+```{r}
+setwd("C:/Users/Tyson/Desktop/Pesticides")
+
+filenames <- list.files()
+EPA.high <- do.call("rbind", lapply(filenames[grep("EPest.high", filenames)], read.table, header = TRUE, sep = "\t"))
+EPA.low <- do.call("rbind", lapply(filenames[grep("EPest.low", filenames)], read.table, header = TRUE, sep = "\t"))
+
+pest.states.low <- EPA.low[which(EPA.low$STATE_FIPS_CODE == 39), ]
+pest.states.high <- EPA.high[which(EPA.high$STATE_FIPS_CODE == 39), ]
+
+fips <- read.csv("fips_codes.txt", header = TRUE)
+names(fips) <- c("State", "STATE_FIPS_CODE", "COUNTY_FIPS_CODE", "County.Name", "ANSI.class")
+fips <- fips[which(fips$STATE_FIPS_CODE == 39), ]
+fips$GEOID <- paste(fips$STATE_FIPS_CODE, formatC(fips$COUNTY_FIPS_CODE, width = 3, format = "d", flag = "0"), sep = "")
+
+county.data.low <- merge(pest.states.low, fips)
+county.data.high <- merge(pest.states.high, fips)
+names(county.data.high)[5] <- "KG_EPhigh"
+names(county.data.low)[5] <- "KG_EPlow"
+county.data <- merge(county.data.high, county.data.low, all.x = TRUE)
+
+#Bring in county data from 2010 US Census (from factfinder online database)
+census <- read.table("Gaz_counties_national.txt", header = TRUE, sep = "\t")
+OH.census <- census[census$USPS == "OH", ]
+
+OH.co.pesticides <- merge(county.data, OH.census)
+
+write.csv(OH.co.pesticides, file = "OHpesticides.csv", row.names = FALSE)
+
+#just neonicotinoids
+OH.co.pesticides$COMPOUND <- as.character(OH.co.pesticides$COMPOUND)
+nicos <- c("ACETAMIPRID", "CLOTHIANIDIN", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM")
+OH.neonico <- OH.co.pesticides[which(OH.co.pesticides$COMPOUND %in% nicos), ]
+OH.neonico$density_low <- OH.neonico$KG_EPlow / OH.neonico$ALAND_SQMI
+OH.neonico$density_high <- OH.neonico$KG_EPhigh / OH.neonico$ALAND_SQMI
+write.csv(OH.neonico, file = "OH.neonicotinoids.csv", row.names = FALSE)
+```
+
+Plot it
+
+```{r}
+library(ggplot2)
+setwd("C:/Users/Tyson/Desktop/Pesticides")
+OH.neonico <- read.csv("OH.neonicotinoids.csv", header = TRUE)
+base <- ggplot(data = OH.neonico, aes(x = YEAR, y = density_low, group = County.Name)) + geom_point()
+base + facet_grid( ~ COMPOUND) + theme_bw(base_size = 24)
+
+
+
+
+```
+
+GIS analysis of pesticides and land-use change in different counties, along BBS routes, and around butterfly sites.
+
+Goals: 
+Characterize land-use (compare to previous analysis on BBS routes at different scales)
+Find change in land use from 1992-2011 (with 2001, 2006)
+Pesticide use by year (neonicotenoids and other categories as control?)
+
+Steps:
+BBS route shapefile, get buffers at different scales.
+Verify that the routes are the same ones for population estimates.
+Butterfly sites, get buffers at different scales.
+Make sure locations are accurate for butterfly site coordinates.
+
+Land-use
+Get 2001, 2006, 2011 estimates from buffers.
+Get 1992/2001 change product for buffers and subtract from 2001 for 1992 estimate.
+Verify time-series with 2001/06 and 2001/11 change products.
+Take care with changing land-use classification schemes. Keep all categories as is until end.
+Might need counties bordering OH.
+
+Pesticides
+Take county-level estimates and disaggregate as mean kg/acre cropland.
+Reaggregate in BBS and butterfly site buffers.
+Do neonicotenoids and which other pesticides? Maybe other frequently used ones like glyphosate/atrazine.
+Might need counties bordering OH.
+
+
+
+```{r OH county+ land cover}
+library(rgdal)
+library(raster)
+library(plotKML)
+library(rgeos)
+library(parallel)
+setwd("C:/Users/Tyson/Dropbox/Neonicotenoids/Final GIS layers")
+
+
+
+
+#Import shapefile of OH counties and bordering counties in other states.
+#Already has 5 digist GEOID, use this to match with pesticides.
+co.shp <- "oh_counties_plus"
+OHco <- readOGR(dsn = getwd(), layer = co.shp)
+proj4string(OHco) <- CRS("+init=epsg:5070")
+OHco_p <- reproject(OHco, proj4string(OHco))
+
+#Import BBS routes shapefile, obtained from DataBasin
+#These are the 1998 active routes, need to see how well they match up with routes used for population estimates
+bbs.shp <- "bbsrtsl020Copy"
+bbs_routes <- readOGR(dsn = getwd(), layer = bbs.shp)
+# proj4string(bbs_routes) <- CRS("+init=epsg:5070")
+# bbs_routes_p <- reproject(bbs_routes, proj4string(bbs_routes))
+
+#RTENO: The route number consists of the 1- or 2-digit State ID code followed by the 3-digit route ID.
+bbs_OH <- bbs_routes[which(bbs_routes$RTENO >= 66000 & bbs_routes$RTENO <=67000), ]
+
+#try to buffer, first project to UTM so units in meters
+#EPSG:26916
+bbs_OH_UTM <- spTransform(bbs_OH, CRS("+init=epsg:26916"))
+
+bbs_buff_200 <- gBuffer(bbs_OH_UTM, byid = TRUE, id = NULL, width = 200, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_400 <- gBuffer(bbs_OH_UTM, byid = TRUE, id = NULL, width = 400, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_1000 <- gBuffer(bbs_OH_UTM, byid = TRUE, id = NULL, width = 1000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_2000 <- gBuffer(bbs_OH_UTM, byid = TRUE, id = NULL, width = 2000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_5000 <- gBuffer(bbs_OH_UTM, byid = TRUE, id = NULL, width = 5000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_10000 <- gBuffer(bbs_OH_UTM, byid = TRUE, id = NULL, width = 10000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+# writeOGR(bbs_buff_10000, dsn = getwd(), "test10000", driver = "ESRI Shapefile")
+
+#import 2006 OH Land Cover raster
+test.file <- "OH_LC2006.tif"
+r <- raster(test.file)
+hasValues(r)
+inMemory(r)
+plot(r)
+
+#Parallel function
+
+    ### Make function and try it out before parallelizing
+    ### ########################################################
+    RasterToBuffer <- function(RTENO){
+      rt <- buff[which(buff$RTENO == RTENO), ]
+      lc <- extract(r, rt)
+      counts <- lapply(lc, table)
+      return(list(RTENO, counts))
+    }
+
+#     test <- lapply(unique(buff$RTENO)[1:2], RasterToBuffer)
+
+
+####
+#Extract land cover for all BBS buffers
+bbs_buffs <- list(bbs_buff_200, bbs_buff_400, bbs_buff_1000, bbs_buff_2000, bbs_buff_5000, bbs_buff_10000)
+results <- list()
+for (j in 1:length(bbs_buffs)){
+  buff <- bbs_buffs[[j]]
+  buff <- spTransform(buff, CRS(proj4string(r)))
+  system.time({
+     ### set up cluster call
+    ### ######################################################
+    cl <- makePSOCKcluster(3)
+
+    clusterExport(cl, c("buff", "RasterToBuffer", "r"))
+    junk <- clusterEvalQ(cl, c(library(raster), library(rgdal)))
+
+    ### read into raster format using parallel version of lapply
+    ### #################
+    Results.par <- parLapply(cl, unique(buff$RTENO), RasterToBuffer)
+
+    ### stop the cluster
+    ### #########################################################
+    stopCluster(cl)
+})
+
+results[[j]] <- Results.par
+}
+
+
+save(results, file = "BBS_LC_2006.RData")  
+
+
+
+    ### Make function and try it out before parallelizing
+    ### ########################################################
+    RasterToBuffer <- function(RTENO){
+      rt <- buff[which(buff$RTENO == RTENO), ]
+      lc <- extract(r, rt)
+      counts <- lapply(lc, table)
+      return(list(RTENO, counts))
+    }
+
+    test <- lapply(unique(buff$RTENO)[1:2], RasterToBuffer)
+    
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
