@@ -10,11 +10,23 @@ Rapid fire science team tackles neonicotinoid effects on birds and butterflies.
 
 ```{r}
 setwd("C:/Users/Tyson/Desktop/Pesticides")
-
 filenames <- list.files()
 EPA.high <- do.call("rbind", lapply(filenames[grep("EPest.high", filenames)], read.table, header = TRUE, sep = "\t"))
 EPA.low <- do.call("rbind", lapply(filenames[grep("EPest.low", filenames)], read.table, header = TRUE, sep = "\t"))
 
+#updated 2010-11 preliminary data
+setwd("C:/Users/Tyson/Desktop/Pesticides/prelim2010")
+filenames <- list.files()
+EPA.high.pre <- do.call("rbind", lapply(filenames[grep("EPest.high", filenames)], read.table, header = TRUE, sep = "\t"))
+EPA.low.pre <- do.call("rbind", lapply(filenames[grep("EPest.low", filenames)], read.table, header = TRUE, sep = "\t"))
+
+setwd("C:/Users/Tyson/Desktop/Pesticides")
+
+
+EPA.high <- rbind(EPA.high, EPA.high.pre)
+EPA.low <- rbind(EPA.low, EPA.low.pre)
+
+#subset by OHIO
 pest.states.low <- EPA.low[which(EPA.low$STATE_FIPS_CODE == 39), ]
 pest.states.high <- EPA.high[which(EPA.high$STATE_FIPS_CODE == 39), ]
 
@@ -37,9 +49,12 @@ OH.co.pesticides <- merge(county.data, OH.census)
 
 write.csv(OH.co.pesticides, file = "OHpesticides.csv", row.names = FALSE)
 
-#just neonicotinoids
+OH.co.pesticides$density_low <- OH.co.pesticides$KG_EPlow / OH.co.pesticides$ALAND_SQMI
+OH.co.pesticides$density_high <- OH.co.pesticides$KG_EPhigh / OH.co.pesticides$ALAND_SQMI
+
+#just neonicotinoids (and Fipronil because it's similar)
 OH.co.pesticides$COMPOUND <- as.character(OH.co.pesticides$COMPOUND)
-nicos <- c("ACETAMIPRID", "CLOTHIANIDIN", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM")
+nicos <- c("ACETAMIPRID", "CLOTHIANIDIN", "FIPRONIL", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM")
 OH.neonico <- OH.co.pesticides[which(OH.co.pesticides$COMPOUND %in% nicos), ]
 OH.neonico$density_low <- OH.neonico$KG_EPlow / OH.neonico$ALAND_SQMI
 OH.neonico$density_high <- OH.neonico$KG_EPhigh / OH.neonico$ALAND_SQMI
@@ -50,12 +65,62 @@ Plot it
 
 ```{r}
 library(ggplot2)
+library(rgdal)
+library(RColorBrewer)
+library(sp)
+library(classInt)
 setwd("C:/Users/Tyson/Desktop/Pesticides")
+
 OH.neonico <- read.csv("OH.neonicotinoids.csv", header = TRUE)
-base <- ggplot(data = OH.neonico, aes(x = YEAR, y = density_low, group = County.Name)) + geom_point()
+base <- ggplot(data = OH.neonico, aes(x = YEAR, y = density_high, group = County.Name)) + geom_point()
 base + facet_grid( ~ COMPOUND) + theme_bw(base_size = 24)
 
+setwd("C:/Users/Tyson/Dropbox/Neonicotenoids/Final GIS layers")
+co.shp <- "oh_counties_plus"
+OHco <- readOGR(dsn = getwd(), layer = co.shp)
+OHco <- OHco[OHco$STATEFP == 39,]
 
+#make color scale across all years to see change in intensity over time
+compounds <- unique(OH.neonico$COMPOUND)
+pest <- OH.neonico[OH.neonico$COMPOUND == compounds[5], ]
+
+
+#select color palette and the number colors to represent on the map
+colors <- brewer.pal(9, "YlOrRd")
+#set breaks for the 10 colors
+brks<-classIntervals(pest$density_high, n=9, style="quantile")
+brks<- brks$brks
+
+par(mfrow=c(1, max(pest$YEAR) - min(pest$YEAR) + 1), mar=c(1,1,1,1)+0.1, oma=c(1,1,1,1)+0.1)
+
+for (i in min(pest$YEAR):max(pest$YEAR)){
+  
+  temp <- pest[pest$YEAR == i, ]
+  to.map <- merge(OHco, temp, by = "GEOID")
+
+  #plot the map
+  plot(to.map, col=colors[findInterval(to.map$density_high, brks,all.inside=TRUE)], axes=F)
+  title(main = as.character(i))
+}
+
+
+to.map <- merge(OHco, pest, by = "GEOID")
+
+#select color palette and the number colors to represent on the map
+colors <- brewer.pal(9, "YlOrRd")
+
+#set breaks for the 9 colors
+brks<-classIntervals(to.map$density_high, n=9, style="quantile")
+brks<- brks$brks
+
+#plot the map
+plot(to.map, col=colors[findInterval(to.map$density_high, brks,all.inside=TRUE)], axes=F)
+
+#add a title
+title(paste ("SF Bay Area Median Household Income"))
+
+#add a legend
+legend(x=6298809, y=2350000, legend=leglabs(round(brks)), fill=colors, bty="n",x.intersp = .5, y.intersp = .5)
 
 
 ```
@@ -96,44 +161,42 @@ library(rgeos)
 library(parallel)
 setwd("C:/Users/Tyson/Dropbox/Neonicotenoids/Final GIS layers")
 
+#import 2006 OH Land Cover raster
+test.file <- "OH_LC2006.tif"
+r <- raster(test.file)
+# hasValues(r)
+# inMemory(r)
+# plot(r)
 
+proj4string(r) <- CRS("+init=epsg:2163")
 
 
 #Import shapefile of OH counties and bordering counties in other states.
 #Already has 5 digist GEOID, use this to match with pesticides.
 co.shp <- "oh_counties_plus"
 OHco <- readOGR(dsn = getwd(), layer = co.shp)
-proj4string(OHco) <- CRS("+init=epsg:5070")
-OHco_p <- reproject(OHco, proj4string(OHco))
+# proj4string(OHco) <- CRS("+init=epsg:5070")
+OHco_p <- reproject(OHco, proj4string(r))
 
 #Import BBS routes shapefile, obtained from DataBasin
 #These are the 1998 active routes, need to see how well they match up with routes used for population estimates
 bbs.shp <- "bbsrtsl020Copy"
 bbs_routes <- readOGR(dsn = getwd(), layer = bbs.shp)
 # proj4string(bbs_routes) <- CRS("+init=epsg:5070")
-# bbs_routes_p <- reproject(bbs_routes, proj4string(bbs_routes))
+bbs_routes_p <- reproject(bbs_routes, proj4string(r))
 
 #RTENO: The route number consists of the 1- or 2-digit State ID code followed by the 3-digit route ID.
-bbs_OH <- bbs_routes[which(bbs_routes$RTENO >= 66000 & bbs_routes$RTENO <=67000), ]
+bbs_OH <- bbs_routes_p[which(bbs_routes_p$RTENO >= 66000 & bbs_routes_p$RTENO <=67000), ]
 
-#try to buffer, first project to UTM so units in meters
-#EPSG:26916
-bbs_OH_UTM <- spTransform(bbs_OH, CRS("+init=epsg:26916"))
-
-bbs_buff_200 <- gBuffer(bbs_OH_UTM, byid = TRUE, id = NULL, width = 200, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
-bbs_buff_400 <- gBuffer(bbs_OH_UTM, byid = TRUE, id = NULL, width = 400, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
-bbs_buff_1000 <- gBuffer(bbs_OH_UTM, byid = TRUE, id = NULL, width = 1000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
-bbs_buff_2000 <- gBuffer(bbs_OH_UTM, byid = TRUE, id = NULL, width = 2000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
-bbs_buff_5000 <- gBuffer(bbs_OH_UTM, byid = TRUE, id = NULL, width = 5000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
-bbs_buff_10000 <- gBuffer(bbs_OH_UTM, byid = TRUE, id = NULL, width = 10000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_200 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 200, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_400 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 400, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_1000 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 1000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_2000 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 2000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_5000 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 5000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_10000 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 10000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
 # writeOGR(bbs_buff_10000, dsn = getwd(), "test10000", driver = "ESRI Shapefile")
 
-#import 2006 OH Land Cover raster
-test.file <- "OH_LC2006.tif"
-r <- raster(test.file)
-hasValues(r)
-inMemory(r)
-plot(r)
+
 
 #Parallel function
 
@@ -153,7 +216,7 @@ plot(r)
 #Extract land cover for all BBS buffers
 bbs_buffs <- list(bbs_buff_200, bbs_buff_400, bbs_buff_1000, bbs_buff_2000, bbs_buff_5000, bbs_buff_10000)
 results <- list()
-for (j in 1:length(bbs_buffs)){
+for (j in 1:6){
   buff <- bbs_buffs[[j]]
   buff <- spTransform(buff, CRS(proj4string(r)))
   system.time({
@@ -177,24 +240,146 @@ results[[j]] <- Results.par
 }
 
 
-save(results, file = "BBS_LC_2006.RData")  
+save(results, file = "BBS_LC_2006.RData") 
+
+
+#bring together counts of Land Cover classes for each buffer
+load("BBS_LC_2006.RData")
+buffer <- c(200,400,1000,2000,5000,10000)
+
+out <- data.frame()
+for (i in 1:6){
+  for (j in 1:70){
+    temp <- results[[i]][[j]]
+    temp.df <- data.frame(lc_class = names(unlist(temp[[2]])), pixels = as.numeric(unlist(temp[[2]])))
+    temp.df$BBS_route <- unlist(temp[[1]])
+    temp.df$buffer <- buffer[i]
+    out <- rbind(out,temp.df)
+  }
+}
 
 
 
-    ### Make function and try it out before parallelizing
-    ### ########################################################
-    RasterToBuffer <- function(RTENO){
-      rt <- buff[which(buff$RTENO == RTENO), ]
-      lc <- extract(r, rt)
-      counts <- lapply(lc, table)
-      return(list(RTENO, counts))
-    }
 
-    test <- lapply(unique(buff$RTENO)[1:2], RasterToBuffer)
-    
+
+####HOLD OFF ON 2011 for now, buffer go outside OH and merging rasters sucks
+###get 2011 NLCD data from multiple rasters and merge
+setwd("C:/Users/Tyson/Desktop/NLCD GIS/2011/land_use_land_cover")
+
+test <- list(raster("nlcd_oh_utm17.tif"), raster("pa_proj2.tif"))
+
+files <- list.files()
+tif <- files[grep(".tif", files)]
+tif <- tif[-grep(".dbf", tif)]
+
+tif.list <- list()
+tifproj <- tif.list[[1]]
+proj4string(tifproj) <- CRS("+init=epsg:5070")
+
+for (i in 1:length(tif)){
+  tif.list[[i]] <- reproject(raster(tif[i]), CRS("+init=epsg:5070"))
+}
+
+#merge or mosaic, overlapping but merge did fine I think
+test$filename <- 'OH_NLCD2011.tif'
+test$overwrite <- TRUE
+# test$tolerance  <- 1
+OH_LC2011 <- do.call(merge, test)
 
 ```
 
+Need to redo the 2006 by county land classes, because I lumped crops and hay together. Should keep separate for pesticides.
+
+```{r}
+library(rgdal)
+library(raster)
+library(plotKML)
+library(plyr)
+library(dplyr)
+
+setwd("C:/Users/Tyson/Dropbox/Neonicotenoids/Final GIS layers")
+
+lc <- raster("OH_LC2006.tif")
+proj4string(lc) <- CRS("+init=epsg:2163")
+
+co.shp <- "oh_counties_plus"
+OHco <- readOGR(dsn = getwd(), layer = co.shp)
+OHco_p <- reproject(OHco, proj4string(lc))
+
+OHco_sp <- spTransform(OHco, CRS(proj4string(lc)))
+
+library(parallel)
+system.time({
+
+    ### Make function and try it out before parallelizing
+    ### ########################################################
+    RasterToCounty <- function(GEOID){
+      co_sub <- OHco_p[which(OHco_p$GEOID == 18001), ]
+      co_lc <- extract(lc, co_sub)
+      counts <- lapply(co_lc, table)
+#       pct <- lapply(counts, FUN=function(x){x / sum(x)})
+      return(list(GEOID, counts))
+    }
+# 
+     test <- lapply(unique(OHco_p$GEOID)[1:2], RasterToCounty)
+    
+    ### set up cluster call
+    ### ######################################################
+    cl <- makePSOCKcluster(3)
+
+    clusterExport(cl, c("OHco_p", "RasterToCounty", "lc"))
+    junk <- clusterEvalQ(cl, c(library(raster), library(rgdal)))
+
+    ### read into raster format using parallel version of lapply
+    ### #################
+    Results.par <- parLapply(cl, unique(OHco_p$GEOID), RasterToCounty)
+
+    ### stop the cluster
+    ### #########################################################
+    stopCluster(cl)
+})
+
+
+save(Results.par, file = "lc_OH2006.RData") 
+
+load(file = "lc_OH2001.RData")
+
+landclass <- data.frame(Value = c(11, 12, 21, 22, 23, 24, 31, 41, 42, 43, 51, 52, 71, 72, 73, 74, 81, 82, 90, 95), Class = c("Open water", "Ice.snow", "Developed.open", "Developed.low", "Developed.med", "Developed.high", "Barren", "Forest.dec", "Forest.evg", "Forest.mix", "Scrub.dwarf", "Shrub", "Herb.grass", "Herb.sedge", "Herb.lichens", "Herb.moss", "Cult.hay", "Cult.crops", "Wetlands.wood", "Wetlands.herb"))
+
+results <- Results.par
+
+lc_long <- data.frame()
+for (i in 1:length(results)){
+  GEOID <- unique(OHco_p$GEOID)[i]
+  Prop.area <- unlist(results[[i]])
+  Value <- c(names(unlist(results[[i]])))
+  temp <- data.frame(GEOID,Prop.area,Value)
+  lc_long <- rbind(lc_long, temp)
+}
+
+co_desc <- OHco_p@data
+co_desc <- co_desc[, c("GEOID", "NAME", "ALAND", "AWATER", "INTPTLAT", "INTPTLON")]
+
+county_lc <- merge(lc_long, co_desc)
+
+a <- county_lc %>% group_by(GEOID, Value) %>% mutate(prop.land.area = Prop.area * (ALAND + AWATER) / ALAND) %>% data.frame()
+
+#Need to remove water and No data
+plot(a$Prop.area, a$prop.land.area)
+
+#translation table to reclass land cover values
+tt <- cbind(c("0", landclass$Value), c("missing", "water", "ice", "urb", "urb", "urb", "urb", "barren", "forest", "forest", "forest", rep("grass_shrub", 6), "agr", "agr", "wetlands", "wetlands"))
+
+a$reclass = as.factor(tt[ match(a$Value, tt[, 1]), 2] )
+
+b <- ddply(a, .(GEOID, reclass), mutate,
+           Class.prop = sum(prop.land.area))
+
+county_lc <- b[b$reclass %in% c("agr", "urb", "forest", "grass_shrub", "wetlands"), c("GEOID", "NAME", "ALAND", "INTPTLAT", "INTPTLON", "reclass", "Class.prop")]
+
+county_lc <- county_lc[-(which(duplicated(county_lc))), ]
+write.csv(county_lc, file = "county_lc2001.csv", row.names = FALSE)
+```
 
 
 
