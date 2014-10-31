@@ -6,7 +6,8 @@ output: pdf_document
 ---
 Rapid fire science team tackles neonicotinoid effects on birds and butterflies.
 
-
+This chunk just brings together the pesticides estimates from USGS. Now updated with preliminary data for 2010-11.
+Also split with neonicotinoids (+fipronil) only.
 
 ```{r}
 setwd("C:/Users/Tyson/Desktop/Pesticides")
@@ -61,7 +62,7 @@ OH.neonico$density_high <- OH.neonico$KG_EPhigh / OH.neonico$ALAND_SQMI
 write.csv(OH.neonico, file = "OH.neonicotinoids.csv", row.names = FALSE)
 ```
 
-Plot it
+This chunk plots pesticide use over time by county in Ohio.
 
 ```{r}
 library(ggplot2)
@@ -115,12 +116,12 @@ brks<- brks$brks
 
 #plot the map
 plot(to.map, col=colors[findInterval(to.map$density_high, brks,all.inside=TRUE)], axes=F)
-
-#add a title
-title(paste ("SF Bay Area Median Household Income"))
-
-#add a legend
-legend(x=6298809, y=2350000, legend=leglabs(round(brks)), fill=colors, bty="n",x.intersp = .5, y.intersp = .5)
+# 
+# #add a title
+# title(paste ("SF Bay Area Median Household Income"))
+# 
+# #add a legend
+# legend(x=6298809, y=2350000, legend=leglabs(round(brks)), fill=colors, bty="n",x.intersp = .5, y.intersp = .5)
 
 
 ```
@@ -288,98 +289,6 @@ OH_LC2011 <- do.call(merge, test)
 
 ```
 
-Need to redo the 2006 by county land classes, because I lumped crops and hay together. Should keep separate for pesticides.
-
-```{r}
-library(rgdal)
-library(raster)
-library(plotKML)
-library(plyr)
-library(dplyr)
-
-setwd("C:/Users/Tyson/Dropbox/Neonicotenoids/Final GIS layers")
-
-lc <- raster("OH_LC2006.tif")
-proj4string(lc) <- CRS("+init=epsg:2163")
-
-co.shp <- "oh_counties_plus"
-OHco <- readOGR(dsn = getwd(), layer = co.shp)
-OHco_p <- reproject(OHco, proj4string(lc))
-
-OHco_sp <- spTransform(OHco, CRS(proj4string(lc)))
-
-library(parallel)
-system.time({
-
-    ### Make function and try it out before parallelizing
-    ### ########################################################
-    RasterToCounty <- function(GEOID){
-      co_sub <- OHco_p[which(OHco_p$GEOID == 18001), ]
-      co_lc <- extract(lc, co_sub)
-      counts <- lapply(co_lc, table)
-#       pct <- lapply(counts, FUN=function(x){x / sum(x)})
-      return(list(GEOID, counts))
-    }
-# 
-     test <- lapply(unique(OHco_p$GEOID)[1:2], RasterToCounty)
-    
-    ### set up cluster call
-    ### ######################################################
-    cl <- makePSOCKcluster(3)
-
-    clusterExport(cl, c("OHco_p", "RasterToCounty", "lc"))
-    junk <- clusterEvalQ(cl, c(library(raster), library(rgdal)))
-
-    ### read into raster format using parallel version of lapply
-    ### #################
-    Results.par <- parLapply(cl, unique(OHco_p$GEOID), RasterToCounty)
-
-    ### stop the cluster
-    ### #########################################################
-    stopCluster(cl)
-})
-
-
-save(Results.par, file = "lc_OH2006.RData") 
-
-load(file = "lc_OH2001.RData")
-
-landclass <- data.frame(Value = c(11, 12, 21, 22, 23, 24, 31, 41, 42, 43, 51, 52, 71, 72, 73, 74, 81, 82, 90, 95), Class = c("Open water", "Ice.snow", "Developed.open", "Developed.low", "Developed.med", "Developed.high", "Barren", "Forest.dec", "Forest.evg", "Forest.mix", "Scrub.dwarf", "Shrub", "Herb.grass", "Herb.sedge", "Herb.lichens", "Herb.moss", "Cult.hay", "Cult.crops", "Wetlands.wood", "Wetlands.herb"))
-
-results <- Results.par
-
-lc_long <- data.frame()
-for (i in 1:length(results)){
-  GEOID <- unique(OHco_p$GEOID)[i]
-  Prop.area <- unlist(results[[i]])
-  Value <- c(names(unlist(results[[i]])))
-  temp <- data.frame(GEOID,Prop.area,Value)
-  lc_long <- rbind(lc_long, temp)
-}
-
-co_desc <- OHco_p@data
-co_desc <- co_desc[, c("GEOID", "NAME", "ALAND", "AWATER", "INTPTLAT", "INTPTLON")]
-
-county_lc <- merge(lc_long, co_desc)
-
-a <- county_lc %>% group_by(GEOID, Value) %>% mutate(prop.land.area = Prop.area * (ALAND + AWATER) / ALAND) %>% data.frame()
-
-#Need to remove water and No data
-plot(a$Prop.area, a$prop.land.area)
-
-#translation table to reclass land cover values
-tt <- cbind(c("0", landclass$Value), c("missing", "water", "ice", "urb", "urb", "urb", "urb", "barren", "forest", "forest", "forest", rep("grass_shrub", 6), "agr", "agr", "wetlands", "wetlands"))
-
-a$reclass = as.factor(tt[ match(a$Value, tt[, 1]), 2] )
-
-b <- ddply(a, .(GEOID, reclass), mutate,
-           Class.prop = sum(prop.land.area))
-
-county_lc <- b[b$reclass %in% c("agr", "urb", "forest", "grass_shrub", "wetlands"), c("GEOID", "NAME", "ALAND", "INTPTLAT", "INTPTLON", "reclass", "Class.prop")]
-
-county_lc <- county_lc[-(which(duplicated(county_lc))), ]
-write.csv(county_lc, file = "county_lc2001.csv", row.names = FALSE)
-```
 
 
 
