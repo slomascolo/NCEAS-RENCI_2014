@@ -136,8 +136,8 @@ Pesticide use by year (neonicotenoids and other categories as control?)
 Steps:
 BBS route shapefile, get buffers at different scales.
 Verify that the routes are the same ones for population estimates.
-Butterfly sites, get buffers at different scales.
 Make sure locations are accurate for butterfly site coordinates.
+Butterfly sites, get buffers at different scales.
 
 Land-use
 Get 2001, 2006, 2011 estimates from buffers.
@@ -198,6 +198,9 @@ bbs_buff_10000 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 10000, quadseg
 # writeOGR(bbs_buff_10000, dsn = getwd(), "test10000", driver = "ESRI Shapefile")
 
 
+
+require( parallel )
+beginCluster( detectCores()-1 )
 
 #Parallel function
 
