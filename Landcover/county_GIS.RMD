@@ -193,7 +193,6 @@ library(dplyr)
 library(ggplot2)
 
 setwd("C:/Users/Tyson/Desktop")
-pests <- read.csv("Pesticides/OHpesticides.csv", header = TRUE)
 
 load(file = "Clipped/Final clipped/lc_chg_9201.RData")
 lc_chg90s <- results.par
@@ -269,11 +268,12 @@ lc_county_2001_est <- pix_chg90s %>%
 
 #compare 2001 estimates for fun
 #estimates are pretty darn close, from now on, just will use 1992 land cover from chg layer
+#however, 1992 estimates really don't fit the 2001-2011 trends. Not comparable according to NLCD
 names(lc_county_2001_est)[2] <- "reclass"
 lc_compare <- merge(lc_county_2001, lc_county_2001_est, by = c("GEOID", "reclass"))
 
 a <- ggplot(lc_compare, aes(x = total.x, y = total.y)) + geom_point()
-a + facet_wrap(~reclass)
+a + facet_wrap(~reclass, scales = "free") + geom_abline(intercept = 0, slope = 1)
 
 #bring all estimates together in one data frame
 lc_county_2001$year <- 2001
@@ -282,17 +282,59 @@ lc_county_2011$year <- 2011
 lc_county_1992_est$year <- 1992
 names(lc_county_1992_est)[2] <- "reclass"
 
-lc_all <- rbind(lc_county_1992_est, lc_county_2001, lc_county_2006, lc_county_2011)
+lc_all <- rbind(lc_county_2001, lc_county_2006, lc_county_2011)
 write.csv(lc_all, file = "landcover_all.csv", row.names = FALSE)
 
-b <- ggplot(lc_all[lc_all$GEOID == 26115,], aes(x = year, y = total, group = GEOID)) + geom_point()
-b + facet_wrap(~reclass) + geom_smooth(method = "lm")
+#plots trends over time by landclass for a county
+b <- ggplot(lc_all[lc_all$GEOID == 39115,], aes(x = year, y = total, group = GEOID)) + geom_point()
+b + facet_wrap(~reclass, scales = "free") + geom_smooth(method = "lm")
 
+######################################
+#Now combine landcover with pesticides
+######################################
 
+pests <- read.csv("Pesticides/OHpesticides.csv", header = TRUE)
 
+lc_all <- read.csv("landcover_all.csv", header = TRUE)
 
+#do linear regression and extrapolate from 2001-2011 landcover trends
+
+LandcoverLM <- function(dat){
+  mod <- lm(total ~ year, data = dat)
+  years <- data.frame(year = 1992:2011)
+  preds <- predict(mod, years)
+  return(data.frame(year = years, PredPix = preds))
+}
+
+#Only problem is this predicts some negative landcover! Only for small classes like barren and wetlands, though
+LandcoverEst <- data.frame()
+for (i in 1:length(unique(lc_all$GEOID))){
+  for (j in 1:length(unique(lc_all$reclass))){
+    temp <- lc_all[which(lc_all$GEOID == unique(lc_all$GEOID)[i] & lc_all$reclass == unique(lc_all$reclass)[j]), ]
+    if (dim(temp)[1] == 0) next
+    out <- LandcoverLM(temp)
+    out$GEOID <- unique(lc_all$GEOID)[i]
+    out$reclass <- unique(lc_all$reclass)[j]
+    LandcoverEst <- rbind(LandcoverEst, out)
+  }
+}
+names(LandcoverEst)[1] <- "YEAR"
+
+#Add agriculture landcover area to pesticide data
+pesticides <- merge(pests, LandcoverEst[LandcoverEst$reclass == 6, ])
+pesticides$kg_km2agri_high <- pesticides$KG_EPhigh / (pesticides$PredPix * 0.009)
+pesticides$kg_km2agri_low <- pesticides$KG_EPlow / (pesticides$PredPix * 0.009)
+
+write.csv(pesticides, file = "allpesticidesOH.csv")
 
 ```
+
+
+
+
+
+
+
 
 Chunks below are mostly first attempts/graveyard of failures.
 

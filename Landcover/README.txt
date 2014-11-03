@@ -5,6 +5,9 @@ landcover_all.csv is the one to use!
 "reclass" is Anderson Level I land cover: (0=nodata, 1=water, 2=developed, 3=barren, 4=forest, 5=grassland/shrub, 6=agriculture, 7=wetlands)
 "total" is the number of pixels (multiply by 0.009 to get square km)
 "year" is 1992, 2001, 2006, or 2011
+Important note: 1992 is off, was made with different methods. Even using the change product made to compare 1992/2001, 
+it really doesn't fit well with the 2001-2011 trends. I think I would ignore the 1992 for now.
+(NLCD has plans to combine all years in comparable format for the 2016 update, great...)
 
 NLCD processing summary in QGIS (point and click).
 
