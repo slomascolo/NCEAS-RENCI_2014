@@ -102,26 +102,6 @@ ohio_BBS_birds$route_abundance <- rowSums(ohio_BBS_birds[grep("^Stop[0-9]+", nam
 
 Next up: a summary.  Some counties have more than one route.  Thought on this? 
 
-# Summarising data
-
-````{r}
-ohio_BBS_birds_summary <- ohio_BBS_birds %>%
-  group_by(year, GEOID, common_name) %>%
-  summarise(mean_abund = mean(route_abundance),
-            sd = sd(route_abundance),
-            n = n()) %>%
-  mutate(sem_abund = sd/sqrt(n))
-
-#which(ohio_BBS_birds_summary$n>1)
-#names(ohio_BBS_birds_summary)
-
-ggplot(ohio_BBS_birds_summary, aes(x = year, y = mean_abund))+
-  geom_line(aes(colour = GEOID, group = GEOID))+
-  facet_wrap(~common_name, scales = "free") +
-  theme_bw()+
-  theme(legend.position = "bottom")
-````
-
 # Getting a version of the neonics
 
 ```{r, results = "hide", cache=FALSE}
@@ -192,9 +172,36 @@ ggplot(neonics_facts_ohio, aes(x = YEAR, y = kg_density)) +
 # Data reading done (almost)
 
 ````{r, results = "hide", cache=TRUE}
+ohio_BBS_birds_summary <- data.frame(ohio_BBS_birds %>%
+  group_by(year, GEOID, common_name) %>%
+  summarise(mean_abund = mean(route_abundance),
+            sd = sd(route_abundance),
+            n = n()) %>%
+  mutate(sem_abund = sd/sqrt(n)))
+```
+
+# Summarising data
+
+````{r}
+#which(ohio_BBS_birds_summary$n>1)
+#names(ohio_BBS_birds_summary)
+
+ggplot(ohio_BBS_birds_summary, aes(x = year, y = mean_abund))+
+  geom_line(aes(colour = GEOID, group = GEOID))+
+  facet_wrap(~common_name, scales = "free") +
+  theme_bw()+
+  theme(legend.position = "bottom")
+````
+
+```{r}
 names(ohio_BBS_birds_summary)<-toupper(names(ohio_BBS_birds_summary))
 neonics_facts_ohio$GEOID<-as.numeric(neonics_facts_ohio$GEOID)
+
+head(neonics_facts_ohio)
+head(ohio_BBS_birds_summary)
 ohio_insects <- merge(neonics_facts_ohio[neonics_facts_ohio$YEAR >= 1996 & neonics_facts_ohio$YEAR <=2009,], ohio_BBS_birds_summary[ohio_BBS_birds_summary$YEAR >= 1996 & ohio_BBS_birds_summary$YEAR <=2009,], by = c("YEAR", "GEOID"))
+
+unique(ohio_insects$YEAR)
 
 # without doing it for each county, response looks pretty poisson
 ggplot(ohio_BBS_birds_summary, aes(x = MEAN_ABUND))+
@@ -244,3 +251,13 @@ mod2<- glm(data= ohio_insects[ohio_insects$COMMON_NAME == "CHIMNEY SWIFT",], MEA
 summary(mod2)
 save.image(file = "BBS_pest.Rdata")
 ````
+
+```{r exploring landcover}
+#setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data")
+landcover_all <- read.csv("../Landcover/landcover_all.csv")
+head(landcover_all)
+head(ohio_insects)
+
+unique(ohio_insects$YEAR)
+unique(landcover_all$year)
+```
