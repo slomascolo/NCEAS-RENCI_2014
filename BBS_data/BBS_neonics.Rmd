@@ -265,4 +265,17 @@ sort(unique(neonics_facts_ohio$YEAR))
 sort(unique(ohio_BBS_birds_summary$YEAR))
 sort(unique(ohio_BBS_birds$year))
 sort(unique(neonics_raw_ohio$YEAR))
+
+class(landcover_all$year)
+head(landcover_all)
+landcover_sum1 <- data.frame(landcover_all %>%
+                               group_by(year, reclass) %>%
+                               summarise(
+                                 landcover = sum(total)))
+landcover_sum2 <-aggregate(total ~ year + reclass, landcover_all,  FUN = sum)
+
+ggplot(landcover_sum2[landcover_sum1$year>1992, ], aes(x = year, y = total)) +
+  geom_bar(aes(fill = factor(reclass)), stat = "identity")+
+  theme_bw() +
+  facet_wrap(~ reclass, scales = "free")
 ```
