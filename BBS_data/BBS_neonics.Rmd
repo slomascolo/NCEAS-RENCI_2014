@@ -44,13 +44,17 @@ if(!require(ggthemes)){
   install.packages("ggthemes", repos = 'http://cran.stat.auckland.ac.nz/')
   library(ggthemes)
 }
+if(!require(vegan)){
+  install.packages("vegan", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(vegan)
+}
 
 
 
 ````
 
 ````{r, results = "hide", cache=FALSE}
-setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data")
+#setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data")
 traits_commmon_steep <- read.csv("raw_data/commonbirds_steepdecline_traits.csv")
 str(traits_commmon_steep)
 
@@ -72,12 +76,16 @@ levels(traits_commmon_steep_insectohio$common_name)
 Next I also had to import the AOU codes because those are used in BBS, so we have a common 'key'. 
 
 ````{r, results = "hide"}
-AOU_codes <- read.csv("raw_data/AOU_codes.csv")
+AOU_codes <- read.csv("raw_data/AOU_codes.csv") ## a cleaned up (ie header removed, split into columns - no substantive changes to any species names or column headers) version of: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt
+
+AOU_codes$common_name <- toupper(AOU_codes$English_Common_Name)
+
+#testing that all our traits at leat are in the new AOU codes:
+traits_commmon_steep_insectohio$common_name%in% AOU_codes$common_name # = TRUE.
 
 # merge the AOU codes into the ohio data
 traits_commmon_steep_insectohio2 <- as.data.frame(inner_join(AOU_codes, traits_commmon_steep_insectohio))
 
-head(traits_commmon_steep_insectohio2)
 ````
 
 # Task three: BBS data
@@ -109,6 +117,11 @@ ohio_all_birds_geo$route_abundance <- rowSums(ohio_all_birds_geo[grep("^Stop[0-9
 names(ohio_all_birds_geo)
 ohio_all_birds_geo <- ohio_all_birds_geo[ , c(1:7, 58:62)]
 head(ohio_all_birds_geo)
+
+
+ohio_all_birds_geo_AOU<-merge(AOU_codes, ohio_all_birds_geo)
+dim(ohio_all_birds_geo) 
+dim(ohio_all_birds_geo_AOU)) # the same. good
 
 # created a column of sums for all the stops on each route:
 ohio_BBS_birds$route_abundance <- rowSums(ohio_BBS_birds[grep("^Stop[0-9]+", names(ohio_BBS_birds))])
@@ -213,18 +226,31 @@ ggplot(ohio_BBS_birds_summary, aes(x = year, y = mean_abund))+
 ````
 
 ```{r}
-names(ohio_all_birds_geo)<-toupper(names(ohio_all_birds_geo))
-#need to merge the year
-summary(ohio_all_birds_geo$YEAR)
-summary(neonics_facts_ohio$YEAR)
-sort(unique(ohio_all_birds_geo$YEAR))
-sort(unique(neonics_facts_ohio$YEAR))
-
-all_birds_ohio<-merge(ohio_all_birds_geo[ ohio_all_birds_geo$YEAR > 1995 & ohio_all_birds_geo$YEAR < 2010, ], neonics_facts_ohio[neonics_facts_ohio$YEAR > 1995 & neonics_facts_ohio$YEAR < 2010,])
-
 
 names(ohio_BBS_birds_summary)<-toupper(names(ohio_BBS_birds_summary))
 neonics_facts_ohio$GEOID<-as.numeric(neonics_facts_ohio$GEOID)
+names(ohio_all_birds_geo_AOU)<-toupper(names(ohio_all_birds_geo_AOU))
+ohio_all_birds_geo_AOU$GEOID <- as.numeric(ohio_all_birds_geo_AOU)
+names(neonics_facts_ohio)
+#need to merge the year
+summary(ohio_all_birds_geo_AOU$YEAR)
+summary(neonics_facts_ohio$YEAR)
+sort(unique(ohio_all_birds_geo_AOU$YEAR))
+sort(unique(neonics_facts_ohio$YEAR))
+dim(ohio_all_birds_geo_AOU)
+dim(neonics_facts_ohio)
+ohio_all_birds_geo_AOU_short <- ohio_all_birds_geo_AOU[ ohio_all_birds_geo_AOU$YEAR > 1995 & ohio_all_birds_geo_AOU$YEAR < 2010, ]
+neonics_facts_ohio_short<-neonics_facts_ohio[neonics_facts_ohio$YEAR > 1995 & neonics_facts_ohio$YEAR < 2010,]
+
+sort(unique(ohio_all_birds_geo_AOU_short$GEOID)) %in% sort(unique(neonics_facts_ohio_short$GEOID))
+
+sort(unique(ohio_all_birds_geo_AOU_short$YEAR)) %in% sort(unique(neonics_facts_ohio_short$YEAR))
+
+
+all_birds_ohio<-inner_join(neonics_facts_ohio_short,ohio_all_birds_geo_AOU_short)
+names(all_birds_ohio)
+all_birds_ohio <- all_birds_ohio[ , c(1:19, 22:33,35)]
+ 
 
 head(neonics_facts_ohio)
 head(ohio_BBS_birds_summary)
@@ -278,7 +304,7 @@ try(mod1_pred <- predict(mod1, type = "response"))
 mod2<- glm(data= ohio_insects[ohio_insects$COMMON_NAME == "CHIMNEY SWIFT",], MEAN_ABUND ~ kg_density:COMPOUND,
            family = "poisson")
 summary(mod2)
-save.image(file = "BBS_pest.Rdata")
+#save.image(file = "BBS_pest.Rdata")
 ````
 
 ```{r exploring landcover}
@@ -308,52 +334,5 @@ ggplot(landcover_sum2[landcover_sum1$year>1992, ], aes(x = year, y = total)) +
   theme_bw() +
   facet_wrap(~ reclass, scales = "free") +
   scale_fill_colorblind(guide = FALSE)
-
-```
-
-````{r}
-head(ohio_BBS_birds)
-names(ohio_BBS_birds)
-
-ohio_BBS_birds_short <- ohio_BBS_birds[ ,c(58, 71, 7, 3, 69, 70)] # ignoring the "stop" data primarily
-head(ohio_BBS_birds_short)
-ohio_BBS_birds_short2 <- spread(ohio_BBS_birds_short, key = common_name, value = route_abundance)
-head(ohio_BBS_birds_short2)
-names(ohio_BBS_birds_short2)
-ohio_BBS_birds_short2[is.na(ohio_BBS_birds_short2)]<-0
-
-head(ohio_BBS_birds_short2)
-
-require(vegan)
-names(ohio_BBS_birds_short2)
-
-
-nmds_neonics <- metaMDS(ohio_BBS_birds_short2[, 5:14])
-plot(nmds_neonics)
-checking <- str(scores(nmds_neonics, display = "sites"))
-birdMDS <- data.frame(NMDS1 = nmds_neonics$points[,1],
-                      NMDS2 = nmds_neonics$points[,2])
-
-ohio_BBS_birds_short2[c(which(birdMDS$NMDS1 > 8)), "BLACKPOLL WARBLER"]
-#blackpoll warbler is outlier
-
-ordiellipse(nmds_neonics, ohio_BBS_birds_short2$year, col = "forestgreen")
-veg<-vegdist(ohio_BBS_birds_short2[, 3:12], method = "bray")
-
-beta_adonis <- adonis(veg ~ year, data = ohio_BBS_birds_short2, permutations = 500, strata = "RouteDataID")
-beta_nenonic <- betadisper(veg, ohio_BBS_birds_short2$year)
-beta_nenonic
-
-boxplot(beta_nenonic, ylab = "Distance to centroid")
-
-## S3 method for class 'betadisper'
-TukeyHSD(beta_nenonic, ordered = TRUE)
-
-head(neonics_raw_ohio)
-neonics_raw_ohioj <- spread(neonics_raw_ohio, key = COMPOUND, value = KG) # not working
-dim(neonics_raw_ohioj)
-dim(neonics_raw_ohio)
-dim(ohio_BBS_birds_short2) #merge by rows, exclude the right years.
-neonvegbirds <- merge(neonics_raw_ohio, ohio_BBS_birds_short2)
 
 ```

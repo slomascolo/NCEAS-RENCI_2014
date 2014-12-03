@@ -1,0 +1,164 @@
+---
+title: "BBS_neonics_NMDS"
+author: "Olivia Burge"
+date: "Wednesday, December 03, 2014"
+output: html_document
+---
+
+```{r packagesetup}
+```{r, include = FALSE}
+#best you be changing the repos. Whatever repos you usually use isn't picked up 
+#when knitting and you need to install and it just throws an error.
+if(!require(ggplot2)){
+    install.packages("ggplot2", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(ggplot2)
+}
+if(!require(lme4)){
+    install.packages("lme4", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(lme4)
+}
+if(!require(tidyr)){
+    install.packages("tidyr", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(tidyr)
+}
+if(!require(stringr)){
+    install.packages("stringr", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(stringr)
+}
+if(!require(grid)){
+  install.packages("grid", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(grid)
+}
+if(!require(RCurl)){
+  install.packages("RCurl", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(RCurl)
+}
+if(!require(dplyr)){
+  install.packages("dplyr", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(dplyr)
+}
+
+if(!require(ggthemes)){
+  install.packages("ggthemes", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(ggthemes)
+}
+if(!require(vegan)){
+  install.packages("vegan", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(vegan)
+}
+````
+
+```
+
+# AOU Codes
+Required because BBS uses "AOU" codes for its species, but they aren't the same as everywhere.  These ones are sourced from their website, and post-processed into a csv.
+````{r, AOUdata, results = "hide"}
+AOU_codes <- read.csv("raw_data/AOU_codes.csv") ## a cleaned up (ie header removed, split into columns - no substantive changes to any species names or column headers) version of: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt
+names(AOU_codes) <- toupper(AOU_codes)
+````
+
+# BBS data
+I got the BBS data from: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles//50-StopData/1997ToPresent_SurveyWide/Fifty7.zip.  The metadata is available: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles//FiftySt.txt.
+
+````{r, results = "hide"}
+ohio_BBS <- read.csv("raw_data/fifty7.csv")
+names(ohio_BBS) <- toupper(names(ohio_BBS))
+head(ohio_BBS)
+#adding abundance
+ohio_BBS$ROUTE_ABUNDANCE <- rowSums(ohio_BBS[grep("^STOP[0-9]+", names(ohio_BBS))])
+head(ohio_BBS)
+ohio_BBS <- ohio_BBS %>% select(ROUTEDATAID,  YEAR, AOU, ROUTE_ABUNDANCE)
+head(ohio_BBS)
+
+
+## merging in the species names
+ohio_BBS_AOU <-merge(AOU_codes, ohio_BBS)
+
+#now we need to locate the routes in each county.  I read in the file Tyson had already located for us:
+ohio_BBS_routes_countiesraw <- read.csv("raw_data/BBSdata.by.county.csv")
+names(ohio_BBS_routes_countiesraw) <- toupper(names(ohio_BBS_routes_countiesraw))
+head(ohio_BBS_routes_countiesraw)
+ohio_BBS_routes_countiesraw2 <- ohio_BBS_routes_countiesraw[!duplicated(ohio_BBS_routes_countiesraw$ROUTE), c(1,4,5,6,7)]
+
+names(ohio_BBS) %in% names(ohio_BBS_routes_countiesraw2)
+#and then joined the two
+ohio_BBS_birds <- inner_join(ohio_BBS, ohio_BBS_routes_countiesraw2)
+head(ohio_BBS_birds)
+names(ohio_BBS_birds)
+
+#summing the birds for each route:
+
+
+names(ohio_all_birds_geo)
+ohio_all_birds_geo <- ohio_all_birds_geo[ , c(1:7, 58:62)]
+head(ohio_all_birds_geo)
+
+
+ohio_all_birds_geo_AOU<-merge(AOU_codes, ohio_all_birds_geo)
+dim(ohio_all_birds_geo) 
+dim(ohio_all_birds_geo_AOU)) # the same. good
+
+# created a column of sums for all the stops on each route:
+ohio_BBS_birds$route_abundance <- rowSums(ohio_BBS_birds[grep("^Stop[0-9]+", names(ohio_BBS_birds))])
+#using grep means even if the columns change position, we will still get the right ones for rowsums.
+
+```
+
+```{r actualNMDS}
+head(all_birds_ohio)
+names(all_birds_ohio) <- toupper(names(all_birds_ohio))
+names(all_birds_ohio) 
+ohio_BBS_birds_shortB <- data.frame(all_birds_ohio %>% group_by(GEOID, YEAR, ENGLISH_COMMON_NAME)  %>% 
+  summarise(ROUTE_ABUNDANCE = mean(ROUTE_ABUNDANCE)))
+head(ohio_BBS_birds_shortB)
+
+ohio_BBS_birds_short <- ohio_BBS_birds_shortB %>% spread( key = ENGLISH_COMMON_NAME, value = ROUTE_ABUNDANCE, fill = 0)
+
+names(ohio_BBS_birds_short)
+head(ohio_BBS_birds_short)
+set.seed(333)
+nmds_ohio <- metaMDS(ohio_BBS_birds_short[ , 3:327])
+plot(nmds_ohio)
+ordicluster(nmds_ohio,ohio_BBS_birds_short$YEAR)
+
+## i think we want to do a constrained ordination through time. and                        
+
+head(ohio_BBS_birds_short2)
+names(ohio_BBS_birds_short2)
+ohio_BBS_birds_short2[is.na(ohio_BBS_birds_short2)]<-0
+
+head(ohio_BBS_birds_short2)
+
+
+names(ohio_BBS_birds_short2)
+
+
+nmds_neonics <- metaMDS(ohio_BBS_birds_short2[, 5:14])
+plot(nmds_neonics)
+checking <- str(scores(nmds_neonics, display = "sites"))
+birdMDS <- data.frame(NMDS1 = nmds_neonics$points[,1],
+                      NMDS2 = nmds_neonics$points[,2])
+
+ohio_BBS_birds_short2[c(which(birdMDS$NMDS1 > 8)), "BLACKPOLL WARBLER"]
+#blackpoll warbler is outlier
+
+ordiellipse(nmds_neonics, ohio_BBS_birds_short2$year, col = "forestgreen")
+veg<-vegdist(ohio_BBS_birds_short2[, 3:12], method = "bray")
+
+beta_adonis <- adonis(veg ~ year, data = ohio_BBS_birds_short2, permutations = 500, strata = "RouteDataID")
+beta_nenonic <- betadisper(veg, ohio_BBS_birds_short2$year)
+beta_nenonic
+
+boxplot(beta_nenonic, ylab = "Distance to centroid")
+
+## S3 method for class 'betadisper'
+TukeyHSD(beta_nenonic, ordered = TRUE)
+
+head(neonics_raw_ohio)
+neonics_raw_ohioj <- spread(neonics_raw_ohio, key = COMPOUND, value = KG) # not working
+dim(neonics_raw_ohioj)
+dim(neonics_raw_ohio)
+dim(ohio_BBS_birds_short2) #merge by rows, exclude the right years.
+neonvegbirds <- merge(neonics_raw_ohio, ohio_BBS_birds_short2)
+
+```
