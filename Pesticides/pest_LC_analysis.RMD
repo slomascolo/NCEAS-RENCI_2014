@@ -787,9 +787,44 @@ test <- LC_buffer_overtime %>%
 ```
 
 
+Added 16/12/14: Update BBS route coding to match population data everyone is using.
+The RouteDataID is a unique identifier of site x year x other shit, but it's not used in all of USGS's data. 
+
+Also, my landcover and pesticide .csv files use a different identifier.
+
+I'm adding an identifier so that all can be merged: "RTENO"
+
+```{r update BBS route coding}
+library(plyr)
+setwd("C:/Users/Tyson/REPO/NCEAS-RENCI_2014")
+
+load("Pesticides/BBSrtcodes.RData")
+match_file <- rts[, c(1:2)]
+
+#Population data that we all use?
+ohio_BBS <- read.csv("BBS_data/raw_data/fifty7.csv")
+head(ohio_BBS)
+
+ohio_BBS$RTENO <- paste(ohio_BBS$statenum, formatC(ohio_BBS$Route, width = 3, format = "d", flag = "0"), sep = "")
+
+write.csv(ohio_BBS, file = "fifty7_withRTENO.csv", row.names = FALSE)
 
 
 
+#change codes on pest_buff_overtime.csv
+pest <- read.csv("Pesticides/pest_buff_overtime.csv")
+LC <- read.csv("Pesticides/LC_buffers_overtime.csv")
+
+pest$RTENO <- mapvalues(pest$BBS_route, from = match_file[,1], to = match_file[,2])
+LC$RTENO <- mapvalues(LC$BBS_route, from = match_file[,1], to = match_file[,2])
+
+write.csv(pest, "Pesticides/pest_buff_overtime.csv", row.names = FALSE)
+write.csv(LC, "Pesticides/LC_buffers_overtime.csv", row.names = FALSE)
+
+
+#works, but error says 'from' value 2380 not present in x. Landcover analysis missing one route???
+
+```
 
 
 
