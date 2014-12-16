@@ -807,7 +807,7 @@ head(ohio_BBS)
 
 ohio_BBS$RTENO <- paste(ohio_BBS$statenum, formatC(ohio_BBS$Route, width = 3, format = "d", flag = "0"), sep = "")
 
-write.csv(ohio_BBS, file = "fifty7_withRTENO.csv", row.names = FALSE)
+write.csv(ohio_BBS, file = "BBS_data/fifty7_withRTENO.csv", row.names = FALSE)
 
 
 
