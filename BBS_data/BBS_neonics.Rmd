@@ -11,6 +11,8 @@ I've saved a csv of common birds in steep decline from Kelly's xlsx.  The only c
 ```{r, include = FALSE}
 #best you be changing the repos. Whatever repos you usually use isn't picked up 
 #when knitting and you need to install and it just throws an error.
+#
+#setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data")
 if(!require(ggplot2)){
     install.packages("ggplot2", repos = 'http://cran.stat.auckland.ac.nz/')
     library(ggplot2)
@@ -54,7 +56,7 @@ if(!require(vegan)){
 ````
 
 ````{r, results = "hide", cache=FALSE}
-#setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data")
+
 traits_commmon_steep <- read.csv("raw_data/commonbirds_steepdecline_traits.csv")
 str(traits_commmon_steep)
 
@@ -81,7 +83,7 @@ AOU_codes <- read.csv("raw_data/AOU_codes.csv") ## a cleaned up (ie header remov
 AOU_codes$common_name <- toupper(AOU_codes$English_Common_Name)
 
 #testing that all our traits at leat are in the new AOU codes:
-traits_commmon_steep_insectohio$common_name%in% AOU_codes$common_name # = TRUE.
+traits_commmon_steep_insectohio$common_name %in% AOU_codes$common_name # = TRUE.
 
 # merge the AOU codes into the ohio data
 traits_commmon_steep_insectohio2 <- as.data.frame(inner_join(AOU_codes, traits_commmon_steep_insectohio))
