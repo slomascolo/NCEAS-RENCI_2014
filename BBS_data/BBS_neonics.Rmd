@@ -51,6 +51,10 @@ if(!require(vegan)){
   library(vegan)
 }
 
+if(!require(data.table)){
+  install.packages("data.table", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(data.table)
+}
 
 
 ````
