@@ -49,17 +49,19 @@ OH.census <- census[census$USPS == "OH", ]
 OH.co.pesticides <- merge(county.data, OH.census)
 
 write.csv(OH.co.pesticides, file = "OHpesticides.csv", row.names = FALSE)
-# 
-# OH.co.pesticides$density_low <- OH.co.pesticides$KG_EPlow / OH.co.pesticides$ALAND_SQMI
-# OH.co.pesticides$density_high <- OH.co.pesticides$KG_EPhigh / OH.co.pesticides$ALAND_SQMI
-# 
-# #just neonicotinoids (and Fipronil because it's similar)
-# OH.co.pesticides$COMPOUND <- as.character(OH.co.pesticides$COMPOUND)
-# nicos <- c("ACETAMIPRID", "CLOTHIANIDIN", "FIPRONIL", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM")
-# OH.neonico <- OH.co.pesticides[which(OH.co.pesticides$COMPOUND %in% nicos), ]
-# OH.neonico$density_low <- OH.neonico$KG_EPlow / OH.neonico$ALAND_SQMI
-# OH.neonico$density_high <- OH.neonico$KG_EPhigh / OH.neonico$ALAND_SQMI
-# write.csv(OH.neonico, file = "OH.neonicotinoids.csv", row.names = FALSE)
+
+OH.co.pesticides <- OH.pest
+
+OH.co.pesticides$density_low <- OH.co.pesticides$KG_EPlow / OH.co.pesticides$ALAND_SQMI
+OH.co.pesticides$density_high <- OH.co.pesticides$KG_EPhigh / OH.co.pesticides$ALAND_SQMI
+
+#just neonicotinoids (and Fipronil because it's similar)
+OH.co.pesticides$COMPOUND <- as.character(OH.co.pesticides$COMPOUND)
+nicos <- c("ACETAMIPRID", "CLOTHIANIDIN", "FIPRONIL", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM")
+OH.neonico <- OH.co.pesticides[which(OH.co.pesticides$COMPOUND %in% nicos), ]
+OH.neonico$density_low <- OH.neonico$KG_EPlow / OH.neonico$ALAND_SQMI
+OH.neonico$density_high <- OH.neonico$KG_EPhigh / OH.neonico$ALAND_SQMI
+write.csv(OH.neonico, file = "OH.neonicotinoids.csv", row.names = FALSE)
 ```
 
 This chunk plots pesticide use over time by county in Ohio.
@@ -70,7 +72,10 @@ library(rgdal)
 library(RColorBrewer)
 library(sp)
 library(classInt)
-setwd("C:/Users/Tyson/Desktop/Pesticides")
+setwd("C:/Users/Tyson/REPO/NCEAS-RENCI_2014/Pesticides")
+
+OH.pest <- read.csv("OHpesticides.csv", header = TRUE)
+pest <- OH.pest[which(OH.pest$STATE_FIPS_CODE == 39 & OH.pest$COMPOUND == "IMIDACLOPRID"), ]
 
 OH.neonico <- read.csv("OH.neonicotinoids.csv", header = TRUE)
 base <- ggplot(data = OH.neonico, aes(x = YEAR, y = density_high, group = County.Name)) + geom_point()
@@ -83,7 +88,7 @@ OHco <- OHco[OHco$STATEFP == 39,]
 
 #make color scale across all years to see change in intensity over time
 compounds <- unique(OH.neonico$COMPOUND)
-pest <- OH.neonico[OH.neonico$COMPOUND == compounds[5], ]
+pest <- OH.neonico[OH.neonico$COMPOUND == compounds[1], ]
 
 
 #select color palette and the number colors to represent on the map
@@ -93,6 +98,7 @@ brks<-classIntervals(pest$density_high, n=9, style="quantile")
 brks<- brks$brks
 
 par(mfrow=c(1, max(pest$YEAR) - min(pest$YEAR) + 1), mar=c(1,1,1,1)+0.1, oma=c(1,1,1,1)+0.1)
+par(mfrow=c(2, 9), mar=c(1,1,1,1)+0.1, oma=c(1,1,1,1)+0.1)
 
 for (i in min(pest$YEAR):max(pest$YEAR)){
   
