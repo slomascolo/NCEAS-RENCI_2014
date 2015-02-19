@@ -1,0 +1,173 @@
+---
+title: "BBS_neonics_NMDS"
+author: "Olivia Burge"
+date: "Wednesday, December 03, 2014"
+output: html_document
+---
+
+```{r packagesetup}
+
+#best you be changing the repos. Whatever repos you usually use isn't picked up 
+#when knitting and you need to install and it just throws an error.
+if(!require(ggplot2)){
+    install.packages("ggplot2", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(ggplot2)
+ }
+if(!require(lme4)){
+    install.packages("lme4", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(lme4)
+}
+if(!require(tidyr)){
+    install.packages("tidyr", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(tidyr)
+}
+if(!require(stringr)){
+    install.packages("stringr", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(stringr)
+}
+if(!require(grid)){
+  install.packages("grid", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(grid)
+}
+if(!require(RCurl)){
+  install.packages("RCurl", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(RCurl)
+}
+if(!require(dplyr)){
+  install.packages("dplyr", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(dplyr)
+}
+
+if(!require(ggthemes)){
+  install.packages("ggthemes", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(ggthemes)
+}
+if(!require(vegan)){
+  install.packages("vegan", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(vegan)
+}
+````
+
+```
+
+# AOU Codes
+Required because BBS uses "AOU" codes for its species, but they aren't the same as everywhere.  These ones are sourced from their website, and post-processed into a csv.
+````{r, AOUdata, results = "hide"}
+#setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data")
+AOU_codes <- read.csv("raw_data/AOU_codes.csv") ## a cleaned up (ie header removed, split into columns - no substantive changes to any species names or column headers) version of: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt
+head(AOU_codes)
+AOU_codes <- AOU_codes[ - 4] # removing the French language names which have a bunch of mis-translated characters in 
+names(AOU_codes) <- toupper(names(AOU_codes))
+````
+
+# BBS data
+I got the BBS data from: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles//50-StopData/1997ToPresent_SurveyWide/Fifty7.zip.  The metadata is available: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles//FiftySt.txt.
+
+````{r, results = "hide"}
+ohio_BBS <- read.csv("raw_data/fifty7.csv")
+names(ohio_BBS) <- toupper(names(ohio_BBS))
+head(ohio_BBS)
+
+#adding abundance
+ohio_BBS$ROUTE_ABUNDANCE <- rowSums(ohio_BBS[grep("^STOP[0-9]+", names(ohio_BBS))])
+head(ohio_BBS)
+ohio_BBS <- ohio_BBS %>% select(ROUTE,  YEAR, AOU, ROUTE_ABUNDANCE)
+head(ohio_BBS)
+
+
+names(ohio_BBS)
+names(AOU_codes)
+## merging in the species names
+ohio_BBS_AOU <-inner_join(ohio_BBS, AOU_codes)
+
+#now we need to locate the routes in each county.  I read in the file Tyson had already located for us:
+ohio_BBS_routes_countiesraw <- read.csv("raw_data/BBSdata.by.county.csv")
+names(ohio_BBS_routes_countiesraw) <- toupper(names(ohio_BBS_routes_countiesraw))
+head(ohio_BBS_routes_countiesraw)
+ohio_BBS_routes_countiesraw2 <- ohio_BBS_routes_countiesraw[!duplicated(ohio_BBS_routes_countiesraw$ROUTE), c(1,4,5,6,7)]
+
+names(ohio_BBS_AOU) %in% names(ohio_BBS_routes_countiesraw2)
+#and then joined the two
+ohio_BBS_birds <- inner_join(ohio_BBS_AOU, ohio_BBS_routes_countiesraw2)
+head(ohio_BBS_birds)
+names(ohio_BBS_birds)
+
+```
+
+```{r actualNMDS}
+
+## data prep
+head(ohio_BBS_birds)
+names(ohio_BBS_birds) <- toupper(names(ohio_BBS_birds))
+names(ohio_BBS_birds) 
+
+# need one value per route per year
+ohio_BBS_birds_shortB <- data.frame(ohio_BBS_birds %>% group_by(ROUTE, COUNTY, GEOID, YEAR, COMMON_NAME)  %>% filter(YEAR >1996 & YEAR < 2010) %>% summarise(ROUTE_ABUNDANCE = mean(ROUTE_ABUNDANCE)))
+head(ohio_BBS_birds_shortB)
+
+# need a matrix with species as columns
+ohio_BBS_birds_short <- ohio_BBS_birds_shortB %>% spread(key = COMMON_NAME, value = ROUTE_ABUNDANCE, fill = 0)
+
+names(ohio_BBS_birds_short)
+head(ohio_BBS_birds_short)
+set.seed(333) # reproducibility
+
+# NMDS
+nmds_ohio <- metaMDS(ohio_BBS_birds_short[ , 5:313])
+
+# quick visual
+plot(nmds_ohio)
+ordiellipse(nmds_ohio, ohio_BBS_birds_short$YEAR)
+
+# envfit - by year and county
+env_birds <- envfit(nmds_ohio, ohio_BBS_birds_short[,c(2,4)])
+
+# adonis - effefct of year after accounting for county differences, strata by route. + interaction effct
+adonis_birds <- adonis(ohio_BBS_birds_short[, 5:313] ~ COUNTY * YEAR, strata = ohio_BBS_birds_short$ROUTE, data =ohio_BBS_birds_short )
+
+# betadisper
+birds_dist <- vegdist(ohio_BBS_birds_short[, 5:313], method = "bray")
+beta_nenonic <- betadisper(birds_dist, ohio_BBS_birds_short$YEAR)
+beta_nenonic
+
+boxplot(beta_nenonic, ylab = "Distance to centroid")
+TukeyHSD(beta_nenonic, ordered = TRUE)
+
+## plot
+
+birdMDSdata <- data.frame(ROUTE = ohio_BBS_birds_short$ROUTE, 
+                          GEOID = ohio_BBS_birds_short$GEOID,
+                          COUNTY = ohio_BBS_birds_short$COUNTY,
+                          YEAR = ohio_BBS_birds_short$YEAR,
+                          NMDS1 = nmds_ohio$points[,1],
+                          NMDS2 = nmds_ohio$points[,2])
+
+## Birds NMDS.. obivously need to get rid of 1996.
+birdplot_1 <- ggplot(birdMDSdata, aes (x = NMDS1, y = NMDS2)) +
+  geom_point(aes(colour = factor(YEAR))) +
+  geom_density2d(aes(colour = factor(YEAR), group = YEAR)) +
+  facet_wrap(~ YEAR) +
+  scale_colour_discrete(guide = FALSE)+
+  theme_bw() 
+
+
+birdplot_1
+
+````
+
+# Why? 
+This is all just practice.  Need to add in feeding guilds to the above and the neonics/pesticides.
+
+```{r neonics}
+## come back to here!
+# neonics_raw_ohioj <- spread(neonics_raw_ohio, key = COMPOUND, value = KG) # not working
+# dim(neonics_raw_ohioj)
+# dim(neonics_raw_ohio)
+# dim(ohio_BBS_birds_short2) #merge by rows, exclude the right years.
+# neonvegbirds <- merge(neonics_raw_ohio, ohio_BBS_birds_short2)
+
+
+
+
+
+```

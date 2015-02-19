@@ -9,45 +9,588 @@ County-level metrics of land cover.
 From NLCD rasters on land cover, LC change, and crop data.
 Chracterize counties by land use, change, and crop patch diversity.
 
+Update 10/30/14: Made new raw GIS layers of clipped landcover products. Will now use these.
+Also, need to include counties in other states bordering OH for buffers that go over state line.
+
+
+
+In this chunk, I find landcover by county for 2001, 2006, and 2011. Also the 1992-2001 landcover change by county. These will be used for pesticide use rejiggering from county average to survey buffers. 
+
+
 ```{r}
 library(rgdal)
 library(raster)
 library(plotKML)
-setwd("C:/Users/Tyson/Desktop/OSS_GIS")
+library(parallel)
 
+setwd("C:/Users/Tyson/Desktop/Clipped/Final clipped")
 
-test.file <- "oh_lc.tif"
+#######################
+#2006 Landcover
+#################
+test.file <- "lc2006.tif"
 r <- raster(test.file)
-hasValues(r)
-inMemory(r)
-plot(r)
+# hasValues(r)
+# inMemory(r)
+# plot(r)
 
-#slow reprojection, install FW tools
+#set CRS as Equal Albers Area projection
 proj4string(r) <- CRS("+init=epsg:5070")
-r_p <- reproject(r)
 
-co.shp <- "county_OH"
+#bring in county shapefile and reproject to match rasters
+co.shp <- "oh_counties_plus"
 OHco <- readOGR(dsn = getwd(), layer = co.shp)
-proj4string(OHco) <- CRS("+init=epsg:5070")
-OHco_p <- reproject(OHco)
+OHco_p <- reproject(OHco, proj4string(r))
 
-results <- list()
-for (i in 1:length(unique(OHco_p$GEOID))){
-  co_sub <- OHco_p[OHco_p$GEOID == unique(OHco_p$GEOID)[i], ]
-  co_lc <- extract(r, co_sub)
-  counts <- lapply(co_lc, table)
-  pct <- lapply(counts, FUN=function(x){x / sum(x)})
-  results[[i]] <- pct
-  }
-save(results, file = "lc_OH.RData")  
+#Function to extract land use pixels from raster by county GEOID
+### Make function and try it out before parallelizing
+    ### ########################################################
+    RasterToCounty <- function(GEOID){
+      co_sub <- OHco_p[OHco_p$GEOID == GEOID, ]
+      co_lc <- extract(r, co_sub)
+      counts <- lapply(co_lc, table)
+      #pct <- lapply(counts, FUN=function(x){x / sum(x)})
+      return(list(GEOID, counts))
+    }
+
+    #test <- lapply(unique(OHco_p$GEOID)[1:2], RasterToCounty)
+
+#Runtime 1.75 hours
+system.time({
+    ### set up cluster call
+    ### ######################################################
+    cl <- makePSOCKcluster(4)
+
+    clusterExport(cl, c("OHco_p", "RasterToCounty", "r"))
+    junk <- clusterEvalQ(cl, c(library(raster), library(rgdal)))
+
+    ### read into raster format using parallel version of lapply
+    ### #################
+    results.par <- parLapply(cl, unique(OHco_p$GEOID), RasterToCounty)
+
+    ### stop the cluster
+    ### #########################################################
+    stopCluster(cl)
+})
+
+save(results.par, file = "lc_OH2006.RData") 
+
+
+######################
+#2001 landcover
+######################
+test.file <- "lc2001.tif"
+r <- raster(test.file)
+# hasValues(r)
+# inMemory(r)
+# plot(r)
+
+#set CRS as Equal Albers Area projection
+proj4string(r) <- CRS("+init=epsg:5070")
+
+#Runtime 1.75 hours
+system.time({
+    ### set up cluster call
+    ### ######################################################
+    cl <- makePSOCKcluster(4)
+
+    clusterExport(cl, c("OHco_p", "RasterToCounty", "r"))
+    junk <- clusterEvalQ(cl, c(library(raster), library(rgdal)))
+
+    ### read into raster format using parallel version of lapply
+    ### #################
+    results.par <- parLapply(cl, unique(OHco_p$GEOID), RasterToCounty)
+
+    ### stop the cluster
+    ### #########################################################
+    stopCluster(cl)
+})
+
+save(results.par, file = "lc_OH2001.RData") 
+
+##################
+#2011 landcover
+######################
+
+test.file <- "lc2011.tif"
+r <- raster(test.file)
+# hasValues(r)
+# inMemory(r)
+# plot(r)
+
+#set CRS as Equal Albers Area projection
+proj4string(r) <- CRS("+init=epsg:5070")
+
+#Runtime 1.75 hours
+system.time({
+    ### set up cluster call
+    ### ######################################################
+    cl <- makePSOCKcluster(4)
+
+    clusterExport(cl, c("OHco_p", "RasterToCounty", "r"))
+    junk <- clusterEvalQ(cl, c(library(raster), library(rgdal)))
+
+    ### read into raster format using parallel version of lapply
+    ### #################
+    results.par <- parLapply(cl, unique(OHco_p$GEOID), RasterToCounty)
+
+    ### stop the cluster
+    ### #########################################################
+    stopCluster(cl)
+})
+
+save(results.par, file = "lc_OH2011.RData") 
+
+
+
+##################
+#Change from 1992 to 2001 landcover
+######################
+
+test.file <- "lc_chg_9201.tif"
+r <- raster(test.file)
+# hasValues(r)
+# inMemory(r)
+# plot(r)
+
+#set CRS as Equal Albers Area projection
+proj4string(r) <- CRS("+init=epsg:5070")
+
+#Runtime 1.75 hours
+system.time({
+    ### set up cluster call
+    ### ######################################################
+    cl <- makePSOCKcluster(4)
+
+    clusterExport(cl, c("OHco_p", "RasterToCounty", "r"))
+    junk <- clusterEvalQ(cl, c(library(raster), library(rgdal)))
+
+    ### read into raster format using parallel version of lapply
+    ### #################
+    results.par <- parLapply(cl, unique(OHco_p$GEOID), RasterToCounty)
+
+    ### stop the cluster
+    ### #########################################################
+    stopCluster(cl)
+})
+
+save(results.par, file = "lc_chg_9201.RData") 
+
 
 ```
 
+
+For each county x compound x year, I want to estimate amount of pesticide used scaled by cropland landcover.
+Need to bring together landcover (county-scale) estimates for 4 landcover products first. Possibly use linear trend from 1992-2011.
+
+
+```{r rescale pesticides}
+library(rgdal)
+library(raster)
+library(parallel)
+library(plyr)
+library(dplyr)
+library(ggplot2)
+
+setwd("C:/Users/Tyson/Desktop")
+
+load(file = "Clipped/Final clipped/lc_chg_9201.RData")
+lc_chg90s <- results.par
+load(file = "Clipped/Final clipped/lc_OH2011.RData")
+lc_2011 <- results.par
+load(file = "Clipped/Final clipped/lc_OH2006.RData")
+lc_2006 <- results.par
+load(file = "Clipped/Final clipped/lc_OH2001.RData")
+lc_2001 <- results.par
+rm(results.par)
+
+#One issue is that landcover classification is different in 1992. The change product allows comparison
+#BUT, only more general Anderson Level I classification (7 classes) will be used
+ALIclass <- read.csv("nlcd_class9201.csv", header = TRUE)
+
+
+CountyPixels <- function(lc){
+  results <- lc
+  lc_long <- data.frame()
+  for (i in 1:length(results)){
+    GEOID <- unlist(results[[i]][1])
+    Pixels <- as.numeric(unlist(results[[i]][2]))
+    Class <- names(unlist(results[[i]][2]))
+    temp <- data.frame(GEOID, Pixels, Class)
+    lc_long <- rbind(lc_long, temp)
+    }
+  return(lc_long)
+}
+
+pix_2001 <- CountyPixels(lc_2001)
+pix_2006 <- CountyPixels(lc_2006)
+pix_2011 <- CountyPixels(lc_2011)
+pix_chg90s <- CountyPixels(lc_chg90s)
+
+#one issue is that the number of pixels per county is slightly off between 1992 and 2001, unknown why.
+#In same projection, but maybe paths of satellites different. Generally <100 pixels = 0.09 km2
+
+#translation table for 2001, 2006, 2011 ALII codes back to ALI codes
+landclass <- data.frame(Value = c(0, 11, 21, 22, 23, 24, 31, 41, 42, 43, 52, 71, 81, 82, 90, 95), Class = c("NoData", "Water", "Urban", "Urban", "Urban", "Urban", "Barren", "Forest", "Forest", "Forest", "Grass", "Grass", "Agri", "Agri", "Wet", "Wet"), ALIcode = c(0, 1, 2, 2, 2, 2, 3, 4, 4, 4, 5, 5, 6, 6, 7, 7))
+
+
+#these give Anderson Level I classes (total pixels) for each county
+lc_county_2001 <- pix_2001 %>% 
+  group_by(GEOID) %>% 
+  mutate(reclass = mapvalues(Class, from = landclass$Value, to = landclass$ALIcode)) %>% 
+  group_by(GEOID, reclass) %>% 
+  summarise(total = sum(Pixels)) %>% data.frame()
+
+lc_county_2006 <- pix_2006 %>% 
+  group_by(GEOID) %>% 
+  mutate(reclass = mapvalues(Class, from = landclass$Value, to = landclass$ALIcode)) %>% 
+  group_by(GEOID, reclass) %>% 
+  summarise(total = sum(Pixels)) %>% data.frame()
+
+lc_county_2011 <- pix_2011 %>% 
+  group_by(GEOID) %>% 
+  mutate(reclass = mapvalues(Class, from = landclass$Value, to = landclass$ALIcode)) %>% 
+  group_by(GEOID, reclass) %>% 
+  summarise(total = sum(Pixels)) %>% data.frame()
+
+#make function to define 1992 and 2001 land cover from the NLCD change product
+#it will be approximate
+pix_chg90s$reclass92 <- sapply(as.character(pix_chg90s$Class), substring, 1, 1)
+pix_chg90s$reclass01 <- sapply(formatC(as.character(pix_chg90s$Class), width = 2, format = "d", flag = "0"), substring, 2, 2)
+
+lc_county_1992_est <- pix_chg90s %>%
+  group_by(GEOID, reclass92) %>%
+  summarise(total = sum(Pixels)) %>% data.frame()
+
+lc_county_2001_est <- pix_chg90s %>%
+  group_by(GEOID, reclass01) %>%
+  summarise(total = sum(Pixels)) %>% data.frame()
+
+#compare 2001 estimates for fun
+#estimates are pretty darn close, from now on, just will use 1992 land cover from chg layer
+#however, 1992 estimates really don't fit the 2001-2011 trends. Not comparable according to NLCD
+names(lc_county_2001_est)[2] <- "reclass"
+names(lc_county_1992_est)[2] <- "reclass"
+lc_compare <- merge(lc_county_2001, lc_county_2001_est, by = c("GEOID", "reclass"))
+
+a <- ggplot(lc_compare, aes(x = total.x, y = total.y)) + geom_point()
+a + facet_wrap(~reclass, scales = "free") + geom_abline(intercept = 0, slope = 1)
+
+#Try estimating 1992 LC based on change from 2001 Landcover, instead of using 1992 estimates as the base
+pix_chg90s$Class <- as.numeric(as.character(pix_chg90s$Class))
+chg90s_1 <- pix_chg90s %>% filter(Class > 9) %>% group_by(GEOID, reclass92) %>% summarise(add_to_2001 = sum(Pixels)) 
+chg90s_2 <- pix_chg90s %>% filter(Class > 9) %>% group_by(GEOID, reclass01) %>% summarise(sub_from_2001 = sum(Pixels))
+names(chg90s_1)[2] <- "reclass"
+names(chg90s_2)[2] <- "reclass"
+
+chg90s <- merge(chg90s_1, chg90s_2, by = c("GEOID", "reclass"), all = TRUE)
+chg90s_2001 <- merge(lc_county_2001, chg90s)
+chg90s_2001$sub_from_2001 <- chg90s_2001$sub_from_2001 * -1
+chg90s_2001$total_92est <- rowSums(chg90s_2001[, c("total", "add_to_2001", "sub_from_2001")], na.rm = TRUE)
+lc_county_1992_backest <- chg90s_2001[, c("GEOID", "reclass", "total_92est")]
+names(lc_county_1992_backest)[3] <- "total"
+lc_county_1992_backest$year <- 1992
+lc_compare_1992 <- merge(lc_county_1992_est, lc_county_1992_backest, by = c("GEOID", "reclass"))
+
+a <- ggplot(lc_compare_1992, aes(x = total.x, y = total.y)) + geom_point()
+a + facet_wrap(~reclass, scales = "free") + geom_abline(intercept = 0, slope = 1)
+
+#bring all estimates together in one data frame
+lc_county_2001$year <- 2001
+lc_county_2006$year <- 2006
+lc_county_2011$year <- 2011
+lc_county_1992_est$year <- 1992
+lc_county_2001_est$year <- 2001
+
+#for plotting
+lc_county_2001$col <- "A"
+lc_county_2006$col <- "A"
+lc_county_2011$col <- "A"
+lc_county_1992_est$col <- "B"
+lc_county_1992_backest$col <- "A"
+lc_county_2001_est$col  <-  "B"
+
+
+lc_all <- rbind(lc_county_1992_est, lc_county_1992_backest, lc_county_2001, lc_county_2001_est, lc_county_2006, lc_county_2011)
+
+#plots trends over time by landclass for a county
+#This shows that 1992 landcover seems to be misclassifying things. Overestimating forests but underestimating others.
+library(splines)
+library(MASS)
+b <- ggplot(lc_all[lc_all$GEOID == "39161",], aes(x = year, y = total, group = GEOID)) + geom_point(aes(colour = factor(col)))
+b + facet_wrap(~reclass, scales = "free") + geom_smooth(method = "lm", formula = y ~ ns(x,2))
+
+
+
+#CONCLUSION
+#Will use 1992 estimate of landcover based on 2001 values with 1992/2001 change product pixels
+#the 1992 estimates based on 1992 classes are farther off
+
+
+lc_all <- rbind(lc_county_1992_backest, lc_county_2001, lc_county_2006, lc_county_2011)
+lc_all <- lc_all[, -5]
+write.csv(lc_all, file = "landcover_all.csv", row.names = FALSE)
+
+
+
+######################################
+#Now combine landcover with pesticides
+######################################
+
+pests <- read.csv("Pesticides/OHpesticides.csv", header = TRUE)
+
+lc_all <- read.csv("landcover_all.csv", header = TRUE)
+
+#do linear regression and extrapolate from 2001-2011 landcover trends
+
+#updated this function to include a quadratic term for land use change
+LandcoverLM <- function(dat){
+  mod <- lm(total ~ I(year^2) + year, data = dat)
+  years <- data.frame(year = 1992:2011)
+  preds <- predict(mod, years)
+  return(data.frame(year = years, PredPix = preds))
+}
+
+#Only problem is this predicts some negative landcover! Only for small classes like barren and wetlands, though
+LandcoverEst <- data.frame()
+for (i in 1:length(unique(lc_all$GEOID))){
+  for (j in 1:length(unique(lc_all$reclass))){
+    temp <- lc_all[which(lc_all$GEOID == unique(lc_all$GEOID)[i] & lc_all$reclass == unique(lc_all$reclass)[j]), ]
+    if (dim(temp)[1] == 0) next
+    out <- LandcoverLM(temp)
+    out$GEOID <- unique(lc_all$GEOID)[i]
+    out$reclass <- unique(lc_all$reclass)[j]
+    LandcoverEst <- rbind(LandcoverEst, out)
+  }
+}
+names(LandcoverEst)[1] <- "YEAR"
+LandcoverEst$PredPix[LandcoverEst$PredPix < 0] <- 0
+
+#Add agriculture landcover area to pesticide data
+pesticides <- merge(pests, LandcoverEst[LandcoverEst$reclass == 6, ])
+pesticides$kg_km2agri_high <- pesticides$KG_EPhigh / (pesticides$PredPix * 0.009)
+pesticides$kg_km2agri_low <- pesticides$KG_EPlow / (pesticides$PredPix * 0.009)
+
+write.csv(pesticides, file = "allpesticidesOH.csv")
+
+```
+
+
+Below, use the raster package to create new rasters of pesticide estimates from county shapefile.
+This can then be used with site buffers to estimate pesticide use around BBS and butterfly surveys.
+
+How to do it:
+1. I have agriculture/pesticide use by county x year
+2. I need landcover by buffer x county (and year), not sure if there's a way for this.
+
+```{r rasterize pesticide shapefiles}
+library(sp)
+library(rgdal)
+library(raster)
+library(parallel)
+library(maptools)
+library(plotKML)
+library(rgeos)
+library(plyr)
+
+pest <- read.csv("C:/Users/Tyson/REPO/NCEAS-RENCI_2014/Pesticides/allpesticidesOH.csv", header = TRUE)
+
+#select which pesticides to use
+pests <- c("ACETAMIPRID", "CLOTHIANIDIN", "FIPRONIL", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM", "GLYPHOSATE", "ATRAZINE")
+pest <- pest[which(pest$COMPOUND %in% pests), ]
+
+#load raster for geo information
+test.file <- "C:/Users/Tyson/Desktop/Clipped/Final clipped/lc2006.tif"
+r <- raster(test.file)
+# hasValues(r)
+# inMemory(r)
+# plot(r)
+
+#set CRS as Equal Albers Area projection
+proj4string(r) <- CRS("+init=epsg:5070")
+
+#load shapefile of counties
+co.shp <- "oh_counties_plus"
+OHco <- readOGR(dsn = "C:/Users/Tyson/Desktop/Clipped/Final clipped", layer = co.shp)
+#OHco_p <- reproject(OHco, proj4string(r))
+OHco_p <- spTransform(OHco, CRSobj = CRS(proj4string(r)))
+OHco_p$GEOID <- as.numeric(as.character(OHco_p$GEOID))
+
+#load 
+
+
+
+
+```
+
+
+
+
+```{r landcover for survey buffers}
+library(sp)
+library(rgdal)
+library(raster)
+library(parallel)
+library(maptools)
+library(plotKML)
+library(rgeos)
+library(geos)
+library(plyr)
+library(dplyr)
+library(stringr)
+
+
+###############
+#2006 Landcover and pesticides by BBS buffer
+###############
+#landcover raster
+test.file <- "C:/Users/Tyson/Desktop/Clipped/Final clipped/lc2006.tif"
+r <- raster(test.file)
+#set CRS as Equal Albers Area projection
+proj4string(r) <- CRS("+init=epsg:5070")
+
+#counties shapefile
+co.shp <- "oh_counties_plus"
+OHco <- readOGR(dsn = "C:/Users/Tyson/Desktop/Clipped/Final clipped", layer = co.shp)
+#OHco_p <- reproject(OHco, proj4string(r))
+OHco_p <- spTransform(OHco, CRSobj = CRS(proj4string(r)))
+OHco_p$GEOID <- as.numeric(as.character(OHco_p$GEOID))
+
+#Import BBS routes shapefile, obtained from DataBasin
+#These are the 1998 active routes, need to see how well they match up with routes used for population estimates
+bbs.shp <- "bbsrtsl020Copy"
+bbs_routes <- readOGR(dsn = "C:/Users/Tyson/Dropbox/Neonicotenoids/Final GIS layers", layer = bbs.shp)
+# proj4string(bbs_routes) <- CRS("+init=epsg:5070")
+bbs_routes_p <- reproject(bbs_routes, proj4string(r))
+
+#RTENO: The route number consists of the 1- or 2-digit State ID code followed by the 3-digit route ID.
+bbs_OH <- bbs_routes_p[which(bbs_routes_p$RTENO >= 66000 & bbs_routes_p$RTENO <=67000), ]
+
+bbs_buff_200 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 200, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_400 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 400, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_1000 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 1000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_2000 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 2000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_5000 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 5000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+bbs_buff_10000 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 10000, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
+
+#This function extracts landcover for the county x bbs route intersections
+#These can then by combined to get landcover by bbs route (with calculations of county-level pesticides added)
+ApportionLandcover <- function(counties, buffer, landcover){
+  #find counties that intersect buffers, only use them for following analysis to speed things up
+  bounds.sub <- gIntersects(counties, buffer, byid = TRUE)
+  bounds.sub2 <- apply(bounds.sub, 2, function(x) {sum(x)})
+  bounds.sub3 <- counties[which(bounds.sub2 > 0), ]
+  
+  #data.frame of intersections of buffers/counties
+  int <- gIntersection(bounds.sub3, buffer, byid=TRUE) 
+  intdf <- data.frame(intname=names(int))
+  intdf$intname <- as.character(intdf$intname)
+  splitid <- strsplit(intdf$intname, " ", fixed=TRUE) # split the names
+  splitid <- do.call("rbind", splitid) # rbind those back together
+  colnames(splitid) <- c("CountyRow", "bbsrts")
+  intdf <- data.frame(intdf, splitid)
+  intdf$CountyRow <- as.character(intdf$CountyRow)
+  intdf$bbsrts <- as.character(intdf$bbsrts)
+  
+  library(snow)
+  require(parallel)
+  beginCluster( detectCores()-1 )
+  
+  lc <- extract(r, int)
+  counts <- lapply(lc, table)
+  out <- list(counts)
+  
+  endCluster()
+  
+ lc_out <- data.frame()
+  for (j in 1:length(out[[1]])){
+    temp <- out[[1]][[j]]
+    temp.df <- data.frame(lc_class = names(unlist(temp)), pixels = as.numeric(unlist(temp)))
+    temp.df$BBS_route <- intdf$bbsrts[j]
+    temp.df$CountyRow <- intdf$CountyRow[j]
+    lc_out <- rbind(lc_out, temp.df)
+  }
+    
+ lc_out$GEOID <- mapvalues(lc_out$CountyRow, from = c(0:(length(counties)-1)), to = counties$GEOID)
+ return(lc_out)
+}
+
+buffers <- list(bbs_buff_200, bbs_buff_400, bbs_buff_1000, bbs_buff_2000, bbs_buff_5000, bbs_buff_10000)
+buffer_LC <- data.frame()
+for (i in c(3, 5)){
+  temp <- ApportionLandcover(OHco_p, buffers[[i]], r)
+  temp$buffer <- c(200, 400, 1000, 2000, 5000, 10000)[i]
+  buffer_LC <- rbind(buffer_LC, temp)
+}
+
+
+
+
+
+pest <- read.csv("C:/Users/Tyson/REPO/NCEAS-RENCI_2014/Pesticides/allpesticidesOH.csv", header = TRUE)
+
+#select which pesticides to use
+pests <- c("ACETAMIPRID", "CLOTHIANIDIN", "FIPRONIL", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM", "GLYPHOSATE", "ATRAZINE")
+pest <- pest[which(pest$COMPOUND %in% pests), ]
+pest <- pest[, c("GEOID", "YEAR", "COMPOUND", "kg_km2agri_high", "kg_km2agri_low")]
+pest <- droplevels.data.frame(pest)
+
+buffer_ag <- buffer_LC[buffer_LC$lc_class %in% c("81", "82"), ]
+buffer_ag <- buffer_ag %>% group_by(BBS_route, GEOID, buffer) %>% summarise(km2agri = sum(pixels)*0.009) %>% data.frame()
+bbs_pest <- merge(buffer_ag, pest)
+
+bbs_pest$buffer <- as.character(bbs_pest$buffer)
+bbs_pest_buff <- bbs_pest %>% filter(buffer == "5000") %>% group_by(BBS_route, YEAR, COMPOUND) %>% summarise(kg_total = sum(km2agri * kg_km2agri_high)) %>% data.frame()
+names(bbs_pest_buff)[1] <- "BBSRTSL020"
+
+mean_use <- bbs_pest_buff %>% group_by(BBSRTSL020, COMPOUND) %>% summarise(kg = mean(kg_total)) %>% data.frame()
+
+#plot correlations between use of different compounds by bbs route buffer
+library(reshape2)
+mean_use_melt <- melt(mean_use)
+mean_use_cast <- dcast(mean_use_melt, BBSRTSL020 ~ COMPOUND)
+pairs.default(mean_use_cast[, c(2:9)])
+
+
+#make color scale across all years to see change in intensity over time
+compounds <- unique(pest$COMPOUND)
+pest <- bbs_pest_buff[bbs_pest_buff$COMPOUND == compounds[8], ]
+
+
+#select color palette and the number colors to represent on the map
+colors <- brewer.pal(9, "YlOrRd")
+#set breaks for the 10 colors
+brks<-classIntervals(pest$kg_total, n=9, style="quantile")
+brks<- brks$brks
+
+par(mfrow=c(3,3), mar=c(1,1,1,1)+0.1, oma=c(1,1,1,1)+0.1)
+
+for (i in min(pest$YEAR):max(pest$YEAR)){
+  
+  temp <- pest[pest$YEAR == i, ]
+  to.map <- merge(bbs_buff_5000, temp, by = "BBSRTSL020")
+
+  #plot the map
+  plot(to.map, col=colors[findInterval(to.map$kg_total, brks,all.inside=TRUE)], axes=F)
+  title(main = as.character(i))
+}
+
+```
+
+
+
+
+
+
+
+
+Chunks below are mostly first attempts/graveyard of failures.
 
 Now summarize land cover by county, control by land area, since many counties have much Lake Erie area. Need to 
 ```{r}
 library(plyr)
 library(dplyr)
+
 
 load(file = "lc_OH.RData")
 
@@ -276,10 +819,14 @@ county_lc <- county_lc[-(which(duplicated(county_lc))), ]
 write.csv(county_lc, file = "county_lc2001.csv", row.names = FALSE)
 ```
 
-Bring 2001, 2006, 2011 land cover county summaries together. Do PCA?
+Bring 2001, 2006, 2011 land cover county summaries together. Do PCA on each separately: not much difference.
+Aggregate all predictors for model.
 
 ```{r}
 library(reshape2)
+library(plyr)
+library(dplyr)
+library(ggplot2)
 setwd("C:/Users/Tyson/Desktop/OSS_GIS")
 
 lc01 <- read.csv("county_lc2001.csv", header = TRUE)
@@ -289,7 +836,7 @@ lc06$year <- 2006
 lc11 <- read.csv("county_lc2011.csv", header = TRUE)
 lc11$year <- 2011
 
-pca.data <- lc01[, c("GEOID", "reclass", "Class.prop")]
+pca.data <- lc11[, c("GEOID", "reclass", "Class.prop")]
 test <- dcast(pca.data, GEOID ~ reclass, value.var = "Class.prop", fill = 0)
 
 #test <- chem.data %>% group_by(GEOID) %>% summarise(COMPOUND, County.density, fill = 0) %>% group_by(GEOID)
@@ -302,7 +849,73 @@ summary(test.pca)
 biplot(test.pca)
 loadings(test.pca)
 
+#aggregate years
+LC_trend <- rbind(lc01, lc06, lc11)
+
+test <- LC_trend %>% group_by(GEOID, reclass) %>% summarise(Change10yr = Class.prop[year == 2011] - Class.prop[year == 2001])
+#see changes between land classes in magnitude of changes
+tapply(test$Change10yr, test$reclass, max)
+
+
+m <- ggplot(test[-which(test$reclass == "wetlands"),], aes(x = Change10yr))
+m + stat_bin()
+m + stat_bin(breaks=seq(-.042,.042, by=0.001)) + facet_grid(reclass ~ .) + theme_bw() + theme(axis.title.x = element_text(size = 30), axis.title.y = element_text(size = 30), strip.text.y = element_text(size = 25), axis.text.x = element_text(size = 25)) + geom_vline(aes(x=0), color = "red", lty = "dashed", size = 2)
+  theme(strip.text.y = element_text(size=12, face="bold")
+
+
+write.csv(LC_trend, "OH_LC_time.csv", row.names = FALSE)
+
 ```
+
+Take Silvia's biodiversity data and geocode to match survey coordinates to OH counties.
+
+```{r}
+
+library(rgdal)
+library(raster)
+library(plotKML)
+library(plyr)
+library(dplyr)
+setwd("C:/Users/Tyson/REPO/NCEAS-RENCI_2014")
+co.shp <- "county_OH"
+OHco <- readOGR(dsn = getwd(), layer = co.shp)
+
+
+###BUTTERFLIES
+bfly_div <- read.csv("butterfly_diversity.csv", header = TRUE)
+
+plot(OHco)
+points(bfly_div$Longitude, bfly_div$Latitude)
+
+BflyGeo <- SpatialPointsDataFrame(cbind(bfly_div$Longitude, bfly_div$Latitude), data = bfly_div, proj4string = CRS(proj4string(OHco)))
+
+o <- over(BflyGeo, OHco, returnList = FALSE)
+BflyGeo@data = cbind(BflyGeo@data, o$GEOID, o$NAME)
+
+write.csv(BflyGeo@data, file = "Bflydata.by.county.csv", row.names = FALSE)
+
+
+###BIRDS
+BBS_div <- read.csv("BBS_data//BirdDiv_BBS_OH.csv", header = TRUE)
+
+BBSGeo <- SpatialPointsDataFrame(cbind(BBS_div$Longi, BBS_div$Lati), data = BBS_div, proj4string = CRS(proj4string(OHco)))
+
+o <- over(BBSGeo, OHco, returnList = FALSE)
+BBSGeo@data = cbind(BBSGeo@data,o$GEOID,o$NAME)
+
+write.csv(BBSGeo@data, file = "BBSdata.by.county.csv", row.names = FALSE)
+
+plot(OHco)
+points(BBSGeo)
+```
+
+
+
+
+
+
+
+
 
 
 
@@ -319,10 +932,11 @@ library(rgdal)
 library(raster)
 library(plotKML)
 library(rgeos)
-setwd("C:/Users/Tyson/Desktop/OSS_GIS/CDL_soil/soils")
+library(ggmap)
+setwd("C:/Users/Tyson/REPO/NCEAS-RENCI_2014/")
 
-soils <- "cra_a_oh"
-CRA <- readOGR(dsn = getwd(), layer = soils)
+quickOHmap <- qmap("Lancaster, OH", zoom = 7, legend = "bottomleft")
+
 
 co.shp <- "county_OH"
 OHco <- readOGR(dsn = getwd(), layer = co.shp)
@@ -428,6 +1042,116 @@ a$Value <- as.character(a$Value)
 
 #FIGURE OUT HOW TO USE CHANGE MATRIX LATER
 write.csv(a, file = "OH_LCchg90s.csv", row.names = FALSE)
+
+
+library(ggplot2)
+
+
+
+
+
+
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+
+
+
+
+
+Need to redo the 2006 by county land classes, because I lumped crops and hay together. Should keep separate for pesticides.
+
+```{r}
+library(rgdal)
+library(raster)
+library(plotKML)
+library(plyr)
+library(dplyr)
+
+setwd("C:/Users/Tyson/Dropbox/Neonicotenoids/Final GIS layers")
+
+lc <- raster("OH_LC2006.tif")
+proj4string(lc) <- CRS("+init=epsg:2163")
+
+co.shp <- "oh_counties_plus"
+OHco <- readOGR(dsn = getwd(), layer = co.shp)
+OHco_p <- reproject(OHco, proj4string(lc))
+
+OHco_sp <- spTransform(OHco, CRS(proj4string(lc)))
+
+library(parallel)
+system.time({
+
+    ### Make function and try it out before parallelizing
+    ### ########################################################
+    RasterToCounty <- function(GEOID){
+      co_sub <- OHco_p[which(OHco_p$GEOID == 18001), ]
+      co_lc <- extract(lc, co_sub)
+      counts <- lapply(co_lc, table)
+#       pct <- lapply(counts, FUN=function(x){x / sum(x)})
+      return(list(GEOID, counts))
+    }
+# 
+     test <- lapply(unique(OHco_p$GEOID)[1:2], RasterToCounty)
+    
+    ### set up cluster call
+    ### ######################################################
+    cl <- makePSOCKcluster(3)
+
+    clusterExport(cl, c("OHco_p", "RasterToCounty", "lc"))
+    junk <- clusterEvalQ(cl, c(library(raster), library(rgdal)))
+
+    ### read into raster format using parallel version of lapply
+    ### #################
+    Results.par <- parLapply(cl, unique(OHco_p$GEOID), RasterToCounty)
+
+    ### stop the cluster
+    ### #########################################################
+    stopCluster(cl)
+})
+
+
+save(Results.par, file = "lc_OH2006.RData") 
+
+load(file = "lc_OH2001.RData")
+
+landclass <- data.frame(Value = c(11, 12, 21, 22, 23, 24, 31, 41, 42, 43, 51, 52, 71, 72, 73, 74, 81, 82, 90, 95), Class = c("Open water", "Ice.snow", "Developed.open", "Developed.low", "Developed.med", "Developed.high", "Barren", "Forest.dec", "Forest.evg", "Forest.mix", "Scrub.dwarf", "Shrub", "Herb.grass", "Herb.sedge", "Herb.lichens", "Herb.moss", "Cult.hay", "Cult.crops", "Wetlands.wood", "Wetlands.herb"))
+
+results <- Results.par
+
+lc_long <- data.frame()
+for (i in 1:length(results)){
+  GEOID <- unique(OHco_p$GEOID)[i]
+  Prop.area <- unlist(results[[i]])
+  Value <- c(names(unlist(results[[i]])))
+  temp <- data.frame(GEOID,Prop.area,Value)
+  lc_long <- rbind(lc_long, temp)
+}
+
+co_desc <- OHco_p@data
+co_desc <- co_desc[, c("GEOID", "NAME", "ALAND", "AWATER", "INTPTLAT", "INTPTLON")]
+
+county_lc <- merge(lc_long, co_desc)
+
+a <- county_lc %>% group_by(GEOID, Value) %>% mutate(prop.land.area = Prop.area * (ALAND + AWATER) / ALAND) %>% data.frame()
+
+#Need to remove water and No data
+plot(a$Prop.area, a$prop.land.area)
+
+#translation table to reclass land cover values
+tt <- cbind(c("0", landclass$Value), c("missing", "water", "ice", "urb", "urb", "urb", "urb", "barren", "forest", "forest", "forest", rep("grass_shrub", 6), "agr", "agr", "wetlands", "wetlands"))
+
+a$reclass = as.factor(tt[ match(a$Value, tt[, 1]), 2] )
+
+b <- ddply(a, .(GEOID, reclass), mutate,
+           Class.prop = sum(prop.land.area))
+
+county_lc <- b[b$reclass %in% c("agr", "urb", "forest", "grass_shrub", "wetlands"), c("GEOID", "NAME", "ALAND", "INTPTLAT", "INTPTLON", "reclass", "Class.prop")]
+
+county_lc <- county_lc[-(which(duplicated(county_lc))), ]
+write.csv(county_lc, file = "county_lc2001.csv", row.names = FALSE)
+```
+

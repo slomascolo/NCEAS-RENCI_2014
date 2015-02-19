@@ -1,0 +1,13 @@
+base
+bitops
+coda
+coefplot2
+dplyr
+ggplot2
+lattice
+lme4
+Matrix
+Rcpp
+RCurl
+stringr
+tidyr

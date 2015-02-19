@@ -4,6 +4,7 @@
 
 require(dplyr)
 traits_commmon_steep <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/commonbirds_steepdecline_traits.csv")
+
 head(traits_commmon_steep)
 levels(traits_commmon_steep$common_name)
 str(traits_commmon_steep)
@@ -14,7 +15,6 @@ traits_commmon_steep_insectohio$common_name <- factor(toupper(traits_commmon_ste
 levels(traits_commmon_steep_insectohio$common_name)
 
 AOU_codes <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/AOU_codes.csv")
-
 traits_commmon_steep_insectohio2 <- as.data.frame(inner_join(AOU_codes, traits_commmon_steep_insectohio))
 head(traits_commmon_steep_insectohio2)
 

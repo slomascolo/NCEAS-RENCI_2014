@@ -2,7 +2,7 @@
 title: 'Ohio: BBS bird abundance'
 author: "Olivia Burge"
 date: "5 October 2014"
-output: html_document
+output: pdf_document
 ---
 
 # Task one: the traits
@@ -11,6 +11,8 @@ I've saved a csv of common birds in steep decline from Kelly's xlsx.  The only c
 ```{r, include = FALSE}
 #best you be changing the repos. Whatever repos you usually use isn't picked up 
 #when knitting and you need to install and it just throws an error.
+#
+#setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data")
 if(!require(ggplot2)){
     install.packages("ggplot2", repos = 'http://cran.stat.auckland.ac.nz/')
     library(ggplot2)
@@ -39,10 +41,27 @@ if(!require(dplyr)){
   install.packages("dplyr", repos = 'http://cran.stat.auckland.ac.nz/')
   library(dplyr)
 }
+
+if(!require(ggthemes)){
+  install.packages("ggthemes", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(ggthemes)
+}
+if(!require(vegan)){
+  install.packages("vegan", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(vegan)
+}
+
+if(!require(data.table)){
+  install.packages("data.table", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(data.table)
+}
+
+
 ````
 
-````{r, results = "hide", cache=TRUE}
-traits_commmon_steep <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/commonbirds_steepdecline_traits.csv")
+````{r, results = "hide", cache=FALSE}
+
+traits_commmon_steep <- read.csv("raw_data/commonbirds_steepdecline_traits.csv")
 str(traits_commmon_steep)
 
 #subsetting just the birds that are in Ohio and eat insect
@@ -63,28 +82,32 @@ levels(traits_commmon_steep_insectohio$common_name)
 Next I also had to import the AOU codes because those are used in BBS, so we have a common 'key'. 
 
 ````{r, results = "hide"}
-AOU_codes <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/AOU_codes.csv")
+AOU_codes <- read.csv("raw_data/AOU_codes.csv") ## a cleaned up (ie header removed, split into columns - no substantive changes to any species names or column headers) version of: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt
+
+AOU_codes$common_name <- toupper(AOU_codes$English_Common_Name)
+
+#testing that all our traits at leat are in the new AOU codes:
+traits_commmon_steep_insectohio$common_name %in% AOU_codes$common_name # = TRUE.
 
 # merge the AOU codes into the ohio data
 traits_commmon_steep_insectohio2 <- as.data.frame(inner_join(AOU_codes, traits_commmon_steep_insectohio))
 
-head(traits_commmon_steep_insectohio2)
 ````
 
 # Task three: BBS data
 I got the BBS data from: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles//50-StopData/1997ToPresent_SurveyWide/Fifty7.zip.  The metadata is available: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles//FiftySt.txt.
 
 ````{r, results = "hide"}
-ohio_BBS <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/fifty7.csv")
+ohio_BBS <- read.csv("raw_data/fifty7.csv")
 head(ohio_BBS)
 
 # merge with the traits data
 ohio_BBS_insect <- as.data.frame(inner_join(ohio_BBS, traits_commmon_steep_insectohio2))
 ohio_BBS_insect$common_name<-factor(ohio_BBS_insect$common_name)
-head(ohio_BBS_insect)
+ohio_BBS_insect$diet <- factor(ohio_BBS_insect$diet)
 
 #now we need to locate the routes in each county.  I read in the file Tyson had already located for us:
-ohio_BBS_routes_countiesraw <- read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/BBSdata.by.county.csv")
+ohio_BBS_routes_countiesraw <- read.csv("raw_data/BBSdata.by.county.csv")
 head(ohio_BBS_routes_countiesraw)
 ohio_BBS_routes_countiesraw2 <- ohio_BBS_routes_countiesraw[!duplicated(ohio_BBS_routes_countiesraw$Route), c(1,4,5,6,7)]
  
@@ -92,6 +115,19 @@ ohio_BBS_routes_countiesraw2 <- ohio_BBS_routes_countiesraw[!duplicated(ohio_BBS
 ohio_BBS_birds <- inner_join(ohio_BBS_insect, ohio_BBS_routes_countiesraw2)
 head(ohio_BBS_birds)
 names(ohio_BBS_birds)
+
+#ohio all BBS birds geolocated
+ohio_all_birds_geo <- inner_join(ohio_BBS, ohio_BBS_routes_countiesraw2)
+#anddd summed birds for each route:
+ohio_all_birds_geo$route_abundance <- rowSums(ohio_all_birds_geo[grep("^Stop[0-9]+", names(ohio_all_birds_geo))])
+names(ohio_all_birds_geo)
+ohio_all_birds_geo <- ohio_all_birds_geo[ , c(1:7, 58:62)]
+head(ohio_all_birds_geo)
+
+
+ohio_all_birds_geo_AOU<-merge(AOU_codes, ohio_all_birds_geo)
+dim(ohio_all_birds_geo) 
+dim(ohio_all_birds_geo_AOU)) # the same. good
 
 # created a column of sums for all the stops on each route:
 ohio_BBS_birds$route_abundance <- rowSums(ohio_BBS_birds[grep("^Stop[0-9]+", names(ohio_BBS_birds))])
@@ -101,34 +137,16 @@ ohio_BBS_birds$route_abundance <- rowSums(ohio_BBS_birds[grep("^Stop[0-9]+", nam
 
 Next up: a summary.  Some counties have more than one route.  Thought on this? 
 
-# Summarising data
-
-````{r}
-ohio_BBS_birds_summary <- ohio_BBS_birds %>%
-  group_by(year, GEOID, common_name) %>%
-  summarise(mean_abund = mean(route_abundance),
-            sd = sd(route_abundance),
-            n = n()) %>%
-  mutate(sem_abund = sd/sqrt(n))
-
-#which(ohio_BBS_birds_summary$n>1)
-#names(ohio_BBS_birds_summary)
-
-ggplot(ohio_BBS_birds_summary, aes(x = year, y = mean_abund))+
-  geom_line(aes(colour = GEOID, group = GEOID))+
-  facet_wrap(~common_name, scales = "free") +
-  theme_bw()+
-  theme(legend.position = "bottom")
-````
-
 # Getting a version of the neonics
 
-```{r, results = "hide", cache=TRUE}
-setwd("/Users/Liv/ebd_US_relMay-2014/raw_pesticides/")
+```{r, results = "hide", cache=FALSE}
 #this is from Tyson's work.
+filenames <- list.files(path = "raw_data/raw_pesticides/", recursive = TRUE, full.names = TRUE) 
+#I've amended the line above so that we can get the file paths as well 
+#(the recursive and full.names options).
 
-filenames <- list.files()
-pesticides_raw <- do.call("rbind", lapply(filenames[grep("high", filenames)], read.table, header = TRUE, sep = "\t"))
+pesticides_raw <- do.call("rbind", lapply(filenames[grep("high", filenames)], 
+                                          read.table, header = TRUE, sep = "\t"))
 
 pesticides_raw_ohio <- pesticides_raw[which(pesticides_raw$STATE_FIPS_CODE == 39), ]
 
@@ -156,8 +174,8 @@ NOTE: For information on confidentiality protection, nonsampling error, and defi
 Available from: http://factfinder2.census.gov/faces/tableservices/jsf/pages/productview.xhtml?src=bkmk 
 
 
-```{r, results = "hide", cache=TRUE}
-ohio_facts<-read.csv("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/DEC_10_SF1_GCTPH1/DEC_10_SF1_GCTPH1.ST05_with_ann.csv")
+```{r, results = "hide", cache=FALSE}
+ohio_facts<-read.csv("raw_data/DEC_10_SF1_GCTPH1/DEC_10_SF1_GCTPH1.ST05_with_ann.csv")
 
 head(ohio_facts)
 names(ohio_facts)
@@ -179,19 +197,72 @@ neonics_facts_ohio <- merge(neonics_raw_ohio, ohio_facts_r)
 neonics_facts_ohio$total_land<-as.numeric(neonics_facts_ohio$total_land)
 neonics_facts_ohio$kg_density <- neonics_facts_ohio$KG/neonics_facts_ohio$total_land
 
+
 #not quite the same as Tyson's:
 ggplot(neonics_facts_ohio, aes(x = YEAR, y = kg_density)) +
          geom_point()+
          facet_wrap(~COMPOUND)+
          theme_bw()
+
+
 ````
 
 # Data reading done (almost)
 
 ````{r, results = "hide", cache=TRUE}
+ohio_BBS_birds_summary <- data.frame(ohio_BBS_birds %>%
+  group_by(year, GEOID, common_name) %>%
+  summarise(mean_abund = mean(route_abundance),
+            sd = sd(route_abundance),
+            n = n()) %>%
+  mutate(sem_abund = sd/sqrt(n)))
+```
+
+# Summarising data
+
+````{r}
+#which(ohio_BBS_birds_summary$n>1)
+#names(ohio_BBS_birds_summary)
+
+ggplot(ohio_BBS_birds_summary, aes(x = year, y = mean_abund))+
+  geom_line(aes(colour = GEOID, group = GEOID))+
+  facet_wrap(~common_name, scales = "free") +
+  theme_bw()+
+  theme(legend.position = "bottom")
+````
+
+```{r}
+
 names(ohio_BBS_birds_summary)<-toupper(names(ohio_BBS_birds_summary))
 neonics_facts_ohio$GEOID<-as.numeric(neonics_facts_ohio$GEOID)
+names(ohio_all_birds_geo_AOU)<-toupper(names(ohio_all_birds_geo_AOU))
+ohio_all_birds_geo_AOU$GEOID <- as.numeric(ohio_all_birds_geo_AOU)
+names(neonics_facts_ohio)
+#need to merge the year
+summary(ohio_all_birds_geo_AOU$YEAR)
+summary(neonics_facts_ohio$YEAR)
+sort(unique(ohio_all_birds_geo_AOU$YEAR))
+sort(unique(neonics_facts_ohio$YEAR))
+dim(ohio_all_birds_geo_AOU)
+dim(neonics_facts_ohio)
+ohio_all_birds_geo_AOU_short <- ohio_all_birds_geo_AOU[ ohio_all_birds_geo_AOU$YEAR > 1995 & ohio_all_birds_geo_AOU$YEAR < 2010, ]
+neonics_facts_ohio_short<-neonics_facts_ohio[neonics_facts_ohio$YEAR > 1995 & neonics_facts_ohio$YEAR < 2010,]
+
+sort(unique(ohio_all_birds_geo_AOU_short$GEOID)) %in% sort(unique(neonics_facts_ohio_short$GEOID))
+
+sort(unique(ohio_all_birds_geo_AOU_short$YEAR)) %in% sort(unique(neonics_facts_ohio_short$YEAR))
+
+
+all_birds_ohio<-inner_join(neonics_facts_ohio_short,ohio_all_birds_geo_AOU_short)
+names(all_birds_ohio)
+all_birds_ohio <- all_birds_ohio[ , c(1:19, 22:33,35)]
+ 
+
+head(neonics_facts_ohio)
+head(ohio_BBS_birds_summary)
 ohio_insects <- merge(neonics_facts_ohio[neonics_facts_ohio$YEAR >= 1996 & neonics_facts_ohio$YEAR <=2009,], ohio_BBS_birds_summary[ohio_BBS_birds_summary$YEAR >= 1996 & ohio_BBS_birds_summary$YEAR <=2009,], by = c("YEAR", "GEOID"))
+
+unique(ohio_insects$YEAR)
 
 # without doing it for each county, response looks pretty poisson
 ggplot(ohio_BBS_birds_summary, aes(x = MEAN_ABUND))+
@@ -239,6 +310,35 @@ try(mod1_pred <- predict(mod1, type = "response"))
 mod2<- glm(data= ohio_insects[ohio_insects$COMMON_NAME == "CHIMNEY SWIFT",], MEAN_ABUND ~ kg_density:COMPOUND,
            family = "poisson")
 summary(mod2)
-
-save.image(file = "BBS_pest.Rdata")
+#save.image(file = "BBS_pest.Rdata")
 ````
+
+```{r exploring landcover}
+#setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data")
+landcover_all <- read.csv("../Landcover/landcover_all.csv")
+head(landcover_all)
+head(ohio_insects)
+
+unique(ohio_insects$YEAR)
+unique(landcover_all$year)
+sort(unique(neonics_facts_ohio$YEAR))
+sort(unique(neonics_facts_ohio$YEAR))
+sort(unique(ohio_BBS_birds_summary$YEAR))
+sort(unique(ohio_BBS_birds$year))
+sort(unique(neonics_raw_ohio$YEAR))
+
+class(landcover_all$year)
+head(landcover_all)
+landcover_sum1 <- data.frame(landcover_all %>%
+                               group_by(year, reclass) %>%
+                               summarise(
+                                 landcover = sum(total)))
+landcover_sum2 <-aggregate(total ~ year + reclass, landcover_all,  FUN = sum)
+
+ggplot(landcover_sum2[landcover_sum1$year>1992, ], aes(x = year, y = total)) +
+  geom_bar(aes(fill = factor(reclass)), stat = "identity")+
+  theme_bw() +
+  facet_wrap(~ reclass, scales = "free") +
+  scale_fill_colorblind(guide = FALSE)
+
+```

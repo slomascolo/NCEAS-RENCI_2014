@@ -1,0 +1,209 @@
+---
+title: "BBS_neonics_landuse"
+author: "Olivia Burge"
+date: "21 January 2015"
+output: html_document
+---
+
+````{r, warning = FALSE, message = FALSE, results='hide'}
+require(ggthemes)
+require(ggplot2)
+require(vegan)
+require(dplyr)
+require(data.table)
+require(tidyr)
+````
+
+# Reading in the new bird data
+From Tyson's csv. 
+````{r}
+new_bbs <- read.csv("fifty7_withRTENO.csv")
+new_bbs$sum_route_abundance <- rowSums(new_bbs[grep("^Stop[0-9]+", names(new_bbs))])
+head(new_bbs)
+````
+
+# Bird trait data
+````{r}
+bird_traits <- read.csv("OH_BBS_1966-2013_traits.csv")
+bird_traits <- bird_traits[ , c(1,2,3,4,5,6,7,8,9)]
+head(bird_traits[2])
+names(bird_traits) <- toupper(names(bird_traits))
+names(bird_traits) <- gsub("[.]", "_", names(bird_traits))  # using the [] to get the period to be used literally. Or can use "fixed = TRUE"
+names(bird_traits)
+bird_traits$SCIENTIFIC_NAME <- toupper(bird_traits$SCIENTIFIC_NAME)
+head(bird_traits)
+````
+
+# Bird code AOU data
+
+```{r}
+AOU_codes <- read.csv("raw_data/AOU_codes.csv") ## a cleaned up (ie header removed, split into columns - no substantive changes to any species names or column headers) version of: ftp://ftpext.usgs.gov/pub/er/md/laurel/BBS/DataFiles/SpeciesList.txt
+
+head(AOU_codes)
+AOU_codes$common_name <- toupper(AOU_codes$English_Common_Name)
+names(AOU_codes)
+AOU_codes <- AOU_codes[ , c(2, 10, 6:9)]
+names(AOU_codes) <- toupper(names(AOU_codes))
+head(AOU_codes)
+AOU_codes$SCIENTIFIC_NAME <- paste(AOU_codes$GENUS, AOU_codes$SPECIES, sep = " ")
+AOU_codes$SCIENTIFIC_NAME <- toupper(AOU_codes$SCIENTIFIC_NAME)
+#testing that all our traits at leat are in the new AOU codes:
+bird_traits$SCIENTIFIC_NAME %in% AOU_codes$SCIENTIFIC_NAME # = not all true.
+AOU_codes$SCIENTIFIC_NAME %in% bird_traits$SCIENTIFIC_NAME # many many falses
+
+# merge the AOU codes into the ohio data
+```
+
+# Neonics data by route
+Based on Tyson's GIS analysis.
+````{r}
+neonics_buffers <- read.csv("../Pesticides/pest_buff_overtime.csv")
+head(neonics_buffers)
+unique(neonics_buffers$YEAR)
+````
+
+# Landuse data by route
+Based on Tyson's GIS analysis. Notes for the csv: `reclass` is Anderson Level I land cover: (0=nodata, 1=water, 2=developed, 3=barren, 4=forest, 5=grassland/shrub, 6=agriculture, 7=wetlands).
+`total` is the number of pixels (multiply by 0.009 to get square km).
+````{r}
+landuse_buffers <- read.csv("../Pesticides/LC_buffers_overtime.csv")
+head(landuse_buffers)
+
+reclass_table <- data.frame("reclass" = 0:7, "land_cover" = c("nodata", "water", "developed", "barren", "forest", "grassland_shrub", "agriculture", "wetlands"))
+
+landuse_buffers <- merge(landuse_buffers, reclass_table)
+class(landuse_buffers$land_cover)
+````
+
+# Some exploration! 
+```{r}
+head(landuse_buffers)
+
+ggplot(landuse_buffers[landuse_buffers$land_cover %in% c("forest", "agriculture", "developed", "grassland_shrub") & landuse_buffers$buffer == 400, ], aes(x = YEAR, y = total_pix)) +
+  geom_smooth(aes(colour = land_cover)) +
+#  geom_density2d(aes(colour = land_cover)) +
+  geom_point(aes(colour = land_cover), alpha = 0.3, position = position_jitter(width = 0.3))+
+  theme_bw()+
+  scale_colour_colorblind("Land Cover", labels = c("Agriculture", "Developed", "Forest", "Grass/Shrub"))+
+  guides(colour=guide_legend(override.aes=list(fill=NA)))+
+  theme(legend.position = "bottom", legend.key = element_blank(), legend.background = element_rect(colour = "grey"))
+
+ggplot(landuse_buffers[landuse_buffers$land_cover %in% c("forest", "agriculture", "developed", "grassland_shrub") & landuse_buffers$buffer == 400, ], aes(x = YEAR, y = total_pix)) +
+  geom_smooth(aes(colour = land_cover)) +
+  geom_density2d(aes(colour = land_cover)) +
+  #geom_point(aes(colour = land_cover), alpha = 0.3, position = position_jitter(width = 0.3))+
+  theme_bw()+
+  scale_colour_colorblind("Land Cover", labels = c("Agriculture", "Developed", "Forest", "Grass/Shrub"))+
+  guides(colour = FALSE) +
+  facet_wrap(~ land_cover, scales = "free")
+
+ggplot(landuse_buffers[landuse_buffers$land_cover %in% c("forest", "agriculture", "developed", "grassland_shrub") & landuse_buffers$buffer == 400 & landuse_buffers$YEAR %in% c(1995, 2000, 2005, 2010), ], aes(x = land_cover, y = total_pix)) +
+ geom_violin(aes(fill = land_cover))+
+  theme_bw()+
+  scale_fill_colorblind("Land Cover", labels = c("Agriculture", "Developed", "Forest", "Grass/Shrub")) +
+  facet_wrap(~YEAR)
+
+
+ggplot(landuse_buffers[landuse_buffers$land_cover %in% c("forest", "agriculture", "developed", "grassland_shrub") & landuse_buffers$buffer == 400 & landuse_buffers$YEAR %in% c(1995, 2000, 2005, 2010), ], aes(x = factor(YEAR), y = total_pix)) +
+ geom_violin(aes(fill = land_cover))+
+  theme_bw()+
+  scale_fill_colorblind("Land Cover", labels = c("Agriculture", "Developed", "Forest", "Grass/Shrub")) +
+  guides(fill = FALSE)+
+  facet_wrap(~land_cover, scales = "free")
+
+
+summary_landuse <- landuse_buffers[landuse_buffers$land_cover %in% c("forest", "agriculture", "developed", "grassland_shrub"), ] %>% group_by(YEAR, land_cover, buffer) %>% filter(buffer == 400) %>% summarise(total_pix = sum(total_pix))
+
+ggplot(summary_landuse, aes(x = YEAR, y = total_pix)) +
+  geom_area(aes(fill = land_cover, colour = land_cover), position = "fill")+
+  theme_bw()+
+  scale_fill_manual("Land Cover", values = c("sienna4", "gray20", "forestgreen", "orange"), labels = c("Agriculture", "Developed", "Forest", "Grass/Shrub")) +
+  scale_colour_manual("Land Cover", values = c("sienna4", "gray20", "forestgreen", "orange"), labels = c("Agriculture", "Developed", "Forest", "Grass/Shrub")) +
+  theme(legend.position = "bottom", legend.background = element_rect(colour = "grey"))
+
+unique(landuse_buffers$buffer)
+summary_landuse3 <- landuse_buffers[landuse_buffers$land_cover %in% c("forest", "agriculture", "developed", "grassland_shrub"), ] %>% group_by(YEAR, land_cover, buffer) %>% summarise(total_pix = sum(total_pix))
+
+ggplot(summary_landuse3, aes(x = YEAR, y = total_pix)) +
+  geom_area(aes(fill = land_cover, colour = land_cover), position = "fill")+
+  theme_bw()+
+  scale_fill_manual("Land Cover", values = c("sienna4", "gray20", "forestgreen", "orange"), labels = c("Agriculture", "Developed", "Forest", "Grass/Shrub")) +
+  scale_colour_manual("Land Cover", values = c("sienna4", "gray20", "forestgreen", "orange"), labels = c("Agriculture", "Developed", "Forest", "Grass/Shrub")) +
+  theme(legend.position = "bottom", legend.background = element_rect(colour = "grey")) +
+  facet_wrap(~buffer)
+
+
+# summary_landuse2 <- landuse_buffers%>% group_by(YEAR, land_cover, buffer) %>% filter(buffer == 400) %>% summarise(total_pix = sum(total_pix))
+# 
+# ggplot(summary_landuse2, aes(x = YEAR, y = total_pix)) +
+#   geom_area(aes(fill = land_cover, colour = land_cover), position = "fill")+
+#   theme_bw()+
+#   #scale_fill_manual("Land Cover", values = c("sienna4", "gray20", "forestgreen", "orange"), labels = c("Agriculture", "Developed", "Forest", "Grass/Shrub")) +
+#   #scale_colour_manual("Land Cover", values = c("sienna4", "gray20", "forestgreen", "orange"), labels = c("Agriculture", "Developed", "Forest", "Grass/Shrub")) +
+#   theme(legend.position = "bottom", legend.background = element_rect(colour = "grey"))
+
+````
+
+# Exploring the neonics
+
+```{r}
+head(neonics_buffers)
+
+head(neonics_buffers[is.na(neonics_buffers$high_kg_buff) | is.na(neonics_buffers$ag_pix_buff) | is.na(neonics_buffers$low_kg_buff), ])
+head(neonics_buffers[is.na(neonics_buffers$high_kg_buff) | is.na(neonics_buffers$ag_pix_buff) , ])
+dim(neonics_buffers[is.na(neonics_buffers$high_kg_buff) | is.na(neonics_buffers$ag_pix_buff) | is.na(neonics_buffers$low_kg_buff), ])
+dim(neonics_buffers[is.na(neonics_buffers$high_kg_buff) | is.na(neonics_buffers$ag_pix_buff), ])
+
+unique(neonics_buffers$YEAR)
+class(neonics_buffers$high_kg_buff)
+noyear_neonics_buffers <- neonics_buffers %>% 
+  group_by(BBS_route, buffer) %>% 
+  summarise(high_pest = sum(high_kg_buff), agpix = sum(ag_pix_buff))
+head(noyear_neonics_buffers)
+# spps <- spps[!is.na(spps$NMDS1) & !is.na(spps$NMDS2),]
+noyear_neonics_buffers <- noyear_neonics_buffers[!is.na(noyear_neonics_buffers$high_pest) & !is.na(noyear_neonics_buffers$agpix), ]
+
+ggplot(noyear_neonics_buffers, aes(y = as.numeric(high_pest/agpix), x = as.numeric(buffer))) +
+  geom_line(aes(group = BBS_route)) +
+  geom_smooth()+
+  theme_bw()
+
+ggplot(noyear_neonics_buffers, aes(y = high_pest, x = buffer)) +
+  geom_line(aes(group = BBS_route)) +
+  geom_smooth()+
+  theme_bw()
+
+ggplot(noyear_neonics_buffers, aes(y = agpix, x = buffer)) +
+  geom_line(aes(group = BBS_route)) +
+  geom_smooth()+
+  theme_bw()
+
+
+# now to see if intensity has increased over tine
+names(neonics_buffers)
+year_neonics_buffers <- neonics_buffers %>%
+  group_by(BBS_route, YEAR, COMPOUND, buffer) %>%
+  summarise(intensity = high_kg_buff/ag_pix_buff) 
+
+names(year_neonics_buffers)
+
+ggplot(year_neonics_buffers, aes(y = intensity, x = YEAR)) +
+  geom_line(aes(group = BBS_route)) +
+  facet_grid(buffer~ COMPOUND, scale = "free") +
+  theme_bw()
+
+year_neonics_buffers2 <- neonics_buffers %>%
+  group_by(BBS_route, YEAR, COMPOUND) %>%
+  summarise(intensity = mean(high_kg_buff/ag_pix_buff)) 
+
+ggplot(year_neonics_buffers2, aes(y = intensity, x = YEAR)) + 
+  geom_line(aes(group = BBS_route)) +
+  facet_wrap(~ COMPOUND, scale = "free") +
+  theme_bw()
+
+ggplot(year_neonics_buffers2, aes(y = intensity, x = YEAR)) + 
+  geom_line(aes(group = BBS_route)) +
+  facet_wrap(~ COMPOUND) +
+  theme_bw()
+
+```
