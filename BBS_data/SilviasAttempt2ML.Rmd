@@ -1,0 +1,175 @@
+---
+title: "ML models for birds vs neonics"
+author: "Silvia"
+date: "Thursday, November 13, 2014"
+output: html_document
+---
+
+I am exploring the relationship between functional groups of birds and neonics. The first part is exploratory to come up with resonable starting parameters, and then is the modeling to see how to better describe this relationship. So that you don't get your hopes up too high, I will tell you right now that the best model to explain our data on insectivorous bird abundance vs neonis is a straight line whose slope isn't different from zero.  There, I got it out of my chest. However, it seems to me that our data or zero-inflated, so we need a special distribution for the stochastic part of our model. It ain't easy, at least for me, to do that. But I am working on it and will hopefully have some options in the near future. I will not be offended if you guys check the models carefully to find errors that I might be doing.  I am 100% new to this and, hence, not 100% sure that what I am doinng is correct.  Here is the code so you can look at the exploratory graphs yourselves and at the models I have tried so far
+
+I have mostly followed Olivia's coding to unify criteria and make sure we are using the data in the same way.
+
+Reading in bird traits and adding AOU codes:
+
+```{r}
+#Bird traits
+traits_commmon_steep <- read.csv("C:/Users/slomascolo/Documents/Silvia/NCEAS-RENCI_2014/BBS_data/commonbirds_steepdecline_traits.csv")
+str(traits_commmon_steep)
+traits_commmon_steep_insectohio <- as.data.frame(subset(traits_commmon_steep, ohio_presence > 0))
+traits_commmon_steep_insectohio$common_name <- factor(toupper(traits_commmon_steep_insectohio$common_name))
+levels(traits_commmon_steep_insectohio$common_name)
+
+#Adding AOU codes
+AOU_codes <- read.csv("C:/Users/slomascolo/Documents/Silvia/NCEAS-RENCI_2014/BBS_data/AOU_codes.csv")
+traits_commmon_steep_insectohio2 <- as.data.frame(merge(AOU_codes, traits_commmon_steep_insectohio))
+```
+
+Reading in BBS data, also following mostly Liv's code:
+
+```{r}
+ohio_BBS <- read.csv("C:/Users/slomascolo/Documents/Silvia/NCEAS-RENCI_2014/BBS_data/fifty7.csv")
+ohio_BBS_insect <- as.data.frame(merge(ohio_BBS, traits_commmon_steep_insectohio2))
+ohio_BBS_insect$common_name<-factor(ohio_BBS_insect$common_name)
+ohio_BBS_routes_countiesraw <- read.csv("C:/Users/slomascolo/Documents/Silvia/NCEAS-RENCI_2014/BBS_data/BBSdata.by.county.csv")
+head(ohio_BBS_routes_countiesraw)
+ohio_BBS_routes_countiesraw2 <- ohio_BBS_routes_countiesraw[!duplicated(ohio_BBS_routes_countiesraw$Route), c(1,4,5,6,7)]
+ohio_BBS_birds <- merge(ohio_BBS_insect, ohio_BBS_routes_countiesraw2)
+ohio_BBS_birds$route_abundance <- rowSums(ohio_BBS_birds[grep("^Stop[0-9]+", names(ohio_BBS_birds))])
+birdsXdiet=aggregate(ohio_BBS_birds$route_abundance, by = list(ohio_BBS_birds$GEOID, ohio_BBS_birds$year, ohio_BBS_birds$diet), sum)
+names(birdsXdiet)= c("GEOID", "YEAR", "diet", "abundance")
+```
+I then add information on geo location. 
+
+```{r}
+geo = read.csv("C:/Users/slomascolo/Documents/Silvia/NCEAS-RENCI_2014/OH.neonicotinoids.csv", header=TRUE)
+neonicXyear = aggregate (geo$density_high, by = list(geo$GEOID, geo$YEAR), sum)
+names(neonicXyear)=c("GEOID", "YEAR","density_high")
+plot(neonicXyear$YEAR, neonicXyear$density_high)
+birdsXgeo = merge (birdsXdiet, neonicXyear, by = c("GEOID", "YEAR"))
+```
+
+Because of the evident increase in neonics starting in 2004, I expected (or hoped) to see a similar trend in bird abundance but no, neither when I consider all functional groups together, nor when I separate by functional group:
+
+```{r}
+plot(birdsXdiet$YEAR, birdsXdiet$abundance)
+
+ins = subset(birdsXgeo, birdsXgeo$diet =="insects")
+mam = subset(birdsXgeo, birdsXgeo$diet =="mammals")
+omn = subset(birdsXgeo, birdsXgeo$diet =="omnivore")
+pla = subset(birdsXgeo, birdsXgeo$diet =="plants")
+see = subset(birdsXgeo, birdsXgeo$diet =="seeds")
+others= subset(birdsXgeo, birdsXgeo$diet!="insects")
+
+plot(birdsXgeo$YEAR, birdsXgeo$abundance, type="n", xlab="", ylab="")
+points(ins$YEAR, ins$abundance, pch=2, col=3)# green triangles
+points(omn$YEAR, omn$abundance, pch=3, col=4)# blue cross
+points(see$YEAR, see$abundance, pch=5, col=6)# pink diamonds
+points(pla$YEAR, pla$abundance, pch=4, col=5)# tuquoise X's
+points(mam$YEAR, mam$abundance)# black circles
+
+```
+
+When I plot bird abundance against neonics concentration (density_high) there is an apparent decrease in insectivorous birds when neonics > 1.0, aproximately, but not with the other functional groups
+
+```{r}
+plot(birdsXgeo$density_high, birdsXgeo$abundance, type="n", xlab="", ylab="")
+points(ins$density_high, ins$abundance, pch=2, col=3)# green triangles
+points(omn$density_high, omn$abundance, pch=3, col=4)# blue cross
+points(see$density_high, see$abundance, pch=5, col=6)# pink diamonds
+points(pla$density_high, pla$abundance, pch=4, col=5)# tuquoise X's
+points(mam$density_high, mam$abundance)# black circles
+```
+
+To estimate the initial parameters for the model I plotted an exponential curve on top of the data 
+
+```{r}
+#Plotting an exponential curve for a first estimate of parameters
+plot(birdsXgeo$density_high, birdsXgeo$abundance, type="n", xlab="", ylab="")
+points(ins$density_high, ins$abundance, pch=2, col=3)
+
+x=ins$density_high
+tete= function(x, a=700, b=2.75) {a*exp(-b*x)}
+plot(tete, add=TRUE)
+```
+
+(I'm not sure why the curve only goes to 1, I have not been able to fix that...)
+
+And now the models. I first looked at insectivorous birds and neonics, and I tried two possibilities for the stochastic part, the Poisson and the negative binomial, with a negative exponential curve (the deterministic part). Because the negative binomial gave a much lower log likelihood, I stuck with with negative binomial from then on for the linear and hyperbolic relationship, and for all birds together. (I apologize in advance because I don't know how to turn off the option of printing every single warning after the models... sorry! Just skip them)
+
+```{r}
+library(bbmle)
+# neg exponential with Poisson distribution
+fExpNB=function(a,b){
+  lambda=a*(1-exp(-b*ins$density_high))
+  -sum(dpois(ins$abundance,lambda,log=T)) 
+}
+
+mExpPois= mle2(fExpNB, list(a=600,b=2.75))
+
+summary(mExpPois)
+
+# neg exponential with neg binom
+fExpNB=function(a,b,k){
+  media=a*(1-exp(-b*ins$density_high))
+  -sum(dnbinom(ins$abundance,mu=media,size=k,log=T)) 
+}
+
+mExpNB= mle2(fExpNB, list(a=600,b=2.75,k=4))
+
+summary(mExpNB)
+
+# linear with neg binom
+fLinNB=function(a,b,k){
+  media=a+b*ins$density_high
+  -sum(dnbinom(ins$abundance, mu=media, size=k, log=T))
+}
+
+mLinNB=mle2(fLinNB, list(a=600,b=-10,k=1))
+
+summary(mLinNB)
+
+# hyperbolic with neg binom
+fHypNB=function(a,b,k){
+  media=a/(b+ins$density_high)
+  -sum(dnbinom(ins$abundance, mu=media, size=k, log=T))
+}
+
+mHypNB=mle2(fHypNB, list(a=1100,b=0.3,k=1))
+
+summary(mHypNB)
+```
+
+Now, are insectivores really different from the rest? I tried two models, one with all birds together and one with all others, except for insectivores, which makes the most sense to me.
+
+```{r}
+#All together
+fLinNB_all=function(a,b,k){
+  media=a+b*birdsXgeo$density_high
+  -sum(dnbinom(birdsXgeo$abundance, mu=media, size=k, log=T))
+}
+
+mLinNB_all=mle2(fLinNB_all, list(a=600,b=-10,k=1))
+
+summary(mLinNB_all)
+
+#Others
+fLinNB_others=function(a,b,k){
+  media=a+b*others$density_high
+  -sum(dnbinom(others$abundance, mu=media, size=k, log=T))
+}
+
+mLinNB_others=mle2(fLinNB_others, list(a=600,b=-10,k=1))
+
+summary(mLinNB_others)
+
+```
+
+At the end is the table comparing all log likelihoods, which says that the linear relationship is the best fitting model, with a hyperbolic relationship coming a close second, non-differentiable from the linear model which, from the confidence intervals of the parameters (see below), says that the slope is not different from zero! Hences, I find this extremely contradictory, as it is saying that, given our dta, it is equally possible that there is no relationship at all between insectivorous bird abundance and neonics use, or that there might be a hyperbolic relationship... 
+
+```{r}
+AICtab(mLinNB, mExpNB, mExpPois, mHypNB, mLinNB_others, mLinNB_all)
+
+confint(mLinNB)
+```
+
+Hence, I am very happy that I was able to get this far, but I am awefully confused!! One last thing that I am trying to do is to try a zero-inflated negative binomial distribution, as we do have lost of zeros in abundance. But I will owe yo uthat one as I want to upload this ASAP.  I will keep working on the zero-inflated and will get back to you with the results, if I am able to figure out how to do it. I might need to go directly to the all-mighty source... Ben Bolker! I am trying myself before bugging him.
