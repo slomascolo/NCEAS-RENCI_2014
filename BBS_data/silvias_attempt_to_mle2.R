@@ -2,7 +2,6 @@
 
 #setwd("~/RichardHadlee/user1/BurgeO/Documents/GitHub")
 setwd("C:/Users/silvia/Documents/NCEAS-RENCI_2014/BBS_data")
-getwd()
 
 traits_commmon_steep <- read.csv("raw_data/commonbirds_steepdecline_traits.csv")
 str(traits_commmon_steep)
@@ -85,7 +84,7 @@ plot(lin, add=TRUE)
 
 ## The models!
 library(bbmle)
-
+library(emdbook)
 # neg exponential with Poisson distribution
 fExpPois=function(a,b){
   lambda=a*(1-exp(-b*ins$density_high))
@@ -104,10 +103,12 @@ fExpNB=function(a,b,k){
   -sum(dnbinom(ins$abundance,mu=media,size=k,log=T)) 
 }
 
-mExpNB= mle2(fExpNB, list(a=20000,b=4.25,k=4))
+mExpNB= mle2(fExpNB, list(a=30000,b=4.25,k=4))
 
 summary(mExpNB)
 confint(mExpNB)
+
+AICtab(mExpNB, mExpPois)
 
 # linear with neg binom
 fLinNB=function(a,b,k){
@@ -120,7 +121,34 @@ mLinNB=mle2(fLinNB, list(a=30000,b=-5000,k=1))
 summary(mLinNB)
 confint(mLinNB)
 
+AICtab(mExpNB, mExpPois, mLinNB)
 
+#Linear Zero-inflated negative binomial
+fLinZiNB=function(a,b,k, zprob){
+  media=a+b*ins$density_high
+  -sum(dzinbinom(ins$abundance, mu=media, size=k, zprob = zprob, log=T))
+}
+
+mLinZiNB=mle2(fLinZiNB, list(a=30000,b=-5000,k=1, zprob=0.5))
+
+summary(mLinZiNB)
+confint(mLinZiNB)
+
+AICtab(mExpNB, mExpPois, mLinNB, mLinZiNB)
+
+
+#Exponential zero-inflated negative binomial
+fExpZiNB=function(a,b,k, zprob){
+  media=a*(exp(-b*ins$density_high))
+  -sum(dzinbinom(ins$abundance, mu=media, size=k, zprob = zprob, log=T))
+}
+
+mExpZiNB=mle2(fExpZiNB, list(a=40000,b=-50,k=1, zprob=0.5))
+
+summary(mExpZiNB)
+confint(mExpZiNB)
+
+AICtab(mExpNB, mExpPois, mLinNB, mLinZiNB, mExpZiNB)
 # hyperbolic with neg binom
 fHypNB=function(a,b,k){
   media=a/(b+ins$density_high)
@@ -176,6 +204,7 @@ plot(birdsXgeo$density_high, birdsXgeo$abundance, type="n", xlab="Neonics", ylab
 points(ins$density_high, ins$abundance, pch=2, col=3)
 x=ins$density_high
 x1=seq(0,3.5, by=0.05)
-LinearNB= function(x, a=40477, b=1.7) {a*(exp(-b*x))}
-plot(LinearNB, add=TRUE)
-
+LinearZiNB= function(x, a=29405, b=-2028) {a+b*x}
+plot(LinearZiNB, add=TRUE)
+ExpZiNB = function(x, a=39973, b=0.2676) {a*(exp(-b*ins$density_high))}
+plot(ExpZiNB, add=TRUE)
