@@ -1,0 +1,31 @@
+---
+title: "Draft outline for birds & butterflies proof-of-concept paper"
+author: " OB, KG, SL, TW - suggest alpha order by last name...happy to update. Could switch for next paper with TW first on a write up w butterfly data"
+date: "March 18, 2015"
+output: html_document
+---
+
+This is an R Markdown document! 
+
+### **Introduction**
+  Large-scale, industrial agriculture is recognized as a main driver of biodiversity decline worldwide (Butler et al. 2007, Donald et al. 2001). In the United States, industrial farming has become more widespread in the East and Midwest, which has resulted in habitat destruction (State of the Birds 2014) as well as degradation or contamination of critical resources. In particular, there is growing interest in the roles that agricultural pesticides play in biodiversity decline (Hallmann et al 2014).  
+  Some calculations suggest that less than 0.1% of pesticides applied to crops reach target pests and the excess moves through throughout agricultural and adjacent ecosystems, contaminating soil, water, and biota (Pimentel & Levitan 1986). Pesticide application rates have increased markedly in recent decades (Pimentel & Levitan 1986): an estimated 3-fold increase in total U.S. application across twenty-one major crops between 1960—1980, before leveling off in the early 21st century (Fernandez-Cornejo et al. 2014). Insecticides account for a diminishing amount of the overall total pesticide applications in U.S. agriculture (e.g., including herbicides, fungicides, soil fumigants, etc.): 6% in 2008, down from 58% of total applications in 1960 (Fernandez-Cornejo et al. 2014). Newer insecticides applied at low rates, including synthetic pyrethroids (e.g., permethin, cypermethrin) and neonicotinoids (e.g., imidicloprid, clothianidin), have become widely used (Fernandez-Cornejo et al. 2014). Neonicotinoids application estimates may be low as these chemicals are often applied as seed treatments and are not generally captured by pesticide use surveys (Fernandez-Cornejo et al. 2014).  
+Yet, pattern of pesticide applications in industrial agriculture and outcomes for species of conservation concern, such as birds, have not been well studied. Recent studies show that neonicotinoid insecticides have deleterious effects on non-target invertebrate species (can add some cites from Hallmann paper: Gill et al. 2012 bees, Henry et al. 2012 honey bees, Whitehorn et al. 2012 bumblebees, VanDijk et al. 2013 macro-inverts in surface waters; Easton et al. 2013 pollinating flies & beetles, Roessink et al. 2013 mayfly nymphs). Invertebrates comprise a significant part of the diet of insectivorous bird species throughout the year and others during the breeding season (Sibley 2009 “Guide to bird life and behavior”).   
+
+### **Research question and study area** 
+  We investigated two hypotheses: 1)  agricultural industrialization is positively correlated with increased use of neonicotinoid pesticides and 2)  the most (3 most?) widely used neonicotinoid (name(s)) had a negative impact on insectivorous bird populations. For this proof-of-concept paper, we targeted the U.S. State of Ohio, as it illustrates nationwide trends in industrialization of agriculture and has comprehensive data available for pesticide applications (available from the U.S. and Ohio Departments of Agriculture, data 19XX- 201X) and bird populations (Breeding Bird Survey, data 19XX- 201X). Also, Tyson has butterfly data here, so we’re headed for phase 2 with invertebrates. Boom!   
+
+
+
+
+```{r}
+
+```
+
+Add graphics later on...like this lovely example from the rmd folks:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+
