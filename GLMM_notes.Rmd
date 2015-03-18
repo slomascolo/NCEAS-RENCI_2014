@@ -1,8 +1,8 @@
 ---
-title: "Biodiversity, land use change and agriculture: mixed models analysis"
+title: 'Biodiversity, land use change and agriculture: mixed models analysis'
 author: "Team Agriculture"
 date: "6 August 2014"
-output: pdf_document
+output: html_document
 ---
 ## Context
 Patterns: We are investigating the influence of land use type, measured across a gradient of increasing intensity, on bird diversity

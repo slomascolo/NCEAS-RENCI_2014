@@ -17,6 +17,7 @@ require(tidyr)
 # Reading in the new bird data
 From Tyson's csv. 
 ````{r}
+setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/")
 new_bbs <- read.csv("fifty7_withRTENO.csv")
 new_bbs$sum_route_abundance <- rowSums(new_bbs[grep("^Stop[0-9]+", names(new_bbs))])
 head(new_bbs)
@@ -32,6 +33,11 @@ names(bird_traits) <- gsub("[.]", "_", names(bird_traits))  # using the [] to ge
 names(bird_traits)
 bird_traits$SCIENTIFIC_NAME <- toupper(bird_traits$SCIENTIFIC_NAME)
 head(bird_traits)
+````
+
+# Merge bird traits and bbs
+````{r}
+BBS_traits <- merge(new_bbs)
 ````
 
 # Bird code AOU data
@@ -52,6 +58,8 @@ bird_traits$SCIENTIFIC_NAME %in% AOU_codes$SCIENTIFIC_NAME # = not all true.
 AOU_codes$SCIENTIFIC_NAME %in% bird_traits$SCIENTIFIC_NAME # many many falses
 
 # merge the AOU codes into the ohio data
+head(bird_traits)
+merge(bird_traits, AOU_codes)
 ```
 
 # Neonics data by route
@@ -207,3 +215,9 @@ ggplot(year_neonics_buffers2, aes(y = intensity, x = YEAR)) +
   theme_bw()
 
 ```
+
+````{r}
+saved_gbm <- readRDS(file = "big_serialised_gbm.rds")
+class(saved_gbm)
+head(str(saved_gbm))
+summary(saved_gbm)

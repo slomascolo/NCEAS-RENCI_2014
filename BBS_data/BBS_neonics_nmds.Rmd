@@ -13,6 +13,10 @@ if(!require(ggplot2)){
     install.packages("ggplot2", repos = 'http://cran.stat.auckland.ac.nz/')
     library(ggplot2)
  }
+if(!require(data.table)){
+    install.packages("data.table", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(data.table)
+ }
 if(!require(lme4)){
     install.packages("lme4", repos = 'http://cran.stat.auckland.ac.nz/')
     library(lme4)
@@ -47,10 +51,10 @@ if(!require(vegan)){
   library(vegan)
 }
 ````
-
 ```
-
-# AOU Codes
+# RTENO csv
+Read in directly from Tyson's csv.
+# AOU codes
 Required because BBS uses "AOU" codes for its species, but they aren't the same as everywhere.  These ones are sourced from their website, and post-processed into a csv.
 ````{r, AOUdata, results = "hide"}
 #setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data")
@@ -74,12 +78,9 @@ head(ohio_BBS)
 ohio_BBS <- ohio_BBS %>% select(ROUTE,  YEAR, AOU, ROUTE_ABUNDANCE)
 head(ohio_BBS)
 
-
-names(ohio_BBS)
-names(AOU_codes)
 ## merging in the species names
 ohio_BBS_AOU <-inner_join(ohio_BBS, AOU_codes)
-
+head(ohio_BBS_AOU)
 #now we need to locate the routes in each county.  I read in the file Tyson had already located for us:
 ohio_BBS_routes_countiesraw <- read.csv("raw_data/BBSdata.by.county.csv")
 names(ohio_BBS_routes_countiesraw) <- toupper(names(ohio_BBS_routes_countiesraw))
@@ -102,7 +103,8 @@ names(ohio_BBS_birds) <- toupper(names(ohio_BBS_birds))
 names(ohio_BBS_birds) 
 
 # need one value per route per year
-ohio_BBS_birds_shortB <- data.frame(ohio_BBS_birds %>% group_by(ROUTE, COUNTY, GEOID, YEAR, COMMON_NAME)  %>% filter(YEAR >1996 & YEAR < 2010) %>% summarise(ROUTE_ABUNDANCE = mean(ROUTE_ABUNDANCE)))
+
+ohio_BBS_birds_shortB <- ohio_BBS_birds %>% group_by(ROUTE, COUNTY, GEOID, YEAR, COMMON_NAME)  %>% filter(YEAR >1996 & YEAR < 2010) %>% summarise(ROUTE_ABUNDANCE = mean(ROUTE_ABUNDANCE))
 head(ohio_BBS_birds_shortB)
 
 # need a matrix with species as columns
@@ -160,7 +162,8 @@ This is all just practice.  Need to add in feeding guilds to the above and the n
 
 ```{r neonics}
 ## come back to here!
-# neonics_raw_ohioj <- spread(neonics_raw_ohio, key = COMPOUND, value = KG) # not working
+head(BBS_neonics)
+neonics_raw_ohioj <- spread(neonics_raw_ohio, key = COMPOUND, value = KG) # not working
 # dim(neonics_raw_ohioj)
 # dim(neonics_raw_ohio)
 # dim(ohio_BBS_birds_short2) #merge by rows, exclude the right years.

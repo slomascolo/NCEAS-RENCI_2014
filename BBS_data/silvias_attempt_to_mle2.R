@@ -1,7 +1,7 @@
 #Bird traits
 
 #setwd("~/RichardHadlee/user1/BurgeO/Documents/GitHub")
-getwd()
+setwd("C:/Users/silvia/Documents/NCEAS-RENCI_2014/BBS_data")
 
 traits_commmon_steep <- read.csv("raw_data/commonbirds_steepdecline_traits.csv")
 str(traits_commmon_steep)
@@ -33,10 +33,9 @@ ohio_BBS_birds$route_abundance <- rowSums(ohio_BBS_birds[grep("^Stop[0-9]+", nam
 head(ohio_BBS_birds) # the names thing above doesn't seem to be doing anything? I hope that's not an artefact from me!!
 
 birdsXdiet=aggregate(ohio_BBS_birds$route_abundance, by = list(ohio_BBS_birds$GEOID, ohio_BBS_birds$year, ohio_BBS_birds$diet), sum)
-head(birdsXdiet)
-
 names(birdsXdiet)= c("GEOID", "YEAR", "diet", "abundance")
 head(birdsXdiet)
+
 plot(birdsXdiet$YEAR, birdsXdiet$abundance)
 #Geo points
 geo = read.csv("../OH.neonicotinoids.csv", header=TRUE)
@@ -76,32 +75,40 @@ plot(birdsXgeo$density_high, birdsXgeo$abundance, type="n", xlab="Neonics", ylab
 points(ins$density_high, ins$abundance, pch=2, col=3)
 
 x=ins$density_high
-tete= function(x, a=700, b=2.75) {a*exp(-b*x)}
-plot(tete, add=TRUE)
+hyp=function(x, a=10000, b=0.25) {a/(b+x)}
+expon= function(x, a=40000, b=4.25) {a*exp(-b*x)}
+lin=function(x, a=40000, b=-5000){a+(b*x)}
+plot(hyp, add=TRUE)
+plot(expon, add=TRUE)
+plot(lin, add=TRUE)
 
 ## The models!
+library(bbmle)
+library(emdbook)
 # neg exponential with Poisson distribution
-fExpNB=function(a,b){
+fExpPois=function(a,b){
   lambda=a*(1-exp(-b*ins$density_high))
   -sum(dpois(ins$abundance,lambda,log=T)) 
 }
 
-################ fails here########################s
-mExpPois= mle2(fExpNB, list(a=600,b=2.75))
+########## fails here#############Now I added the library that you need to load so it won't fail
+mExpPois= mle2(fExpNB, list(a=20000,b=4.25))
 
 summary(mExpPois)
 confint(mExpPois)
 
 # neg exponential with neg binom
 fExpNB=function(a,b,k){
-  media=a*(1-exp(-b*ins$density_high))
+  media=a*(exp(-b*ins$density_high))
   -sum(dnbinom(ins$abundance,mu=media,size=k,log=T)) 
 }
 
-mExpNB= mle2(fExpNB, list(a=600,b=2.75,k=4))
+mExpNB= mle2(fExpNB, list(a=30000,b=4.25,k=4))
 
 summary(mExpNB)
 confint(mExpNB)
+
+AICtab(mExpNB, mExpPois)
 
 # linear with neg binom
 fLinNB=function(a,b,k){
@@ -109,19 +116,46 @@ fLinNB=function(a,b,k){
   -sum(dnbinom(ins$abundance, mu=media, size=k, log=T))
 }
 
-mLinNB=mle2(fLinNB, list(a=600,b=-10,k=1))
+mLinNB=mle2(fLinNB, list(a=30000,b=-5000,k=1))
 
 summary(mLinNB)
 confint(mLinNB)
 
+AICtab(mExpNB, mExpPois, mLinNB)
 
+#Linear Zero-inflated negative binomial
+fLinZiNB=function(a,b,k, zprob){
+  media=a+b*ins$density_high
+  -sum(dzinbinom(ins$abundance, mu=media, size=k, zprob = zprob, log=T))
+}
+
+mLinZiNB=mle2(fLinZiNB, list(a=30000,b=-5000,k=1, zprob=0.5))
+
+summary(mLinZiNB)
+confint(mLinZiNB)
+
+AICtab(mExpNB, mExpPois, mLinNB, mLinZiNB)
+
+
+#Exponential zero-inflated negative binomial
+fExpZiNB=function(a,b,k, zprob){
+  media=a*(exp(-b*ins$density_high))
+  -sum(dzinbinom(ins$abundance, mu=media, size=k, zprob = zprob, log=T))
+}
+
+mExpZiNB=mle2(fExpZiNB, list(a=40000,b=-50,k=1, zprob=0.5))
+
+summary(mExpZiNB)
+confint(mExpZiNB)
+
+AICtab(mExpNB, mExpPois, mLinNB, mLinZiNB, mExpZiNB)
 # hyperbolic with neg binom
 fHypNB=function(a,b,k){
   media=a/(b+ins$density_high)
   -sum(dnbinom(ins$abundance, mu=media, size=k, log=T))
 }
 
-mHypNB=mle2(fHypNB, list(a=1100,b=0.3,k=1))
+mHypNB=mle2(fHypNB, list(a=10000,b=0.25,k=1))
 
 summary(mHypNB)
 confint(mHypNB)
@@ -134,7 +168,7 @@ fLinNB_all=function(a,b,k){
   -sum(dnbinom(birdsXgeo$abundance, mu=media, size=k, log=T))
 }
 
-mLinNB_all=mle2(fLinNB_all, list(a=600,b=-10,k=1))
+mLinNB_all=mle2(fLinNB_all, list(a=10000,b=-500,k=1))
 
 summary(mLinNB_all)
 confint(mLinNB_all)
@@ -145,29 +179,32 @@ fLinNB_others=function(a,b,k){
   -sum(dnbinom(others$abundance, mu=media, size=k, log=T))
 }
 
-mLinNB_others=mle2(fLinNB_others, list(a=600,b=-10,k=1))
+mLinNB_others=mle2(fLinNB_others, list(a=5000,b=-100,k=1))
 
 summary(mLinNB_others)
 confint(mLinNB_others)
 
 
-#within the same model, different parameters for each group... It doesn't work
-fLinNB_a=function(aC,aR,b,k){
-  a=c(aC,aR)[birdsXgeo$func.group]; media=a + b*x
-  -sum(dnbinom(y,mu=media,size=k,log=T)) }
-mtA = mle2(fLinNB_a, list(aC=600,aR=600,b=2,k=4), method = "Nelder-Mead", data = list (x = birdsXgeo$density_high, y = birdsXgeo$abundance))
+#within the same model, different parameters for each group... I can't make it work
+#fLinNB_a=function(aC,aR,b,k){
+#  a=c(aC,aR)[birdsXgeo$func.group]; media=a + b*x
+#  -sum(dnbinom(y,mu=media,size=k,log=T)) }
+#mtA = mle2(fLinNB_a, list(aC=600,aR=600,b=2,k=4), method = "Nelder-Mead", data = list (x = birdsXgeo$density_high, y = birdsXgeo$abundance))
 
-summary(mtA)
+#summary(mtA)
 
 
 
-AICtab(mLinNB, mExpNB, mExpPois, mHypNB, mLinNB_others, mLinNB_all)
+AICtab(mLinNB, mExpNB, mExpPois, mHypNB)
 
 
 
 #Plotting the line of the best fit model with the parameters estimated by ML
+plot(birdsXgeo$density_high, birdsXgeo$abundance, type="n", xlab="Neonics", ylab="Birds")
+points(ins$density_high, ins$abundance, pch=2, col=3)
 x=ins$density_high
 x1=seq(0,3.5, by=0.05)
-LinearNB= function(x, a=95, b=-1.52) {a+b*x}
-plot(LinearNB, add=TRUE)
-
+LinearZiNB= function(x, a=29405, b=-2028) {a+b*x}
+plot(LinearZiNB, add=TRUE)
+ExpZiNB = function(x, a=39973, b=0.2676) {a*(exp(-b*ins$density_high))}
+plot(ExpZiNB, add=TRUE)
