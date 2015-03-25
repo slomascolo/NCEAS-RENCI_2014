@@ -1,0 +1,269 @@
+---
+title: "Pesticide & neonic summaries"
+author: "Olivia Burge"
+date: "26 March 2015"
+output: html_document
+---
+
+
+
+```{r packages, include=FALSE}
+if(!require(fortunes)){
+  install.packages("fortunes", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(fortunes)
+  }
+if(!require(dplyr)){
+  install.packages("dplyr", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(dplyr)
+  }
+if(!require(ggthemes)){
+  install.packages("ggthemes", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(ggthemes)
+  }
+if(!require(tidyr)){
+  install.packages("tidyr", repos = 'http://cran.stat.auckland.ac.nz/')
+  library(tidyr)
+  }
+if(!require(ggplot2)){
+    install.packages("ggplot2", repos = 'http://cran.stat.auckland.ac.nz/')
+    library(ggplot2)
+    }
+    theme_set(theme_bw())
+```
+
+```{r preliminary}
+# for Tyson
+fortune(298)
+```
+## Summary of pesticides by county over time. 
+
+```{r back to work}
+#setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/PaperDrafts/")
+pesticides <- read.csv("../Pesticides/allpesticidesOH.csv")
+head(pesticides, 2)
+range(pesticides$YEAR)
+```
+
+## Question for everyone:
+
+Have a look below - we're missing _a lot_ of data for the low estimates from what I can tell. I've dealt with this by excluding any row for which we don't have both low and high estimates. For reference, I include the 'high' estimates when we don't exclude the rows for which there _is_ high estimates but not low. Surprising point: it's lower! 
+
+```{r}
+# Average application rate by year, all counties
+names(pesticides)
+pesticidesna <- pesticides[complete.cases(pesticides[, 10:11]),]
+
+year_sum <- pesticides %>% 
+  group_by(YEAR) %>% 
+  summarise(high_applic = mean(KG_EPhigh, na.rm = T),
+            low_applic = mean(KG_EPlow, na.rm = T)) %>%
+    gather(., rate, kg, high_applic:low_applic) %>%
+  mutate(na_type = "NA: col_wise removal")
+
+year_na_sum <- pesticidesna %>% 
+  group_by(YEAR) %>% 
+  summarise(high_applic = mean(KG_EPhigh),
+            low_applic = mean(KG_EPlow)) %>%
+  gather(., rate, kg, high_applic:low_applic) %>%
+  mutate(na_type = "NA: complete cases only")
+head(year_na_sum, 2)
+
+year_na_sum2 <- rbind(year_na_sum, year_sum)
+
+ggplot(year_na_sum2, aes(x = YEAR, y = kg)) +
+  geom_line(aes(linetype = rate)) +
+  scale_linetype("Estimate", labels = c("High", "Low"))+
+  geom_vline(xintercept = 1997, colour = "grey50", linetype = "dashed")+
+  facet_wrap(~ na_type) +
+  theme_bw() +
+  theme(legend.position = c(1,1),
+        legend.justification = c(1,1),
+        legend.key = element_blank(),
+        legend.background = element_rect(colour = "grey"))
+
+ggplot(year_na_sum2, aes(x = YEAR, y = kg)) +
+  geom_line(aes(linetype = rate, colour = na_type), alpha = 0.7) +
+  scale_linetype("Estimate", labels = c("High", "Low"))+
+  annotate(geom = "text", label = "NB - both low estimates overlap",
+           x = 2003, y = 1700) +
+  scale_colour_manual("NA treatment", values = c("forestgreen", "orange"), 
+                      labels = c("column wise removal", "complete cases only"))+
+  geom_vline(xintercept = 1997, colour = "grey50", linetype = "dashed")+
+  theme_bw() +
+  theme(legend.key = element_blank(),
+        legend.position = "bottom",
+        legend.box = "horizontal")
+```
+
+So the question is whether we just use the high estimates, or just the low estimates, or both. If we use both I suggest we use the complete cases. 
+
+I will do the by county pesticide usage once we've decided what to do with the NAs, because the same thing applies. 
+
+
+## By county summary of application rates
+
+I don't print the tables, but that's where the good data are. Graphs for illustration purposes but are sometimes summaries of data.
+
+```{r ok Ill do counties}
+names(pesticidesna)
+
+counties_sum <- pesticidesna %>% 
+  group_by(County.Name) %>% 
+  summarise(high_applic = mean(KG_EPhigh),
+            low_applic = mean(KG_EPlow)) %>%
+  gather(., rate, kg, high_applic:low_applic) %>%
+  mutate(na_type = "NA: complete cases only")
+
+head(counties_sum)
+
+
+counties_sum$rate <- factor(counties_sum$rate, 
+                            levels = c("low_applic", "high_applic"),
+                            ordered = TRUE)
+counties_sum$county <- gsub(" County", "", as.character(counties_sum$County.Name))
+
+ggplot(counties_sum, aes(x = reorder(county, -kg), alpha = rate, y = kg)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_alpha_manual(values = c(0.4, 0.9))+
+  theme_bw()+ 
+  guides(alpha= FALSE)+
+  facet_wrap(~rate)+
+  coord_flip()
+```
+
+## Pesticides increasing/decreasing? - rates 
+
+```{r rates of change}
+counties_sum_table <- pesticidesna %>% 
+  filter(YEAR > 1996) %>%  ## remove this if wanted
+  group_by(County.Name) %>% 
+  summarise(high_applic = mean(KG_EPhigh),
+            low_applic = mean(KG_EPlow)) %>%
+  mutate(county = gsub(" County", "", as.character(County.Name))) %>%
+  select(county, low_applic, high_applic)
+
+counties_change_table <- pesticidesna %>% 
+  filter(YEAR %in% c(1997, 2011)) %>%  ## remove this if wanted
+  group_by(County.Name, YEAR) %>% 
+  summarise(high_applic = mean(KG_EPhigh),
+            low_applic = mean(KG_EPlow)) %>%
+  mutate(county = gsub(" County", "", as.character(County.Name))) %>%
+  gather(., rate, kg, high_applic:low_applic) %>%
+  spread(., YEAR, kg)%>% 
+  rename(start97 = `1997`, end11 = `2011`) %>%
+  mutate(change = end11 / start97,
+         log_change = log(end11 / start97))
+
+ggplot(counties_change_table, aes(x = rate, y = log_change)) +
+  geom_point(position = position_jitter(width = .1)) + 
+  geom_boxplot(alpha = 0.7) + theme_bw() + 
+  geom_hline(yintercept = log(1), linetype = "dashed", colour = "royalblue")
+```
+
+## Raw and average change between 1997 and 2011
+
+```{r start to end,warning=FALSE}
+counties_change_table_long <- counties_change_table %>%
+  gather(., year, kg, start97:end11) %>%
+  select(County.Name, county, rate, year, kg) %>%
+  mutate(county_rate = interaction(county, rate))  ## this line is for ggplot grouping
+
+
+ggplot(counties_change_table_long, aes(x = year, y = kg)) +
+  geom_line(aes(group = county_rate, colour = rate), alpha = 0.3) +
+  scale_colour_manual(values = c("forestgreen", "orange"))+
+  geom_point(aes(colour = rate), alpha = 0.3) + 
+  geom_smooth(aes(group = rate, colour = rate)) +
+  guides(colour = guide_legend(override.aes = list(fill = NA)))+
+  theme(legend.position = "bottom", legend.key = element_blank())
+
+``` 
+
+## And the neonics
+
+```{r neonic data}
+neonics <- read.csv("../Pesticides/OH.neonicotinoids.csv")
+head(neonics, 2)
+range(neonics$YEAR)
+````
+
+Tyson: here I use density_high, which from memory is the application rate (high in this case) over the county area? Let me know if you think a different measure is better hey.
+
+```{r year summary}
+neonics_year <- neonics %>%
+  filter(YEAR > 1996) %>%
+  group_by(YEAR, COMPOUND) %>%
+  summarise(mean_applic = mean(density_high), na.rm = TRUE)
+
+ggplot(neonics_year, aes(x = YEAR, y = mean_applic)) +
+  geom_line(aes(colour = COMPOUND)) +
+  scale_colour_colorblind() +
+  theme(legend.key = element_blank())
+
+# and using a smoothed version
+ggplot(neonics, aes(x = YEAR, y = density_high)) +
+  geom_smooth(aes(colour = COMPOUND), method = "loess") + # doesn't work with gam - x range/knots issue
+    guides(colour = guide_legend(override.aes = list(fill = NA)))+
+  scale_colour_colorblind() +
+  theme(legend.key = element_blank())
+```
+
+And by county. Note I haven't dealt to the NAs for neonics - just leaving that until we decide what to do. Also just using high kg for now.
+
+```{r}
+names(neonics)
+head(neonics, 1)
+
+counties_neonics_change_table <- neonics %>% 
+  filter(YEAR %in% c(1997, 2011)) %>%  ## remove this if wanted
+  group_by(NAME, YEAR) %>% 
+  summarise(high_applic = mean(density_high)) %>%
+  mutate(county = gsub(" County", "", as.character(NAME))) %>%
+  ungroup() %>%
+  spread(., YEAR, high_applic) %>% 
+  rename(start97 = `1997`, end11 = `2011`) %>%
+  mutate(change = end11 / start97,
+         log_change = log(end11 / start97)) %>%
+  arrange(-change)
+
+counties_neonics_change_table_short <- counties_neonics_change_table %>%
+  gather(year, density, start97:end11)
+
+ggplot(counties_neonics_change_table_short, aes(x = year, y = density)) +
+  geom_point(aes(colour = county), alpha = 0.3) +
+  geom_line(aes(colour = county, group = county), alpha = 0.3)+
+  guides(colour = FALSE)
+
+```
+
+Also, extra for experts, by compound: 
+```{r}
+# err, object names are getting long.. soz
+
+
+head(neonics)
+counties_neonics_change_table_compound <- neonics %>% 
+  filter(YEAR %in% c(1997, 2011)) %>%  ## remove this if wanted
+  group_by(NAME, YEAR, COMPOUND) %>% 
+  summarise(high_applic = mean(density_high)) %>%
+  mutate(county = gsub(" County", "", as.character(NAME))) %>%
+reshape2::dcast(NAME + county + COMPOUND ~ YEAR, value.var = "high_applic") %>%
+  rename(start97 = `1997`, end11 = `2011`) 
+counties_neonics_change_table_compound[is.na(counties_neonics_change_table_compound$start97), "start97"] <- 0
+counties_neonics_change_table_compound[is.na(counties_neonics_change_table_compound$end11), "end11"] <- 0
+head(counties_neonics_change_table_compound, 3)
+
+counties_neonics_change_table_compound_short <- counties_neonics_change_table_compound %>%
+  gather(year, density, start97:end11)
+
+ggplot(counties_neonics_change_table_compound_short, aes(x = year, y = density)) +
+  geom_point(aes(colour = county), alpha = 0.3) +
+  geom_line(aes(colour = county, group = county), alpha = 0.3)+
+  guides(colour = FALSE) +
+  facet_wrap(~ COMPOUND) 
+
+```
+ 
+## Question re the above
+
+Problem is of course lots of the neonics hadn't started in 97 - therefore what summary statistic we want out? Let me know or code in yourself - that will be pretty easy. 
