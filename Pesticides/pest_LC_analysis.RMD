@@ -1161,19 +1161,12 @@ Profit
 setwd("C:/Users/Tyson/REPO/NCEAS-RENCI_2014")
 
 
-library(lme4)
-library(arm)
-library(MuMIn)
 library(plyr)
 library(dplyr)
-library(nlme)
 library(reshape)
 library(vegan)
+library(ggplot2)
 
-
-#butterfly count data (just raw) from previous ESA analysis
-load("C:/Users/Tyson/Dropbox/Ohio/jan2014/populations/all.species.data.RData")
-# options(na.action = "na.fail") #why do I have this?
 
 pest <- read.csv("Pesticides/pest_bflybuff_overtime.csv", header = TRUE)
 names(pest) <- c("Year", "SiteID", "buffer", "compound", "high_kg_buff", "low_kg_buff", "ag_pix_buff")
@@ -1198,6 +1191,7 @@ for (i in 1:40){
 
 BflyPops <- data.frame(BflyPops)
 BflyPops$Year <- as.numeric(as.character(BflyPops$Year))
+saveRDS(BflyPops, file = "BflyPops.rds")
 
 #choose buffer
 buffer <- 5000
@@ -1233,12 +1227,16 @@ spec_site_hell <- decostand(spec_site[, -c(1:2)], 'hell')
 spec_site_wisc <- wisconsin(spec_site[, -c(1:2)])
 
 #trying out different unconstrained and constrained rdas
-test <- rda(spec_site_wisc)
-test <- rda(spec_site_hell ~ ., env[,c(4:9)])
+test <- rda(spec_site_hell)
+test <- rda(spec_site_hell ~ ., env[,c(3:9)])
 test <- rda(spec_site_hell ~ env[,2])
 
-r2 <- RsquareAdj(test)$r.squared
-r2adj <- RsquareAdj(test)$adj.r.squared
+#try out site and year as factors in species ordination
+#repeated below using adonis function instead
+test <- rda(spec_site_hell ~ factor(env$SiteID) + factor(env$Year))
+
+(r2 <- RsquareAdj(test)$r.squared)
+(r2adj <- RsquareAdj(test)$adj.r.squared)
 
 #Make some ordination plots of spatial and temporal variation in environmental variables.
 plot(test, scaling = 2)
@@ -1250,28 +1248,52 @@ arrows(0,0, spe.sc[,1], spe.sc[,2], length = 0, lty = 1, col = "red")
 ado <- adonis(spec_site[3:42] ~ as.factor(SiteID) + as.factor(Year), data = spec_site, permutations = 999,
               method = "bray")
 
+ado <- adonis(spec_site[3:42] ~ as.factor(Year), data = spec_site, strata = spec_site$SiteID, permutations = 999,
+              method = "bray")
+ado <- adonis(spec_site[3:42] ~ as.factor(SiteID), data = spec_site, strata = spec_site$Year, permutations = 999,
+              method = "bray")
+
+
+#How much does pesticide use vary over time and space?
+ado <- adonis(env[, 10:17] ~ as.factor(Year), data = env, strata = env$SiteID, permutations = 999,
+              method = "euclidean")
+ado <- adonis(env[,10:17] ~ as.factor(SiteID), data = env, strata = env$Year, permutations = 999,
+              method = "euclidean")
 
 #Trying to figure out a way to plot means/SEs of groups (like sites or years)
 
-# dis <- vegdist(spec_site[3:42])
-# 
-# years <- as.factor(spec_site$Year)
-# sites <- as.factor(spec_site$SiteID)
-# 
-# mod <- betadisper(dis, years, type = "median")
-# plot(mod)
-# ordiellipse(mod, sites)
-# 
-# pcoa<- cmdscale(dis)
-# # plot them with different symbols for groups
-# pcoa <- as.data.frame(pcoa)
-# pcoa$year <- spec_site$Year
-# pcoa$site <- spec_site$SiteID
-# 
-# yrs <- pcoa %>% 
-#   group_by(year) %>%
-#   summarise(meanV1 = mean(V1), meanV2 = mean(V2), sdV1 = sd(V1), sdV2 = sd(V2))
-# 
+dis <- vegdist(spec_site[3:42])
+#landcover dissimilarity
+dis <- vegdist(env[, 3:9], method = "euclidean")
+
+years <- as.factor(spec_site$Year)
+sites <- as.factor(spec_site$SiteID)
+
+mod <- betadisper(dis, sites, type = "centroid")
+plot(mod)
+ordiellipse(mod, sites)
+
+pcoa<- cmdscale(dis)
+# plot them with different symbols for groups
+pcoa <- as.data.frame(pcoa)
+pcoa$year <- spec_site$Year
+pcoa$site <- spec_site$SiteID
+
+yrs <- pcoa %>% 
+  group_by(year) %>%
+  summarise(meanV1 = mean(V1), meanV2 = mean(V2), sdV1 = sd(V1), sdV2 = sd(V2))
+
+p <- ggplot(yrs, aes(x = meanV1, y = meanV2, colour = year))
+p + geom_point(aes(size = 3)) + geom_errorbar(aes(ymax = meanV2 + sdV2, ymin = meanV2 - sdV2)) +
+  geom_errorbarh(aes(xmax = meanV1 + sdV1, xmin = meanV1 - sdV1))
+
+
+sites <- pcoa %>% 
+  group_by(site) %>%
+  summarise(meanV1 = mean(V1), meanV2 = mean(V2), sdV1 = sd(V1), sdV2 = sd(V2))
+q <- ggplot(sites, aes(x = meanV1, y = meanV2, colour = site))
+q + geom_point(aes(size = 3)) + geom_errorbar(aes(ymax = meanV2 + sdV2, ymin = meanV2 - sdV2)) +
+  geom_errorbarh(aes(xmax = meanV1 + sdV1, xmin = meanV1 - sdV1))
 
 
 
