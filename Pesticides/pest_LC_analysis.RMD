@@ -42,15 +42,22 @@ EPA.high <- do.call("rbind", lapply(filenames[grep("EPest.high", filenames)], re
 EPA.low <- do.call("rbind", lapply(filenames[grep("EPest.low", filenames)], read.table, header = TRUE, sep = "\t"))
 
 #updated 2010-11 preliminary data
-setwd("C:/Users/Tyson/Desktop/Pesticides/prelim2010")
+#DEPRECATED
+# setwd("C:/Users/Tyson/Desktop/Pesticides/prelim2010")
+# filenames <- list.files()
+# EPA.high.pre <- do.call("rbind", lapply(filenames[grep("EPest.high", filenames)], read.table, header = TRUE, sep = "\t"))
+# EPA.low.pre <- do.call("rbind", lapply(filenames[grep("EPest.low", filenames)], read.table, header = TRUE, sep = "\t"))
+
+#updated 2008-12 data, replaces preliminary data, new 2015 report by Baker and Stone
+setwd("C:/Users/Tyson/Desktop/Pesticides/ds907_appendix2_tables1-14")
 filenames <- list.files()
-EPA.high.pre <- do.call("rbind", lapply(filenames[grep("EPest.high", filenames)], read.table, header = TRUE, sep = "\t"))
-EPA.low.pre <- do.call("rbind", lapply(filenames[grep("EPest.low", filenames)], read.table, header = TRUE, sep = "\t"))
+EPA.high.update <- do.call("rbind", lapply(filenames[grep("high", filenames)], read.table, header = TRUE, sep = "\t"))
+EPA.low.update <- do.call("rbind", lapply(filenames[grep("low", filenames)], read.table, header = TRUE, sep = "\t"))
 
 setwd("C:/Users/Tyson/Desktop/Pesticides")
-
-EPA.high <- rbind(EPA.high, EPA.high.pre)
-EPA.low <- rbind(EPA.low, EPA.low.pre)
+#Datasets overlap in 2008-2009, just use newer report for these years
+EPA.high <- rbind(EPA.high[EPA.high$YEAR < 2008, ], EPA.high.update)
+EPA.low <- rbind(EPA.low[EPA.low$YEAR < 2008, ], EPA.low.update)
 
 EPA.high$GEOID <- paste(EPA.high$STATE_FIPS_CODE, formatC(EPA.high$COUNTY_FIPS_CODE, width = 3, format = "d", flag = "0"), sep = "")
 EPA.low$GEOID <- paste(EPA.low$STATE_FIPS_CODE, formatC(EPA.low$COUNTY_FIPS_CODE, width = 3, format = "d", flag = "0"), sep = "")
@@ -69,7 +76,7 @@ names(pest.states.low)[5] <- "KG_EPlow"
 county.data <- merge(pest.states.high, pest.states.low, all.x = TRUE)
 
 #Bring in county data from 2010 US Census (from factfinder online database)
-census <- read.table("Pesticides/Gaz_counties_national.txt", header = TRUE, sep = "\t")
+census <- read.table("Gaz_counties_national.txt", header = TRUE, sep = "\t")
 OH.census <- census[which(census$GEOID %in% OHplus_GEOID), ]
 
 OH.co.pesticides <- merge(county.data, OH.census)
