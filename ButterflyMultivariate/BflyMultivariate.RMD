@@ -1,0 +1,171 @@
+---
+title: "ButterflyMultivariate"
+author: "Tyson Wepprich"
+date: "Friday, March 27, 2015"
+output: html_document
+---
+I'm new to ordination, so I tried a few things that made sense to me with a little bit of reading.
+Brief summary:
+-Lots of variation in landuse and pesticide use between sites, not a lot between years.
+-It might be good to focus on sites with high agricultural use to focus in on pesticide effects.
+-I haven't tested effects of using different scales (200m to 10km buffers around sites) of aggreagting land use and pesticides.
+-Butterfly abundance being used right now, but we could also try presence/absence, or focus on butterfly species we anticipate would be heavily affected by farmland management. Also, there may be better ways to scale the abundance, because much of the site differences could be due to, well, site differences (in transect length, habitat, observer, etc.).
+
+```{r}
+
+library(plyr)
+library(dplyr)
+library(reshape)
+library(vegan)
+library(ggplot2)
+
+
+pest <- read.csv("../Pesticides/pest_bflybuff_overtime.csv", header = TRUE)
+names(pest) <- c("Year", "SiteID", "buffer", "compound", "high_kg_buff", "low_kg_buff", "ag_pix_buff")
+pest$SiteID <- as.character(pest$SiteID)
+
+#extract landcover change trends for model, won't have yearly variation like pesticides or weather
+#also might be good to classify sites with PCA for landcover context using landclass percentages
+lc <- read.csv("../Landcover/LC_bflybuff_overtime.csv", header = TRUE)
+names(lc) <- c("SiteID", "reclass", "buffer", "Year", "total_pix", "km2")
+lc$reclass <- mapvalues(lc$reclass, from = c(1:7), to = c("water", "urban", "barren", "forest", "grass", "farm", "wetland"))
+lc$SiteID <- as.character(lc$SiteID)
+
+BflyPops <- readRDS("BflyPops.rds")
+
+#choose buffer
+#I haven't played around with this at all to see if some scales show different results
+
+#bring together landcover and pesticide info
+buffer <- 5000 #200, 400, 1000, 2000, 5000, 10000 meter radii around sites
+lc_subsample <- lc[lc$buffer == buffer, ]
+pest_subsample <- pest[pest$buffer == buffer, ]
+env <- merge(lc_subsample, pest_subsample, by = c("Year", "SiteID"))
+
+site_lc <- data.frame(cast(lc_subsample, SiteID + Year ~ reclass, value = "km2"))
+site_lc[is.na(site_lc)] <- 0
+
+site_pest <- data.frame(cast(pest_subsample, SiteID + Year ~ compound, value = "high_kg_buff"))
+site_pest[is.na(site_pest)] <- 0
+
+env <- merge(site_lc, site_pest, by = c("SiteID", "Year"), all.x = TRUE, all.y = FALSE)
+
+#make matrix of species abundances for ordination
+spec_site_mat <- data.frame(cast(BflyPops, SiteID + Year ~ Species, value = "TrpzInd"))
+spec_site_mat[is.na(spec_site_mat)] <- 0
+
+env <- merge(spec_site_mat[, c(1:2)], env, by = c("SiteID", "Year"))
+#NA's when buffers have no farmland => no estimated pesticide use
+env[is.na(env)] <- 0
+
+#each row is a site x year observation in species matrix (with columns for site and year factors)
+spec_site <- merge(env[, c(1:2)], spec_site_mat, by = c("SiteID", "Year"))
+
+
+#Scaling
+#I'm new to this, so alternative suggestions welcome
+#scale land use so total in each buffer (row) sum to 1
+#scale pesticides by column, standardize
+env[, 3:9] <- decostand(env[, 3:9], 'total')
+env[, 10:17] <- decostand(env[, 10:17], 'standardize')
+env$SiteID <- as.factor(env$SiteID)
+env$Year <- as.factor(env$Year)
+
+#tried a couple different scalings for butterfly abundance
+#it might make sense to square root them first between they have huge variation
+spec_site_hell <- decostand(spec_site[, -c(1:2)], 'hell')
+spec_site_wisc <- wisconsin(spec_site[, -c(1:2)])
+
+#trying out different unconstrained and constrained rdas
+test <- rda(spec_site_hell)
+test <- rda(spec_site_hell ~ ., env[,c(3:9)])
+test <- rda(spec_site_hell ~ env[,2])
+
+#try out site and year as factors in species ordination
+#repeated below using adonis function instead
+test <- rda(spec_site_hell ~ factor(env$SiteID) + factor(env$Year))
+
+(r2 <- RsquareAdj(test)$r.squared)
+(r2adj <- RsquareAdj(test)$adj.r.squared)
+
+#Make some ordination plots of spatial and temporal variation in environmental variables.
+plot(test, scaling = 2)
+spe.sc <- scores(test, choices = 1:2, display = "sp")
+arrows(0,0, spe.sc[,1], spe.sc[,2], length = 0, lty = 1, col = "red")
+
+#PERMANOVA shows that much more butterfly variation over sites than between years (when looking at entire state)
+#This may not actually say much about yearly variation at a particular site, though.
+ado <- adonis(spec_site[3:42] ~ as.factor(SiteID) + as.factor(Year), data = spec_site, permutations = 999,
+              method = "bray")
+
+#I think I'm using the strata correctly for the permutation tests, but might be wrong
+ado <- adonis(spec_site[3:42] ~ as.factor(Year), data = spec_site, strata = spec_site$SiteID, permutations = 999,
+              method = "bray")
+ado <- adonis(spec_site[3:42] ~ as.factor(SiteID), data = spec_site, strata = spec_site$Year, permutations = 999,
+              method = "bray")
+
+
+#How much does pesticide use vary over time and space?
+#A lot over different sites, not a lot of variation between years
+#Idea: Only analyze sites that actually have agriculure/pesticides nearby. Could be that the big variation
+#is between forested/natural and ag/urban sites in both abundance/species composition
+ado_yr <- adonis(env[, 10:17] ~ as.factor(Year), data = env, strata = env$SiteID, permutations = 999,
+              method = "euclidean")
+ado_site <- adonis(env[,10:17] ~ as.factor(SiteID), data = env, strata = env$Year, permutations = 999,
+              method = "euclidean")
+
+#Trying to figure out a way to plot means/SEs of groups (like sites or years)
+#These mostly are crappy and me just playing around
+#Good way to plot ordinations that you know of, Liv?
+
+dis <- vegdist(spec_site[3:42])
+#landcover dissimilarity
+dis <- vegdist(env[, 3:9], method = "euclidean")
+
+years <- as.factor(spec_site$Year)
+sites <- as.factor(spec_site$SiteID)
+
+mod <- betadisper(dis, sites, type = "centroid")
+plot(mod)
+ordiellipse(mod, sites)
+
+pcoa<- cmdscale(dis)
+# plot them with different symbols for groups
+pcoa <- as.data.frame(pcoa)
+pcoa$year <- spec_site$Year
+pcoa$site <- spec_site$SiteID
+
+yrs <- pcoa %>% 
+  group_by(year) %>%
+  summarise(meanV1 = mean(V1), meanV2 = mean(V2), sdV1 = sd(V1), sdV2 = sd(V2))
+
+p <- ggplot(yrs, aes(x = meanV1, y = meanV2, colour = year))
+p + geom_point(aes(size = 3)) + geom_errorbar(aes(ymax = meanV2 + sdV2, ymin = meanV2 - sdV2)) +
+  geom_errorbarh(aes(xmax = meanV1 + sdV1, xmin = meanV1 - sdV1))
+
+
+sites <- pcoa %>% 
+  group_by(site) %>%
+  summarise(meanV1 = mean(V1), meanV2 = mean(V2), sdV1 = sd(V1), sdV2 = sd(V2))
+q <- ggplot(sites, aes(x = meanV1, y = meanV2, colour = site))
+q + geom_point(aes(size = 3)) + geom_errorbar(aes(ymax = meanV2 + sdV2, ymin = meanV2 - sdV2)) +
+  geom_errorbarh(aes(xmax = meanV1 + sdV1, xmin = meanV1 - sdV1))
+
+
+
+# partial mantel test of pesticide effects while controlling for land use
+# another approach for analyzing multivariate differences between sites
+# not a lot jumping out that's interesting though
+pest.pc <- prcomp(env[10:17], scale = FALSE)
+pc <- scores(pest.pc, display = "sites", choices = 1:4)
+  pest.dis <- vegdist(pc, method = "euclid")
+
+lc.pc <- prcomp(env[3:9], scale = TRUE)
+pc <- scores(lc.pc, display = "sites", choices = 1:4)
+lc.dis <- vegdist(pc, method = "euclid")
+
+  bflydis <- vegdist(spec_site_hell)
+  man <- mantel.partial(bflydis, pest.dis, lc.dis)
+
+```
+
