@@ -88,17 +88,22 @@ bird.1 = bugs(bird.data, bird.inits, bird.parameters, bugs.directory="C:/Program
 plot(bird.1)
 print(bird.1)
 
-#The model, varying intercept and slope per GEOID
-W = diag (2)
-bird2.data = list("n", "J", "y", "geo", "x", "W")
-bird2.inits = function(){
+#The model, varying intercept and slope per GEOID using Wishart distribution
+W <- diag (2)
+birdW.data <- list("n", "J", "y", "geo", "x", "W")
+birdW.inits <- function(){
   list (B.raw=array(rnorm(2*J), c(J,2)), mu.a.raw=rnorm(1),
-        mu.b.raw=rnorm(1), sigma.y=runif(1), Tau.B.raw=rwish(3,diag(2)),
+        mu.b.raw=rnorm(1), sigma.y=runif(1), Tau.B.raw=rWishart(df=3,n=length(ins$abundance), Sigma=diag(2)),
         xi.a=runif(1), xi.b=runif(1))}
-bird2.parameters = c("a", "b", "mu.a", "mu.b", "sigma.y", "sigma.a", "sigma.b", "rho")
-M1 = bugs (bird2.data, bird2.inits, bird2.parameters,  bugs.directory="C:/Program Files (x86)/WinBUGS14",
-           "C:/Users/silvia/Documents/NCEAS-RENCI_2014/BBS_data/hierarchical_model/wishart1.bug", n.chains=3, n.iter=10)
+birdW.parameters <- c("a", "b", "mu.a", "mu.b", "sigma.y", "sigma.a", "sigma.b", "rho")
+birdW <- bugs (birdW.data, birdW.inits, birdW.parameters,  bugs.directory="C:/Program Files (x86)/WinBUGS14",
+           "C:/Users/silvia/Documents/NCEAS-RENCI_2014/BBS_data/hierarchical_model/wishart1.bug", n.chains=3, n.iter=1000, debug=TRUE)
 
+plot(birdW)
+print(birdW)
+
+#The model, varying intercept and slope for GEOID
+  
 #Summarizing classical and multilevel inferences graphically
 
 display8 = c (36, 1, 35, 21, 14, 71, 61, 70)#choose 8 counties

@@ -21,7 +21,7 @@ model {
   xi.a ~ dunif (0, 100)
   xi.b ~ dunif (0, 100)
   
-  Tau.B,raw[1:2, 1:2] ~dwish (W[,], df)
+  Tau.B.raw[1:2, 1:2] ~ dwish (W[,], df)
   df <- 3
   Sigma.B.raw[1:2, 1:2] <- inverse(Tau.B.raw[,])
   sigma.a <- xi.a*sqrt(Sigma.B.raw[1,1])
