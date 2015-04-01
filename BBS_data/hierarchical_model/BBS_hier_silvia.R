@@ -137,3 +137,5 @@ for (j in 1:J){
   lines (rep(sample.size.jitter[j],2), median(a[,j])+c(-1,1)*sd(a[,j]))
 }
 abline (a.pooled, 0, lwd=.5)
+
+save.image("hier.Rdata")
