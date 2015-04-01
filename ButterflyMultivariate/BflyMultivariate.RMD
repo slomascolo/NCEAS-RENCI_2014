@@ -2,7 +2,7 @@
 title: "ButterflyMultivariate"
 author: "Tyson Wepprich"
 date: "Friday, March 27, 2015"
-output: html_document
+output: pdf_document
 ---
 I'm new to ordination, so I tried a few things that made sense to me with a little bit of reading.
 Brief summary:
