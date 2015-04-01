@@ -148,53 +148,53 @@ unique(BBS_ln$buffer)
 BBS_ln$agriculture_scaled <- scale(BBS_ln$agriculture)
 BBS_ln$high_kg_buff_scaled <- scale(BBS_ln$high_kg_buff)
 head(BBS_ln)
-test_mod2 <- glmer(data = BBS_ln[ BBS_ln$buffer == 200, ],
-                   family = poisson,
-                   formula= SUM_ROUTE_ABUNDANCE ~ agriculture_scaled + high_kg_buff_scaled:COMPOUND + DIET + (1|BBS_route) + (1|YEAR))
-summary(test_mod2)
+# test_mod2 <- glmer(data = BBS_ln[ BBS_ln$buffer == 200, ],
+#                    family = poisson,
+#                    formula= SUM_ROUTE_ABUNDANCE ~ agriculture_scaled + high_kg_buff_scaled:COMPOUND + DIET + (1|BBS_route) + (1|YEAR))
+#summary(test_mod2)
 require(coefplot2)
-coefplot2(test_mod2)
+#coefplot2(test_mod2)
 
 
 require(dismo)
 BBS_200 <- BBS_ln[ BBS_ln$buffer == 200, ]
 names(BBS_200)
 class(BBS_200$SPECIES)
-gbm_neonic <- gbm.step(data = BBS_200, 
-                     gbm.x=c(1, 3, 15, 16, 17, 18, 23, 25, 26, 29:35), 
-                     gbm.y = 11, family = "poisson",
-                     tree.complexity = 14) #, 
-                      #step.size = 20, n.trees = 50,
-                     #learning.rate = 0.001, bag.fraction = 0.75)
-summary(gbm_neonic)
-
-glmm_neonic <- glmer(data = BBS_200,
-                     formula = SUM_ROUTE_ABUNDANCE ~ high_kg_buff:COMPOUND + 
-                       high_kg_buff:forest:COMPOUND + 
-                       high_kg_buff:agriculture:COMPOUND + 
-                       forest + agriculture +
-                       (1|GENUS) + (1|YEAR),
-                     family = "poisson")
-
-summary(glmm_neonic)
-coefplot2(glmm_neonic)
-
-neonic_int<-gbm.interactions(gbm_neonic)
-neonic_int$interactions
-
-gbm.perspec(gbm_neonic, 1,3)
-gbm.perspec(gbm_neonic, 2,3)
-gbm.perspec(gbm_neonic, 4,8)
-gbm.plot(gbm_neonic, 3,4)
-
-save.image(file = "big_gbm.Rdata")
-load(file = "big_gbm.Rdata")
+# gbm_neonic <- gbm.step(data = BBS_200, 
+#                      gbm.x=c(1, 3, 15, 16, 17, 18, 23, 25, 26, 29:35), 
+#                      gbm.y = 11, family = "poisson",
+#                      tree.complexity = 14) #, 
+#                       #step.size = 20, n.trees = 50,
+#                      #learning.rate = 0.001, bag.fraction = 0.75)
+# summary(gbm_neonic)
+# 
+# glmm_neonic <- glmer(data = BBS_200,
+#                      formula = SUM_ROUTE_ABUNDANCE ~ high_kg_buff:COMPOUND + 
+#                        high_kg_buff:forest:COMPOUND + 
+#                        high_kg_buff:agriculture:COMPOUND + 
+#                        forest + agriculture +
+#                        (1|GENUS) + (1|YEAR),
+#                      family = "poisson")
+# 
+# summary(glmm_neonic)
+# coefplot2(glmm_neonic)
+# 
+# neonic_int<-gbm.interactions(gbm_neonic)
+# neonic_int$interactions
+# 
+# gbm.perspec(gbm_neonic, 1,3)
+# gbm.perspec(gbm_neonic, 2,3)
+# gbm.perspec(gbm_neonic, 4,8)
+# gbm.plot(gbm_neonic, 3,4)
+# 
+# save.image(file = "big_gbm.Rdata")
+# load(file = "big_gbm.Rdata")
 #saveRDS(gbm_neonic, file = "big_serialised_gbm.rds")
 
 ```
 
 # Some exploration! 
-```{r}
+```{r, cache=TRUE}
 head(landuse_buffers)
 
 ggplot(landuse_buffers[landuse_buffers$land_cover %in% c("forest", "agriculture", "developed", "grassland_shrub") & landuse_buffers$buffer == 400, ], aes(x = YEAR, y = total_pix)) +
@@ -264,7 +264,7 @@ ggplot(summary_landuse3, aes(x = YEAR, y = total_pix)) +
 
 # Exploring the neonics
 
-```{r}
+```{r, cache=TRUE}
 head(neonics_buffers)
 
 head(neonics_buffers[is.na(neonics_buffers$high_kg_buff) | is.na(neonics_buffers$ag_pix_buff) | is.na(neonics_buffers$low_kg_buff), ])
@@ -272,57 +272,57 @@ head(neonics_buffers[is.na(neonics_buffers$high_kg_buff) | is.na(neonics_buffers
 dim(neonics_buffers[is.na(neonics_buffers$high_kg_buff) | is.na(neonics_buffers$ag_pix_buff) | is.na(neonics_buffers$low_kg_buff), ])
 dim(neonics_buffers[is.na(neonics_buffers$high_kg_buff) | is.na(neonics_buffers$ag_pix_buff), ])
 
-unique(neonics_buffers$YEAR)
-class(neonics_buffers$high_kg_buff)
-noyear_neonics_buffers <- neonics_buffers %>% 
-  group_by(BBS_route, buffer) %>% 
-  summarise(high_pest = sum(high_kg_buff), agpix = sum(ag_pix_buff))
-head(noyear_neonics_buffers)
-# spps <- spps[!is.na(spps$NMDS1) & !is.na(spps$NMDS2),]
-noyear_neonics_buffers <- noyear_neonics_buffers[!is.na(noyear_neonics_buffers$high_pest) & !is.na(noyear_neonics_buffers$agpix), ]
-
-ggplot(noyear_neonics_buffers, aes(y = as.numeric(high_pest/agpix), x = as.numeric(buffer))) +
-  geom_line(aes(group = BBS_route)) +
-  geom_smooth()+
-  theme_bw()
-
-ggplot(noyear_neonics_buffers, aes(y = high_pest, x = buffer)) +
-  geom_line(aes(group = BBS_route)) +
-  geom_smooth()+
-  theme_bw()
-
-ggplot(noyear_neonics_buffers, aes(y = agpix, x = buffer)) +
-  geom_line(aes(group = BBS_route)) +
-  geom_smooth()+
-  theme_bw()
-
-
-# now to see if intensity has increased over tine
-names(neonics_buffers)
-year_neonics_buffers <- neonics_buffers %>%
-  group_by(BBS_route, YEAR, COMPOUND, buffer) %>%
-  summarise(intensity = high_kg_buff/ag_pix_buff) 
-
-names(year_neonics_buffers)
-
-ggplot(year_neonics_buffers, aes(y = intensity, x = YEAR)) +
-  geom_line(aes(group = BBS_route)) +
-  facet_grid(buffer~ COMPOUND, scale = "free") +
-  theme_bw()
-
-year_neonics_buffers2 <- neonics_buffers %>%
-  group_by(BBS_route, YEAR, COMPOUND) %>%
-  summarise(intensity = mean(high_kg_buff/ag_pix_buff)) 
-
-ggplot(year_neonics_buffers2, aes(y = intensity, x = YEAR)) + 
-  geom_line(aes(group = BBS_route)) +
-  facet_wrap(~ COMPOUND, scale = "free") +
-  theme_bw()
-
-ggplot(year_neonics_buffers2, aes(y = intensity, x = YEAR)) + 
-  geom_line(aes(group = BBS_route)) +
-  facet_wrap(~ COMPOUND) +
-  theme_bw()
+# unique(neonics_buffers$YEAR)
+# class(neonics_buffers$high_kg_buff)
+# noyear_neonics_buffers <- neonics_buffers %>% 
+#   group_by(BBS_route, buffer) %>% 
+#   summarise(high_pest = sum(high_kg_buff), agpix = sum(ag_pix_buff))
+# head(noyear_neonics_buffers)
+# # spps <- spps[!is.na(spps$NMDS1) & !is.na(spps$NMDS2),]
+# noyear_neonics_buffers <- noyear_neonics_buffers[!is.na(noyear_neonics_buffers$high_pest) & !is.na(noyear_neonics_buffers$agpix), ]
+# 
+# ggplot(noyear_neonics_buffers, aes(y = as.numeric(high_pest/agpix), x = as.numeric(buffer))) +
+#   geom_line(aes(group = BBS_route)) +
+#   geom_smooth()+
+#   theme_bw()
+# 
+# ggplot(noyear_neonics_buffers, aes(y = high_pest, x = buffer)) +
+#   geom_line(aes(group = BBS_route)) +
+#   geom_smooth()+
+#   theme_bw()
+# 
+# ggplot(noyear_neonics_buffers, aes(y = agpix, x = buffer)) +
+#   geom_line(aes(group = BBS_route)) +
+#   geom_smooth()+
+#   theme_bw()
+# 
+# 
+# # now to see if intensity has increased over tine
+# names(neonics_buffers)
+# year_neonics_buffers <- neonics_buffers %>%
+#   group_by(BBS_route, YEAR, COMPOUND, buffer) %>%
+#   summarise(intensity = high_kg_buff/ag_pix_buff) 
+# 
+# names(year_neonics_buffers)
+# 
+# ggplot(year_neonics_buffers, aes(y = intensity, x = YEAR)) +
+#   geom_line(aes(group = BBS_route)) +
+#   facet_grid(buffer~ COMPOUND, scale = "free") +
+#   theme_bw()
+# 
+# year_neonics_buffers2 <- neonics_buffers %>%
+#   group_by(BBS_route, YEAR, COMPOUND) %>%
+#   summarise(intensity = mean(high_kg_buff/ag_pix_buff)) 
+# 
+# ggplot(year_neonics_buffers2, aes(y = intensity, x = YEAR)) + 
+#   geom_line(aes(group = BBS_route)) +
+#   facet_wrap(~ COMPOUND, scale = "free") +
+#   theme_bw()
+# 
+# ggplot(year_neonics_buffers2, aes(y = intensity, x = YEAR)) + 
+#   geom_line(aes(group = BBS_route)) +
+#   facet_wrap(~ COMPOUND) +
+#   theme_bw()
 
 ```
 
@@ -344,74 +344,74 @@ BBS_ln$DIET_INSECTS <- ifelse(BBS_ln$DIET == "insects", "diet_insects", "diet_no
 BBS_ln$DIET_INSECTS <- factor(BBS_ln$DIET_INSECTS)
 
 with(BBS_ln, cor(FOREST, AGRICULTURE))
-test_mod <- glm(SUM_ROUTE_ABUNDANCE ~ YEAR_SCALED + 
-                  AGRICULTURE_SCALED:HIGH_KG_BUFF_SCALED + 
-                  AGRICULTURE_SCALED +
-                  DIET_VULN:YEAR_SCALED + 
-                  DIET_VULN:HIGH_KG_BUFF_SCALED:YEAR_SCALED:AGRICULTURE_SCALED + 
-                  HIGH_KG_BUFF_SCALED:COMPOUND + 
-                  HIGH_KG_BUFF_SCALED, 
-                data = BBS_ln[BBS_ln$COMPOUND %in% c("ATRAZINE", "GLYPHOSATE"),], 
-                family = "poisson")
-summary(test_mod)
-coefplot2(test_mod)
-#require(effects)
-plot(allEffects(test_mod))
-
-test_mod2 <- glm(SUM_ROUTE_ABUNDANCE ~ YEAR_SCALED + 
-                  AGRICULTURE_SCALED:HIGH_KG_BUFF_SCALED + 
-                  AGRICULTURE_SCALED +
-                  DIET_INSECTS:YEAR_SCALED + 
-                  DIET_INSECTS:HIGH_KG_BUFF_SCALED:YEAR_SCALED:AGRICULTURE_SCALED + 
-                  HIGH_KG_BUFF_SCALED:COMPOUND + 
-                  HIGH_KG_BUFF_SCALED, 
-                data = BBS_ln[BBS_ln$COMPOUND %in% c("ATRAZINE", "GLYPHOSATE"),], 
-                family = "poisson")
-summary(test_mod2)
-coefplot2(test_mod2)
-
-
-glmer_mod_3 <- glmer(SUM_ROUTE_ABUNDANCE ~ YEAR_SCALED + 
-                  AGRICULTURE_SCALED:HIGH_KG_BUFF_SCALED + 
-                  AGRICULTURE_SCALED +
-                  DIET_INSECTS:YEAR_SCALED + 
-                  DIET_INSECTS:HIGH_KG_BUFF_SCALED:YEAR_SCALED:AGRICULTURE_SCALED + 
-                  HIGH_KG_BUFF_SCALED:COMPOUND + 
-                  HIGH_KG_BUFF_SCALED +
-                    (1|ROUTE), 
-                data = BBS_ln[BBS_ln$COMPOUND %in% c("ATRAZINE", "GLYPHOSATE"),], 
-                family = "poisson")
-coefplot2(glmer_mod_3)
-coefplot2(list(glmer_mod_3, test_mod2))
-
-glmer_mod_4 <- glmer(SUM_ROUTE_ABUNDANCE ~ YEAR_SCALED + 
-                  AGRICULTURE_SCALED:HIGH_KG_BUFF_SCALED + 
-                  AGRICULTURE_SCALED +
-                  DIET_INSECTS:YEAR_SCALED + 
-                    DIET_INSECTS +
-                  DIET_INSECTS:HIGH_KG_BUFF_SCALED:YEAR_SCALED:AGRICULTURE_SCALED + 
-                  HIGH_KG_BUFF_SCALED:COMPOUND + 
-                  HIGH_KG_BUFF_SCALED +
-                    (1|ROUTE), 
-                data = BBS_ln[BBS_ln$COMPOUND %in% c("ATRAZINE", "GLYPHOSATE"),], 
-                family = "poisson")
-summary(glmer_mod_4)
-coefplot2(glmer_mod_4)
-coefplot2(list(glmer_mod_3, test_mod2, glmer_mod_4))
-
-glmer_mod_5 <- glmer(SUM_ROUTE_ABUNDANCE ~ 
-                       AGRICULTURE_SCALED:DIET_INSECTS + 
-                       AGRICULTURE_SCALED:HIGH_KG_BUFF_SCALED + 
-                       FOREST_SCALED:DIET_INSECTS +
-                       DIET_INSECTS:HIGH_KG_BUFF_SCALED:AGRICULTURE_SCALED + 
-                       HIGH_KG_BUFF_SCALED:COMPOUND:DIET_INSECTS + 
-                       HIGH_KG_BUFF_SCALED:DIET_INSECTS +
-                       (ROUTE|YEAR), 
-                data = BBS_ln[BBS_ln$COMPOUND %in% c("ATRAZINE", "GLYPHOSATE"),], 
-                family = "poisson")
-summary(glmer_mod_5)
-coefplot2(glmer_mod_5)
-coefplot2(list(glmer_mod_3, test_mod2, glmer_mod_4, glmer_mod_5))
+# test_mod <- glm(SUM_ROUTE_ABUNDANCE ~ YEAR_SCALED + 
+#                   AGRICULTURE_SCALED:HIGH_KG_BUFF_SCALED + 
+#                   AGRICULTURE_SCALED +
+#                   DIET_VULN:YEAR_SCALED + 
+#                   DIET_VULN:HIGH_KG_BUFF_SCALED:YEAR_SCALED:AGRICULTURE_SCALED + 
+#                   HIGH_KG_BUFF_SCALED:COMPOUND + 
+#                   HIGH_KG_BUFF_SCALED, 
+#                 data = BBS_ln[BBS_ln$COMPOUND %in% c("ATRAZINE", "GLYPHOSATE"),], 
+#                 family = "poisson")
+# summary(test_mod)
+# #coefplot2(test_mod)
+# #require(effects)
+# 
+# 
+# test_mod2 <- glm(SUM_ROUTE_ABUNDANCE ~ YEAR_SCALED + 
+#                   AGRICULTURE_SCALED:HIGH_KG_BUFF_SCALED + 
+#                   AGRICULTURE_SCALED +
+#                   DIET_INSECTS:YEAR_SCALED + 
+#                   DIET_INSECTS:HIGH_KG_BUFF_SCALED:YEAR_SCALED:AGRICULTURE_SCALED + 
+#                   HIGH_KG_BUFF_SCALED:COMPOUND + 
+#                   HIGH_KG_BUFF_SCALED, 
+#                 data = BBS_ln[BBS_ln$COMPOUND %in% c("ATRAZINE", "GLYPHOSATE"),], 
+#                 family = "poisson")
+# summary(test_mod2)
+# #coefplot2(test_mod2)
+# 
+# 
+# glmer_mod_3 <- glmer(SUM_ROUTE_ABUNDANCE ~ YEAR_SCALED + 
+#                   AGRICULTURE_SCALED:HIGH_KG_BUFF_SCALED + 
+#                   AGRICULTURE_SCALED +
+#                   DIET_INSECTS:YEAR_SCALED + 
+#                   DIET_INSECTS:HIGH_KG_BUFF_SCALED:YEAR_SCALED:AGRICULTURE_SCALED + 
+#                   HIGH_KG_BUFF_SCALED:COMPOUND + 
+#                   HIGH_KG_BUFF_SCALED +
+#                     (1|ROUTE), 
+#                 data = BBS_ln[BBS_ln$COMPOUND %in% c("ATRAZINE", "GLYPHOSATE"),], 
+#                 family = "poisson")
+# #coefplot2(glmer_mod_3)
+# #coefplot2(list(glmer_mod_3, test_mod2))
+# 
+# glmer_mod_4 <- glmer(SUM_ROUTE_ABUNDANCE ~ YEAR_SCALED + 
+#                   AGRICULTURE_SCALED:HIGH_KG_BUFF_SCALED + 
+#                   AGRICULTURE_SCALED +
+#                   DIET_INSECTS:YEAR_SCALED + 
+#                     DIET_INSECTS +
+#                   DIET_INSECTS:HIGH_KG_BUFF_SCALED:YEAR_SCALED:AGRICULTURE_SCALED + 
+#                   HIGH_KG_BUFF_SCALED:COMPOUND + 
+#                   HIGH_KG_BUFF_SCALED +
+#                     (1|ROUTE), 
+#                 data = BBS_ln[BBS_ln$COMPOUND %in% c("ATRAZINE", "GLYPHOSATE"),], 
+#                 family = "poisson")
+# summary(glmer_mod_4)
+# #coefplot2(glmer_mod_4)
+# #coefplot2(list(glmer_mod_3, test_mod2, glmer_mod_4))
+# 
+# glmer_mod_5 <- glmer(SUM_ROUTE_ABUNDANCE ~ 
+#                        AGRICULTURE_SCALED:DIET_INSECTS + 
+#                        AGRICULTURE_SCALED:HIGH_KG_BUFF_SCALED + 
+#                        FOREST_SCALED:DIET_INSECTS +
+#                        DIET_INSECTS:HIGH_KG_BUFF_SCALED:AGRICULTURE_SCALED + 
+#                        HIGH_KG_BUFF_SCALED:COMPOUND:DIET_INSECTS + 
+#                        HIGH_KG_BUFF_SCALED:DIET_INSECTS +
+#                        (ROUTE|YEAR), 
+#                 data = BBS_ln[BBS_ln$COMPOUND %in% c("ATRAZINE", "GLYPHOSATE"),], 
+#                 family = "poisson")
+# summary(glmer_mod_5)
+#coefplot2(glmer_mod_5)
+#coefplot2(list(glmer_mod_3, test_mod2, glmer_mod_4, glmer_mod_5))
 ```
 
 # Aggregating based on diet and then modelling
@@ -453,26 +453,30 @@ range(BBS_ln_diet$sqrt_response)
 
 BBS_ln_dietcc <- BBS_ln_diet[complete.cases(BBS_ln_diet),]
 str(BBS_ln_dietcc)
-glmer_mod_6 <- glmer(na.action = na.omit,
-                     sqrt_response ~ 
-                       AGRICULTURE_SCALED:DIET+ 
-                       AGRICULTURE_SCALED:HIGH_KG_BUFF_SCALED + 
-                       FOREST_SCALED:DIET +
-                       DIET:HIGH_KG_BUFF_SCALED:AGRICULTURE_SCALED + 
-                       HIGH_KG_BUFF_SCALED:COMPOUND:DIET + 
-                       HIGH_KG_BUFF_SCALED:DIET +
-                       (1|YEAR_fac) + (1|ROUTE), 
-                     data = BBS_ln_dietcc[BBS_ln_dietcc$COMPOUND %in% c("ATRAZINE", 
-                                                                    "GLYPHOSATE")
-                                        & BBS_ln_dietcc$YEAR > 1996
-                                        & BBS_ln_dietcc$DIET != "",], 
-                     family = "poisson", 
-                     verbose = TRUE)
-sum_glmer_mod_6<-summary(glmer_mod_6)
-cf2_glmer_mod_6 <- coefplot2(glmer_mod_6)
+
+load("predicting_glmers.Rdata")
+
+# glmer_mod_6 <- glmer(na.action = na.omit,
+#                      sqrt_response ~ 
+#                        AGRICULTURE_SCALED:DIET+ 
+#                        AGRICULTURE_SCALED:HIGH_KG_BUFF_SCALED + 
+#                        FOREST_SCALED:DIET +
+#                        DIET:HIGH_KG_BUFF_SCALED:AGRICULTURE_SCALED + 
+#                        HIGH_KG_BUFF_SCALED:COMPOUND:DIET + 
+#                        HIGH_KG_BUFF_SCALED:DIET +
+#                        (1|YEAR_fac) + (1|ROUTE), 
+#                      data = BBS_ln_dietcc[BBS_ln_dietcc$COMPOUND %in% c("ATRAZINE", 
+#                                                                         "GLYPHOSATE")
+#                                           & BBS_ln_dietcc$YEAR > 1996
+#                                           & BBS_ln_dietcc$DIET != "",], 
+#                      family = "poisson", 
+#                      verbose = TRUE)
+# sum_glmer_mod_6<-summary(glmer_mod_6)
+# cf2_glmer_mod_6 <- coefplot2(glmer_mod_6)
 # save(glmer_mod_6, sum_glmer_mod_6, cf2_glmer_mod_6, file = "glmer_mod_6.Rdata")
 #load( "glmer_mod_6.Rdata")
 #save.image("predicting_glmers.Rdata")
+summary(glmer_mod_6)
 diet_levels <- levels(BBS_ln_dietcc$DIET)[-2]
 ep <- expand.grid(AGRICULTURE_SCALED = seq(from = min(BBS_ln_dietcc$AGRICULTURE_SCALED), 
                                     to = max(BBS_ln_dietcc$AGRICULTURE_SCALED),
