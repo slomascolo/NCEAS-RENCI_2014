@@ -97,8 +97,29 @@ arrows(0,0, spe.sc[,1], spe.sc[,2], length = 0, lty = 1, col = "red")
 #This may not actually say much about yearly variation at a particular site, though.
 ado <- adonis(spec_site[3:42] ~ as.factor(SiteID) + as.factor(Year), data = spec_site, permutations = 999,
               method = "bray")
+ado
+
+## TYSON - variables are considered sequentially - so if you want partial results, you have to rerun in reverse order (if you only have 2).
+## therefore:
+
+ado2 <- adonis(spec_site[3:42] ~ as.factor(Year) + as.factor(SiteID) , data = spec_site, permutations = 999,
+              method = "bray")
+ado2 ## see the difference? 
+
+ado3 <- adonis(spec_site[3:42] ~ as.factor(Year) * as.factor(SiteID) , data = spec_site, permutations = 999,
+              method = "bray")
+ado3  ## oops I broke the model :D
+
+
 
 #I think I'm using the strata correctly for the permutation tests, but might be wrong
+
+## TYSON - these are right, depending on the question :o)  
+# Adonis really asks whether the levels of a group (or groups) differ significantly in ordination space (all the dimensions, unlike envfit). 
+# the first asks whether the years differ significantly when you account for repeated sampling, the second whether sites differ significantly when you account for repeated sampling
+
+## I think it would be more interesting to say, do non-organics vs organics have different compositions, or etc etc etc. But I think I'm jumping the gun with that one. - Liv
+
 ado <- adonis(spec_site[3:42] ~ as.factor(Year), data = spec_site, strata = spec_site$SiteID, permutations = 999,
               method = "bray")
 ado <- adonis(spec_site[3:42] ~ as.factor(SiteID), data = spec_site, strata = spec_site$Year, permutations = 999,
@@ -109,14 +130,34 @@ ado <- adonis(spec_site[3:42] ~ as.factor(SiteID), data = spec_site, strata = sp
 #A lot over different sites, not a lot of variation between years
 #Idea: Only analyze sites that actually have agriculure/pesticides nearby. Could be that the big variation
 #is between forested/natural and ag/urban sites in both abundance/species composition
+
+## TYSON - question: does a change in the *composition* of pesticide usage constitute an ecolgoically relevant change? I'm just playing devils advocate here because if we *shift* from one type to another which has equivalent effects, they're functionally equivalent but may lead to a statisically significant cahnge..
+
 ado_yr <- adonis(env[, 10:17] ~ as.factor(Year), data = env, strata = env$SiteID, permutations = 999,
               method = "euclidean")
+ado_yr
+
+
 ado_site <- adonis(env[,10:17] ~ as.factor(SiteID), data = env, strata = env$Year, permutations = 999,
               method = "euclidean")
+
+ado_site
 
 #Trying to figure out a way to plot means/SEs of groups (like sites or years)
 #These mostly are crappy and me just playing around
 #Good way to plot ordinations that you know of, Liv?
+
+### TYSON: ha, I love plotting them. It's an ordiellipse. The thing is, adonis() is sensitive to dispersion, so you need to run a betadisper() as well. I've got example code in the multivariate BBS stuff I pushed. 
+
+# e.g. NMDS styles
+
+nmds_env <- metaMDS(env[,10:17]) # problems
+### TYSON - problem - these are scaled or something right? that is suboptimal for the multivariate. (we should talk more about this on the skype)
+
+# for ggplot ordiellipses: https://oliviarata.wordpress.com/2014/04/17/ordinations-in-ggplot2/
+# an RDA version Monica requested: https://oliviarata.wordpress.com/2014/09/06/rda-in-ggplot2/
+
+
 
 dis <- vegdist(spec_site[3:42])
 #landcover dissimilarity
@@ -126,8 +167,8 @@ years <- as.factor(spec_site$Year)
 sites <- as.factor(spec_site$SiteID)
 
 mod <- betadisper(dis, sites, type = "centroid")
-plot(mod)
-ordiellipse(mod, sites)
+try(plot(mod)) # these keep breaking my computer
+try(ordiellipse(mod, sites)) 
 
 pcoa<- cmdscale(dis)
 # plot them with different symbols for groups
@@ -168,4 +209,44 @@ lc.dis <- vegdist(pc, method = "euclid")
   man <- mantel.partial(bflydis, pest.dis, lc.dis)
 
 ```
+
+
+## Some more text-y suggestions:
+(the rest are in the code above, some of which are indicated by `TYSON`. Fancy, I know.)
+
+Biggest problem I think we'll have is combining strata. There is only 1 slot. Makes repeated measures hard. 
+
+1. Within the most proximate buffer to sites, has community composition changed over time? 
+    a. Adonis ~ time, strata = site
+    b. I think it would also be nice to separate ordinations and plot the _shift_ in the each site through time - seeing where sites shift to and why? If we are correct that neonics are making sites less speciose/pollution tolerant taxa, then we should see sites (particulary those with consistently high rates of pesticide application) shift.
+2. If so, have communities shifted to more 'typical' impacted communities?
+   a. Betadisper - niche space compression?
+   b. Actual ID of species (or Mclust of species).
+   
+_For more discussion!!_ FYI I haven't done that stuff below. Just a few things.
+
+
+```{r, cache = TRUE}
+
+# Q1
+
+# this is the species matrix I'm going to use: spec_site[, -c(1:2)]
+head(spec_site, 2)
+nmds_blfy <- metaMDS(spec_site[, -c(1:2)])
+plot(nmds_blfy)
+
+env_blfy <- envfit(nmds_blfy ~ barren + farm + forest + grass + urban + water + wetland, env[, c(1, 3:9)],
+                   strata = "SiteID")
+
+plot(env_blfy, add = T)
+
+plot(nmds_blfy)
+
+surfing_bfly <- with(env, ordisurf(nmds_blfy, farm, col = "cornflowerblue"))
+
+env_bfly2 <- with(env, envfit(nmds_blfy ~ ATRAZINE * CLOTHIANIDIN * forest, 
+                 data = env, 
+                 strata = Year))
+plot(env_bfly2, add = T, col = "orange")
+
 
