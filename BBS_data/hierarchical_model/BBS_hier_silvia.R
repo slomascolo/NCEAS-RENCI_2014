@@ -1,21 +1,24 @@
 setwd("C:/Users/silvia/Documents/NCEAS-RENCI_2014/BBS_data")
 
-traits_commmon_steep <- read.csv("raw_data/commonbirds_steepdecline_traits.csv")
-str(traits_commmon_steep)
-traits_commmon_steep_insectohio <- as.data.frame(subset(traits_commmon_steep, ohio_presence > 0))
-traits_commmon_steep_insectohio$common_name <- factor(toupper(traits_commmon_steep_insectohio$common_name))
-levels(traits_commmon_steep_insectohio$common_name)
+traits_common_steep <- read.csv("raw_data/commonbirds_steepdecline_traits.csv")
+str(traits_common_steep)
+traits_common_steep_ohio <- as.data.frame(subset(traits_common_steep, ohio_presence > 0))
+traits_common_steep_ohio$common_name <- factor(toupper(traits_common_steep_ohio$common_name))
+levels(traits_common_steep_ohio$common_name)
 
 #Adding AOU codes
-AOU_codes <- read.csv("raw_data/AOU_codes.csv")
-traits_commmon_steep_insectohio2 <- as.data.frame(merge(AOU_codes, traits_commmon_steep_insectohio))
+AOU_codes <- read.csv("raw_data/AOU_codes.csv")[,c(2,3)]
+AOU_codes$English_Common_Name <- factor(toupper(AOU_codes$English_Common_Name))
+levels(AOU_codes$English_Common_Name)
+
+traits_common_steep_ohio2 <- merge(traits_common_steep_ohio, AOU_codes, by.x = "common_name", by.y = "English_Common_Name", all=FALSE)
 
 #BBS data
-ohio_BBS <- read.csv("raw_data/fifty7.csv")
-ohio_BBS_insect <- as.data.frame(merge(ohio_BBS, traits_commmon_steep_insectohio2))
+ohio_BBS <- read.csv("fifty7_withRTENO.csv")
+ohio_BBS_steep <- merge(ohio_BBS, traits_common_steep_ohio2, by.x="AOU", by.y="AOU")
 
 #rm(ohio_BBS)
-ohio_BBS_insect$common_name<-factor(ohio_BBS_insect$common_name)
+#ohio_BBS_insect$common_name<-factor(ohio_BBS_insect$common_name)
 #View(ohio_BBS_insect)
 ohio_BBS_routes_countiesraw <- read.csv("raw_data/BBSdata.by.county.csv")
 head(ohio_BBS_routes_countiesraw)
@@ -42,17 +45,19 @@ plot(neonicXyear$YEAR, neonicXyear$density_high)
 birdsXgeo = merge (birdsXdiet, neonicXyear, by = c("GEOID", "YEAR"))
 birdsXgeo$func.group= ifelse(birdsXgeo$diet=="insects", "insectivore", "other")
 head(birdsXgeo)
-#Plot of abundance related to neonics by diet
-ins = subset(birdsXgeo, birdsXgeo$diet =="insects")
-mam = subset(birdsXgeo, birdsXgeo$diet =="mammals")
-omn = subset(birdsXgeo, birdsXgeo$diet =="omnivore")
-pla = subset(birdsXgeo, birdsXgeo$diet =="plants")
-see = subset(birdsXgeo, birdsXgeo$diet =="seeds")
-others= subset(birdsXgeo, birdsXgeo$diet!="insects")
+birdsXgeo1997 = birdsXgeo[-c(birdsXgeo$YEAR=="1996"),]
+
+  #Plot of abundance related to neonics by diet
+ins = subset(birdsXgeo1997, birdsXgeo1997$diet =="insects")
+mam = subset(birdsXgeo1997, birdsXgeo1997$diet =="mammals")
+omn = subset(birdsXgeo1997, birdsXgeo1997$diet =="omnivore")
+pla = subset(birdsXgeo1997, birdsXgeo1997$diet =="plants")
+see = subset(birdsXgeo1997, birdsXgeo1997$diet =="seeds")
+others= subset(birdsXgeo1997, birdsXgeo1997$diet!="insects")
 
 y = log(ins$abundance + 1)
 n = length(ins$abundance)
-x = ins$density_high
+x = (ins$density_high-mean(ins$density_high))/sd(ins$density_high) #centered x, to see if it helps running the model
 
 #coding GeoIDs
 
@@ -63,6 +68,7 @@ geo = rep(NA, J)
 for (i in 1:J){
   geo[geoid==uniq.name[i]] <-i
 }
+
 
 #Pooled regression
 lm.pooled = lm (y~x)
@@ -102,7 +108,7 @@ birdW <- bugs (birdW.data, birdW.inits, birdW.parameters,  bugs.directory="C:/Pr
 plot(birdW)
 print(birdW)
 
-#The model, varying intercept and slope for GEOID
+
   
 #Summarizing classical and multilevel inferences graphically
 
