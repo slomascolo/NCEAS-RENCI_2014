@@ -57,7 +57,11 @@ EPA.low.update <- do.call("rbind", lapply(filenames[grep("low", filenames)], rea
 setwd("C:/Users/Tyson/Desktop/Pesticides")
 #Datasets overlap in 2008-2009, just use newer report for these years
 EPA.high <- rbind(EPA.high[EPA.high$YEAR < 2008, ], EPA.high.update)
+# EPA.high$Estimate <- "high"
 EPA.low <- rbind(EPA.low[EPA.low$YEAR < 2008, ], EPA.low.update)
+# EPA.low$Estimate <- "low"
+# allpestdata <- rbind(EPA.high, EPA.low)
+# write.csv(allpestdata, file = "allpesticides1992to2012.csv", row.names = FALSE)
 
 EPA.high$GEOID <- paste(EPA.high$STATE_FIPS_CODE, formatC(EPA.high$COUNTY_FIPS_CODE, width = 3, format = "d", flag = "0"), sep = "")
 EPA.low$GEOID <- paste(EPA.low$STATE_FIPS_CODE, formatC(EPA.low$COUNTY_FIPS_CODE, width = 3, format = "d", flag = "0"), sep = "")
@@ -393,13 +397,13 @@ Final output has kg of compound per square kilomter of agricultural land use for
 Also, data.table is fucking amazing.
 
 ```{r landcover by year}
-setwd("C:/Users/Tyson/Desktop")
+setwd("C:/Users/Tyson/REPO/NCEAS-RENCI_2014")
 
 # pests <- read.csv("Pesticides/OHpesticides.csv", header = TRUE)
 # lc_all <- read.csv("landcover_all.csv", header = TRUE)
 
 pests <- fread("Pesticides/OHpesticides.csv", header = TRUE)
-lc_all <- fread("landcover_all.csv", header = TRUE)
+lc_all <- fread("Landcover/landcover_all.csv", header = TRUE)
 
 # 
 # #do regression for 1992-2011 landcover trends
@@ -469,7 +473,7 @@ pest_export <- pest_county[, c("GEOID", "YEAR", "pix", "COMPOUND", "high_kg_km2a
 # pesticides$kg_km2agri_high <- pesticides$KG_EPhigh / (pesticides$pix * 0.0009)
 # pesticides$kg_km2agri_low <- pesticides$KG_EPlow / (pesticides$pix * 0.0009)
 
-write.csv(pest_export, file = "estimated_pesticides_OHcounty.csv", row.names = FALSE)
+write.csv(pest_export, file = "Pesticides/estimated_pesticides_OHcounty.csv", row.names = FALSE)
 ```
 
 Do landcover change analysis (as done for counties) only now applied to BBS transect buffers. 
@@ -740,7 +744,7 @@ LandcoverLine <- function(dat){
       }
   }
 
-DT <- fread("C:/Users/Tyson/Desktop/landcover_buffers.csv")
+DT <- fread("Landcover/landcover_buffers.csv")
 DT[, buffer:=as.character(buffer)]
 DT[, total:=as.numeric(total)]
 DT[, year:=as.numeric(year)]
@@ -756,7 +760,7 @@ lc_buff_overtime <- lc_int_overtime[, sum(pix, na.rm = TRUE), by = list(RTENO, r
 setnames(lc_buff_overtime, "V1", "total_pix")
 lc_buff_overtime[, km2 := total_pix * 0.0009]
 
-write.csv(lc_buff_overtime, file = "LC_buffers_overtime.csv", row.names = FALSE)
+write.csv(lc_buff_overtime, file = "Landcover/LC_buffers_overtime.csv", row.names = FALSE)
 
 
 #join pesticides with above data.table to get pesticide use in counties, then aggregate by buffers
@@ -782,7 +786,7 @@ pest_buff <- pest_buff[, `:=` (high_kg_buff = sum(high.kg),
 #remove county GEOID and county-specific values, then remove duplicate rows
 pest_buff2 <- pest_buff[, c("YEAR", "RTENO", "buffer", "COMPOUND", "high_kg_buff", "low_kg_buff", "ag_pix_buff"), with = FALSE]
 pest_buff3 <- pest_buff2[-which(duplicated.data.frame(pest_buff2))]
-write.csv(pest_buff3, "pest_buff_overtime.csv", row.names = FALSE)
+write.csv(pest_buff3, "Pesticides/pest_buff_overtime.csv", row.names = FALSE)
 
 #This sees if the buffer areas are consistent across years
 #There is a gain of total pixels between the 90s and 2001, probably due to the NLCD products
