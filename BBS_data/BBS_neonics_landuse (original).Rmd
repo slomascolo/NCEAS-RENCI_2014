@@ -145,9 +145,96 @@ tail(BBS_ln)
 names(BBS_ln)
 unique(BBS_ln$buffer)
 
+
+
 BBS_ln$agriculture_scaled <- scale(BBS_ln$agriculture)
 BBS_ln$high_kg_buff_scaled <- scale(BBS_ln$high_kg_buff)
 head(BBS_ln)
+levels(BBS_ln$COMPOUND)
+BBS_ln_scale <- BBS_ln %>%
+  group_by(BUFFER) %>%
+  mutate(ag_scaled = as.numeric(scale(AGRICULTURE)), 
+         forest_scaled = as.numeric(scale(FOREST)))
+
+BBS_ln_scale <- BBS_ln_scale %>%
+  group_by(COMPOUND, BUFFER) %>%
+  mutate(high_kg_buff_scaled = as.numeric(scale(HIGH_KG_BUFF)))
+names(BBS_ln_scale) <- toupper(names(BBS_ln_scale))
+
+BBS_ln_scale$NEONIC <- ifelse(BBS_ln_scale$COMPOUND %in% c("GLYPHOSATE", "ATRAZINE"), "pesticide", ifelse(BBS_ln_scale$COMPOUND %in% c("ACETAMIPRID", "CLOTHIANIDIN", "FIPRONIL", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM"), "neonic", "ERROR"))
+
+
+BBS_ln_scale2 <- BBS_ln_scale %>%
+  ungroup() %>%
+  group_by(YEAR, RTENO, BBS_ROUTE, BUFFER, AOU, 
+          HABITAT, DIET, NESTING, BEHAVIOR, COMMON_NAME,
+          CONSERVATION, AGRICULTURE, BARREN, 
+          FOREST, DEVELOPED, GRASSLAND_SHRUB, WATER,
+          WETLANDS, ag_scaled, forest_scaled,
+          DIET_VULN, DIET_INSECTS, NEONIC) %>%
+  summarise(sum_abundance = sum(SUM_ROUTE_ABUNDANCE),
+            sum_KG_HIGH = sum(HIGH_KG_BUFF))
+  
+BBS_ln_scale2 <- BBS_ln_scale2 %>% 
+  ungroup() %>%
+  group_by(NEONIC, BUFFER) %>%
+  mutate(scale_scale_ = as.numeric(scale(sum_KG_HIGH))) %>%
+  ungroup() %>%
+  group_by(BUFFER) %>%
+  mutate(year_scaled = as.numeric(scale(YEAR)))
+
+##### next model -scaled and neonics 
+names(BBS_ln_scale2)
+unique(BBS_ln_scale2$BUFFER)
+class(BBS_ln_scale2$BBS_ROUTE)
+BBS_ln_scale2$ROUTE_FAC<- as.factor(BBS_ln_scale2$BBS_ROUTE)
+BBS_ln_scale3 <- BBS_ln_scale2[BBS_ln_scale2$BUFFER == 200 , ]
+BBS_ln_scale3$obs <- 1:nrow(BBS_ln_scale3)
+
+unique(BBS_ln_scale3$NEONIC)
+BBS_ln_scale3$NEONIC <- factor(BBS_ln_scale3$NEONIC,
+                                  levels = c("pesticide", "neonic"))
+BBS_ln_scale3$NEONIC <- relevel(BBS_ln_scale3$NEONIC, ref = "pesticide")
+
+scale_glmer <- glmer(data = BBS_ln_scale3,
+                     sum_abundance ~ scale_scale_:NEONIC +
+                       scale_scale_ + ag_scaled + forest_scaled +
+                       year_scaled +
+                       DIET_INSECTS + DIET_INSECTS:scale_scale_:NEONIC +
+                       (1|ROUTE_FAC) + (1|COMMON_NAME) + (1|obs), family = poisson)
+summary(scale_glmer)
+coefplot2(scale_glmer, intercept = T)
+
+levels(BBS_ln_scale3$DIET)
+
+BBS_ln_scale3 %>% 
+  group_by(DIET) %>%
+  summarise(count_sp = length(unique(COMMON_NAME)))
+
+BBS_ln_scale3$DIET2 <- factor(ifelse(BBS_ln_scale3$DIET == "seeds", "seedeater", ifelse(BBS_ln_scale3$DIET == "omnivore", "omnivorous", "eatsother")))
+
+scale_glmer2 <- glmer(data = BBS_ln_scale3,
+                     sum_abundance ~ scale_scale_:NEONIC +
+                       scale_scale_ + ag_scaled + forest_scaled +
+                       year_scaled +
+                       DIET2 + DIET2:scale_scale_:NEONIC +
+                       (1|ROUTE_FAC) + (1|COMMON_NAME) + (1|obs), family = poisson)
+summary(scale_glmer2)
+coefplot2(scale_glmer2, intercept = T)
+
+scale_glmer3 <- glmer(data = BBS_ln_scale3,
+                     sum_abundance ~ scale_scale_:NEONIC +
+                       scale_scale_ + ag_scaled + forest_scaled +
+                       year_scaled +
+                       DIET2 + DIET2:scale_scale_:NEONIC +
+                       (COMMON_NAME|ROUTE_FAC) , family = poisson)
+summary(scale_glmer3)
+coefplot2(scale_glmer3, intercept = T)
+
+anova(scale_glmer2, scale_glmer3)
+
+
+
 # test_mod2 <- glmer(data = BBS_ln[ BBS_ln$buffer == 200, ],
 #                    family = poisson,
 #                    formula= SUM_ROUTE_ABUNDANCE ~ agriculture_scaled + high_kg_buff_scaled:COMPOUND + DIET + (1|BBS_route) + (1|YEAR))
