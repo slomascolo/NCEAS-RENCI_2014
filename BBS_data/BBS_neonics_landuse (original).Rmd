@@ -541,8 +541,8 @@ range(BBS_ln_diet$sqrt_response)
 BBS_ln_dietcc <- BBS_ln_diet[complete.cases(BBS_ln_diet),]
 str(BBS_ln_dietcc)
 
-load("predicting_glmers.Rdata")
-
+# load("predicting_glmers.Rdata")
+require(lme4)
 # glmer_mod_6 <- glmer(na.action = na.omit,
 #                      sqrt_response ~ 
 #                        AGRICULTURE_SCALED:DIET+ 
@@ -561,8 +561,8 @@ load("predicting_glmers.Rdata")
 # sum_glmer_mod_6<-summary(glmer_mod_6)
 # cf2_glmer_mod_6 <- coefplot2(glmer_mod_6)
 # save(glmer_mod_6, sum_glmer_mod_6, cf2_glmer_mod_6, file = "glmer_mod_6.Rdata")
-#load( "glmer_mod_6.Rdata")
-#save.image("predicting_glmers.Rdata")
+# load( "glmer_mod_6.Rdata")
+# save.image("predicting_glmers.Rdata")
 summary(glmer_mod_6)
 diet_levels <- levels(BBS_ln_dietcc$DIET)[-2]
 ep <- expand.grid(AGRICULTURE_SCALED = seq(from = min(BBS_ln_dietcc$AGRICULTURE_SCALED), 

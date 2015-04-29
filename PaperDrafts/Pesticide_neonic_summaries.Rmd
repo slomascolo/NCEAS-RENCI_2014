@@ -48,6 +48,13 @@ range(pesticides$YEAR)
 
 Have a look below - we're missing _a lot_ of data for the low estimates from what I can tell. I've dealt with this by excluding any row for which we don't have both low and high estimates. For reference, I include the 'high' estimates when we don't exclude the rows for which there _is_ high estimates but not low. Surprising point: it's lower! 
 
+Tyson's thoughts:
+I would use the high estimate in all cases. The main difference is that for the low estimates, the authors took missing data (for a particular crop x year x pesticide combo) as no pesticide use. For the high estimate, they estimated the use for that county based on the use in the surrounding region for that crop x year x pesticide. I think we can assume that missing data does not mean no pesticide use, so I'm all for the high estimates.
+
+Thanks for the summary graphs, Liv! Interesting to see that use for many chemicals is decreasing. One thing I'd try is adjusting by agricultural land area in the different counties to get average use rates / area. Another idea for summarizing could be to group by insecticide, herbicide, fungicide, etc. to deal with late introduction of the neonics.
+
+
+
 ```{r}
 # Average application rate by year, all counties
 names(pesticides)
