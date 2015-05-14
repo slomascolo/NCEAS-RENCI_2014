@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+	<idinfo>
+		<descript>
+			<abstract>This map layer portrays the current routes used for conducting Breeding Bird Surveys in the lower 48 States.</abstract>
+			<purpose>The digital data sets are used to create electronic and hard copy maps of the Breeding Bird Survey routes.&amp;nbsp; The data can be used to conduct geographic analysis on national and large regional scales.&amp;nbsp; The data should be displayed and analyzed at scales appropriate for 1:100,000-scale data.&amp;nbsp; No responsibility is assumed by the National Atlas of the United States or by USGS Patuxent Wildlife Research Center in the use of these data.</purpose>
+			<supplinf>For a description of the Breeding Bird Survey methods see Robbins, C.S. and W.T. Van Velzen; 1967; The Breeding Bird Survey, 1966; USDOIMigratory Bird Populations Station, Special Scientific Report--Wildlife No. 102; Washington, DC. 
+
+ArcInfo and ArcView are products of Environmental Systems Research Institute, Inc. (ESRI), 380 New York Street, Redlands, CA 92373. Reference to ESRI products is for information purposes only and does not constitute endorsement by the U.S. Geological Survey.
+
+This map layer was collected using a different roads file from that available through the National Atlas of the United States, so there may be positional differences between the two map layers.</supplinf>
+		</descript>
+		<useconst>Use Constraints: 
+    None.  Acknowledgment of the National Atlas of the United States of America and (or) the U.S. Geological Survey Patuxent Wildlife Research Center would be appreciated in products derived from these data.</useconst>
+		<datacred/>
+		<citation>
+			<citeinfo>
+				<title>Breeding Bird Survey Route Locations for Lower 48 States</title>
+				<pubdate/>
+				<othercit>Online linkage: &amp;lt;http://nationalatlas.gov/atlasftp.html?openChapters=chpbio#chpbio&amp;gt;&lt;br /&gt;</othercit>
+				<origin>USGS Patuxent Wildlife Research Center</origin>
+				<onlink>http://app.databasin.org/app/pages/datasetPage.jsp?id=02fe0ebbb1b04111b0ba1579b89b7420</onlink>
+				<pubinfo>
+					<publish/>
+					<pubplace/>
+				</pubinfo>
+			</citeinfo>
+		</citation>
+		<ptcontac>
+			<cntinfo>
+				<cntperp>
+					<cntper>Jane Fallon (Jane_Fallon@usgs.gov)</cntper>
+					<cntorg>Point_of_Contact:&lt;br /&gt;    Contact_Information:&lt;br /&gt;      Contact_Person_Primary:&lt;br /&gt;        Contact_Person: Jane E. Fallon&lt;br /&gt;        Contact_Organization: USGS Patuxent Wildlife Research Center&lt;br /&gt;      Contact_Address:&lt;br /&gt;        Address_Type: Mailing address&lt;br /&gt;        Address: 11410 American Holly Drive&lt;br /&gt;        City: Laurel&lt;br /&gt;        State_or_Province: MD&lt;br /&gt;        Postal_Code: 20708-4015&lt;br /&gt;      Contact_Voice_Telephone: 301-497-5664&lt;br /&gt;      Contact_Electronic_Mail_Address: Jane_Fallon@usgs.gov&lt;br /&gt;&lt;br /&gt;&lt;br _moz_editor_bogus_node="TRUE" /&gt;</cntorg>
+				</cntperp>
+			</cntinfo>
+		</ptcontac>
+		<status>
+			<progress/>
+			<update/>
+		</status>
+		<timeperd>
+			<timeinfo>
+				<sngdate>1966 to 1998</sngdate>
+				<current/>
+			</timeinfo>
+		</timeperd>
+		<keywords/>
+		<spdom>
+			<bounding>
+				<northbc>50.00398580950737</northbc>
+				<eastbc>-64.44251686888823</eastbc>
+				<southbc>23.173439675544795</southbc>
+				<westbc>-127.53157973850946</westbc>
+			</bounding>
+		</spdom>
+	</idinfo>
+	<dataqual>
+		<attracc>
+			<attraccr/>
+		</attracc>
+		<complete>Logical_Consistency_Report: 
+    ArcInfo software was used to create and maintain topological relationships between features.  The ArcInfo command BUILD was run to ensure the topological consistency of the map layer.  Each route was checked for missing and dangling arcs, correct length, proper direction, and correct  route measures. 
+  Completeness_Report: 
+    This map layer contains the Breeding Bird Survey Routes in the lower 48 States which were considered active in 1998.  This includes many of the routes added in 1998, though not all of them.  The discontinued Breeding Bird Survey routes were generally not digitized. 
+  Positional_Accuracy:
+    Horizontal_Positional_Accuracy:
+      Horizontal_Positional_Accuracy_Report:
+        Horizontal positional accuracy was tested by visual comparison of electronic maps to the source materials.  For a few routes, we verified positions using GPS.   
+
+If the route did not start at an intersection, the starting point may be slightly off.  Portions of the route are sometimes skipped because of traffic noise or overlap with other routes.  These skipped portions are usually not indicated. 
+
+The maps we used did not always indicate the exact ending points of the routes, so in many cases the ending points are estimated and the routes digitized are longer then the actual route run.
+
+ Occasionally portions of the roads on which Surveys were conducted were not contained on the digital road files we used. For these cases the road locations were very roughly estimated.</complete>
+		<lineage/>
+	</dataqual>
+	<eainfo>
+		<detailed>
+			<attr>
+				<attrlabl>FID</attrlabl>
+				<attalias>FID</attalias>
+				<attrdef/>
+				<attrdomv/>
+			</attr>
+			<attr>
+				<attrlabl>Shape</attrlabl>
+				<attalias>Shape</attalias>
+				<attrdef/>
+				<attrdomv/>
+			</attr>
+			<attr>
+				<attrlabl>FNODE_</attrlabl>
+				<attalias>FNODE_</attalias>
+				<attrdef>Internal sequence number of the from-node.</attrdef>
+				<attrdomv/>
+			</attr>
+			<attr>
+				<attrlabl>TNODE_</attrlabl>
+				<attalias>TNODE_</attalias>
+				<attrdef>Internal sequence number of the to-node.</attrdef>
+				<attrdomv/>
+			</attr>
+			<attr>
+				<attrlabl>LPOLY_</attrlabl>
+				<attalias>LPOLY_</attalias>
+				<attrdef>Internal sequence number of the left polygon.</attrdef>
+				<attrdomv/>
+			</attr>
+			<attr>
+				<attrlabl>RPOLY_</attrlabl>
+				<attalias>RPOLY_</attalias>
+				<attrdef>Internal sequence number of the right polygon.</attrdef>
+				<attrdomv/>
+			</attr>
+			<attr>
+				<attrlabl>LENGTH</attrlabl>
+				<attalias>LENGTH</attalias>
+				<attrdef>Length in coverage units.</attrdef>
+				<attrdomv/>
+			</attr>
+			<attr>
+				<attrlabl>BBSRTSL020</attrlabl>
+				<attalias>BBSRTSL020</attalias>
+				<attrdef>Internal feature number.</attrdef>
+				<attrdomv/>
+			</attr>
+			<attr>
+				<attrlabl>ARC_LENGTH</attrlabl>
+				<attalias>ARC_LENGTH</attalias>
+				<attrdef>The length of the arc in meters.</attrdef>
+				<attrdomv/>
+			</attr>
+			<attr>
+				<attrlabl>RTENO</attrlabl>
+				<attalias>RTENO</attalias>
+				<attrdef>The route number consists of the 1- or 2-digit State ID code followed by the 3-digit route ID.</attrdef>
+				<attrdomv/>
+			</attr>
+			<attr>
+				<attrlabl>RTENAME</attrlabl>
+				<attalias>RTENAME</attalias>
+				<attrdef>The official name of the BBS route.</attrdef>
+				<attrdomv/>
+			</attr>
+			<attr>
+				<attrlabl>RTELENG</attrlabl>
+				<attalias>RTELENG</attalias>
+				<attrdef>The length of the route in meters.</attrdef>
+				<attrdomv/>
+			</attr>
+		</detailed>
+	</eainfo>
+	<distinfo>
+		<resdesc>Breeding Bird Survey Route Locations for Lower 48 States</resdesc>
+		<distrib>
+			<cntinfo>
+				<cntorgp>
+					<cntorg>Data Basin (www.databasin.org)</cntorg>
+				</cntorgp>
+				<cntemail>databasin@consbio.org</cntemail>
+				<cntorgp/>
+			</cntinfo>
+			<cntinfo/>
+			<cntinfo/>
+		</distrib>
+		<stdorder>
+			<digform>
+				<digtopt>
+					<onlinopt>
+						<computer>
+							<networka>
+								<networkr>http://app.databasin.org/app/pages/datasetPage.jsp?id=02fe0ebbb1b04111b0ba1579b89b7420</networkr>
+							</networka>
+						</computer>
+					</onlinopt>
+				</digtopt>
+			</digform>
+		</stdorder>
+	</distinfo>
+	<Esri><CreaDate>20110616</CreaDate><CreaTime>16532700</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce><DataProperties><itemProps><itemLocation><linkage Sync="TRUE">file://\\IP-0A4D2190\D\arcgisserver\services\im2\02fe0ebbb1b04111b0ba1579b89b7420\02fe0ebbb1b04111b0ba1579b89b7420\commondata\data0\bbsrtsl020Copy</linkage><protocol Sync="TRUE">Local Area Network</protocol></itemLocation></itemProps><copyHistory><copy source="D:\arcgisserver\services\im2\02fe0ebbb1b04111b0ba1579b89b7420\commondata\data0\bbsrtsl020Copy" dest="\\IP-0A4D2190\D\arcgisserver\services\im2\02fe0ebbb1b04111b0ba1579b89b7420\02fe0ebbb1b04111b0ba1579b89b7420\commondata\data0\bbsrtsl020Copy" date="20110616" time="16532700"></copy></copyHistory></DataProperties></Esri></metadata>
