@@ -16,19 +16,16 @@ I emailed Nancy Baker, who is a USGS scientist involved in the county-level pest
 use in OH ended abruptly in 2010. She says the 2008-2012 pesticide use is under review and should be finalized by the end of the year.
 
 ```{r libraries}
-#I'll update with Olivia's fancy code to install missing packages later
-library(rgdal)
-library(raster)
-library(parallel)
-library(plyr)
-library(dplyr)
-library(ggplot2)
-library(plotKML)
-library(sp)
-library(rgeos)
-library(maptools)
-library(stringr)
-library(data.table)
+# List of packages for session
+.packages = c("rgdal", "raster", "plyr", "dplyr", "ggplot2", "plotKML", "sp", "rgeos", "maptools", "stringr", "data.table")
+
+# Install CRAN packages (if not already installed)
+.inst <- .packages %in% installed.packages()
+if(length(.packages[!.inst]) > 0) install.packages(.packages[!.inst])
+
+# Load packages into session 
+lapply(.packages, library, character.only = TRUE)
+# lapply(.packages, library)
 ```
 
 Load pesticide data (not uploaded to github) and merge all years together. Output csv of pesticide
@@ -78,6 +75,25 @@ pest.states.high <- EPA.high[which(EPA.high$GEOID %in% OHplus_GEOID), ]
 names(pest.states.high)[5] <- "KG_EPhigh"
 names(pest.states.low)[5] <- "KG_EPlow"
 county.data <- merge(pest.states.high, pest.states.low, all.x = TRUE)
+
+#######
+#How many compounds needed in this dataset? Trying to reduce size for github
+
+temp <- county.data %>%
+  group_by(COMPOUND) %>%
+  summarise(nyear = length(unique(YEAR)), ncounty = length(unique(GEOID)))
+
+temp2 <- county.data %>%
+  group_by(COMPOUND) %>%
+  summarise(num = n(), tots = sum(KG_EPhigh)) %>%
+  arrange(num) %>%
+  data.frame()
+
+
+
+
+#######
+
 
 #Bring in county data from 2010 US Census (from factfinder online database)
 census <- read.table("Gaz_counties_national.txt", header = TRUE, sep = "\t")
@@ -387,7 +403,20 @@ lc_county_2001_est$year <- 2001
 #the 1992 estimates based on 1992 classes are farther off
 lc_all <- rbind(lc_county_1992_backest, lc_county_2001, lc_county_2006, lc_county_2011)
 lc_all <- lc_all[, -5]
-write.csv(lc_all, file = "landcover_all.csv", row.names = FALSE)
+lc_all <- data.table(lc_all)
+
+#expand lc_all so that all reclass values included, 0 if missing
+test <- CJ(unique(lc_all[,GEOID]), unique(lc_all[,reclass]), unique(lc_all[,year]), sorted = FALSE)
+setnames(test, "V1", "GEOID")
+setnames(test, "V2", "reclass")
+setnames(test, "V3", "year")
+
+test2 <- merge(lc_all, test, by = c("reclass", "year", "GEOID"), all = TRUE)
+test2$total[is.na(test2$total) == TRUE] <- 0
+test2 <- test2[-which(test2$reclass == 0), ]
+
+write.csv(test2, file = "C:/Users/Tyson/REPO/NCEAS-RENCI_2014/Landcover/landcover_all.csv", row.names = FALSE)
+
 ```
 
 Take landcover estimates by county and make yearly estimates based connecting the 4 data points(1992, 2001, 2006, 2011).
@@ -417,24 +446,22 @@ lc_all <- fread("Landcover/landcover_all.csv", header = TRUE)
 
 #UPDATE: not doing regression to extrapolate land cover pixels over time
 #just going to draw a line connecting the dots
-
 LandcoverLine <- function(dat){
-  yr <- data.frame(year = c(1992:2011))
+  yr <- data.frame(year = c(1992:2012))
   obs <- sort(dat$year)
-  if(length(obs) == 1){
-    out <- data.frame(year = dat$year, pix = dat$total)
-    out <- merge(yr, out, all.x = TRUE)
-    }else{
-      test <- data.frame()
-      for (i in 1:(length(obs) - 1)){
-        pix.seq <- seq(from = dat$total[dat$year == obs[i]], to = dat$total[dat$year == obs[i + 1]], len = (obs[i + 1] - obs[i] + 1))
-        yr.seq <- seq(from = obs[i], to = obs[i+1])
-        test <- rbind(test, data.frame(year = yr.seq, pix = pix.seq))
-        }
-      out <- test[-which(duplicated(test)), ]
-      out <- merge(yr, out, all.x = TRUE)
-      return(out)
-      }
+  test <- data.frame()
+  for (i in 1:(length(obs) - 1)){
+    pix.seq <- seq(from = dat$total[dat$year == obs[i]], 
+                   to = dat$total[dat$year == obs[i + 1]], 
+                   len = (obs[i + 1] - obs[i] + 1))
+    yr.seq <- seq(from = obs[i], to = obs[i+1])
+    test <- rbind(test, data.frame(year = yr.seq, pix = pix.seq))
+    }
+  out <- test[-which(duplicated(test)), ]
+  out <- merge(yr, out, all.x = TRUE)
+  out$pix[out$year == 2012] <- out$pix[out$year == 2011] + (out$pix[out$year == 2011] - out$pix[out$year == 2010])
+  
+  return(out)
   }
 
 #Only problem is this predicts some negative landcover! Only for small classes like barren and wetlands, though
@@ -457,7 +484,7 @@ lc_all[, total:=as.numeric(total)]
 
 test <- lc_all[,LandcoverLine(data.frame(year = year, total = total)),by = list(GEOID, reclass)]
 setnames(test,"year","YEAR")
-write.csv(test, file = "LC_county_overtime.csv")
+write.csv(test, file = "Landcover/LC_county_overtime.csv")
 
 lc_ag <- test[reclass == 6]
 setkey(lc_ag, GEOID, YEAR)
@@ -477,6 +504,12 @@ write.csv(pest_export, file = "Pesticides/estimated_pesticides_OHcounty.csv", ro
 ```
 
 Do landcover change analysis (as done for counties) only now applied to BBS transect buffers. 
+
+RERUN STARTING HERE FOR BUFFERS AROUND BBS RTEs
+MIGHT BE MORE RECENT ONES IN NEW FILE I DOWNLOADED
+
+
+
 
 ```{r landcover change in BBS routes, eval=FALSE}
 
@@ -500,12 +533,13 @@ OHco_p$GEOID <- as.numeric(as.character(OHco_p$GEOID))
 #Import BBS routes shapefile, obtained from DataBasin
 #These are the 1998 active routes, need to see how well they match up with routes used for population estimates
 bbs.shp <- "bbsrtsl020Copy"
-bbs_routes <- readOGR(dsn = "C:/Users/Tyson/Dropbox/Neonicotenoids/Final GIS layers", layer = bbs.shp)
+bbs_routes <- readOGR(dsn = "C:/Users/Tyson/Desktop/Box Sync/Neonicotenoids/Final GIS layers", layer = bbs.shp)
 # proj4string(bbs_routes) <- CRS("+init=epsg:5070")
 bbs_routes_p <- reproject(bbs_routes, proj4string(r))
 
 #RTENO: The route number consists of the 1- or 2-digit State ID code followed by the 3-digit route ID.
 bbs_OH <- bbs_routes_p[which(bbs_routes_p$RTENO >= 66000 & bbs_routes_p$RTENO <=67000), ]
+
 
 bbs_buff_200 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 200, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
 bbs_buff_400 <- gBuffer(bbs_OH, byid = TRUE, id = NULL, width = 400, quadsegs = 5, capStyle = "ROUND", joinStyle = "ROUND")
@@ -656,17 +690,17 @@ landclass <- data.frame(Value = c(0, 11, 21, 22, 23, 24, 31, 41, 42, 43, 52, 71,
 lc_buffer_2001 <- buffer_LC2001 %>% 
   mutate(reclass = mapvalues(lc_class, from = landclass$Value, to = landclass$ALIcode)) %>% 
   group_by(RTENO, GEOID, buffer, reclass) %>% 
-  summarise(total = sum(pixels)) %>% data.frame()
+  summarise(total = sum(pixels))
 
 lc_buffer_2006 <- buffer_LC2006 %>% 
   mutate(reclass = mapvalues(lc_class, from = landclass$Value, to = landclass$ALIcode)) %>% 
   group_by(RTENO, GEOID, buffer, reclass) %>% 
-  summarise(total = sum(pixels)) %>% data.frame()
+  summarise(total = sum(pixels)) 
 
 lc_buffer_2011 <- buffer_LC2011 %>% 
   mutate(reclass = mapvalues(lc_class, from = landclass$Value, to = landclass$ALIcode)) %>% 
   group_by(RTENO, GEOID, buffer, reclass) %>% 
-  summarise(total = sum(pixels)) %>% data.frame()
+  summarise(total = sum(pixels))
 
 
 #make function to define 1992 and 2001 land cover from the NLCD change product
@@ -716,8 +750,23 @@ lc_buffer_2011$year <- 2011
 #Will use 1992 estimate of landcover based on 2001 values with 1992/2001 change product pixels
 #the 1992 estimates based on 1992 classes are farther off
 lc_all_buffers <- rbind(lc_buffer_1992_backest, lc_buffer_2001, lc_buffer_2006, lc_buffer_2011)
-lc_all_buffers$total[lc_all_buffers$total < 0] <- 0
-write.csv(lc_all_buffers, file = "landcover_buffers.csv", row.names = FALSE)
+
+lc_all_buffers <- data.table(lc_all_buffers)
+
+#expand lc_all so that all reclass values included, 0 if missing
+uniqrow <- unique(lc_all_buffers[, list(GEOID, RTENO, year)])
+test <- CJ(unique(lc_all_buffers[,reclass]), unique(lc_all_buffers[,year]), unique(lc_all_buffers[, buffer]), sorted = FALSE)
+setnames(test, "V1", "reclass")
+setnames(test, "V2", "year")
+setnames(test, "V3", "buffer")
+
+test2 <- merge(uniqrow, test, by = "year", all = TRUE, allow.cartesian = TRUE)
+
+test3 <- merge(lc_all_buffers, test2, by = c("reclass", "year", "GEOID", "RTENO", "buffer"), all = TRUE)
+test3$total[is.na(test3$total) == TRUE] <- 0
+
+write.csv(test3, file = "Landcover/landcover_buffers.csv", row.names = FALSE)
+
 
 ```
 
