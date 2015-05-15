@@ -17,7 +17,7 @@ use in OH ended abruptly in 2010. She says the 2008-2012 pesticide use is under 
 
 ```{r libraries}
 # List of packages for session
-.packages = c("rgdal", "raster", "plyr", "dplyr", "ggplot2", "plotKML", "sp", "rgeos", "maptools", "stringr", "data.table")
+.packages = c("rgdal", "raster","plyr", "dplyr", "ggplot2", "plotKML", "sp", "rgeos", "maptools", "stringr", "data.table", "snow")
 
 # Install CRAN packages (if not already installed)
 .inst <- .packages %in% installed.packages()
@@ -33,7 +33,7 @@ use in OH and bordering counties. Data from USGS: http://water.usgs.gov/nawqa/pn
 
 ```{r load pesticide data, eval=FALSE}
 
-setwd("C:/Users/Tyson/Desktop/Pesticides")
+setwd("C:/Users/Tyson/Desktop/Pesticides") #sorry, just makes it easier!
 filenames <- list.files()
 EPA.high <- do.call("rbind", lapply(filenames[grep("EPest.high", filenames)], read.table, header = TRUE, sep = "\t"))
 EPA.low <- do.call("rbind", lapply(filenames[grep("EPest.low", filenames)], read.table, header = TRUE, sep = "\t"))
@@ -85,23 +85,22 @@ temp <- county.data %>%
 
 temp2 <- county.data %>%
   group_by(COMPOUND) %>%
-  summarise(num = n(), tots = sum(KG_EPhigh)) %>%
-  arrange(num) %>%
-  data.frame()
+  mutate(num = n(), tots = sum(KG_EPhigh)) %>%
+  filter(num >= 500)
 
-
+temp2$num <- NULL
+temp2$tots  <- NULL
 
 
 #######
 
-
+#Not needed really
 #Bring in county data from 2010 US Census (from factfinder online database)
-census <- read.table("Gaz_counties_national.txt", header = TRUE, sep = "\t")
-OH.census <- census[which(census$GEOID %in% OHplus_GEOID), ]
+# census <- read.table("Gaz_counties_national.txt", header = TRUE, sep = "\t")
+# OH.census <- census[which(census$GEOID %in% OHplus_GEOID), ]
+# OH.co.pesticides <- merge(county.data, OH.census)
 
-OH.co.pesticides <- merge(county.data, OH.census)
-
-write.csv(OH.co.pesticides, file = "OHpesticides.csv", row.names = FALSE)
+write.csv(temp2, file = "../../REPO/NCEAS-RENCI_2014/Pesticides/OHpesticides.csv", row.names = FALSE)
 ```
 
 Extract landcover for each county from 4 rasters from the NLCD products. The raw rasters were clipped in QGIS, see readme.
@@ -264,21 +263,21 @@ save(results.par, file = "lc_chg_9201.RData")
 
 ```{r landcover over time, eval=FALSE}
 
-setwd("C:/Users/Tyson/Desktop")
+setwd("C:/Users/Tyson/REPO/NCEAS-RENCI_2014")
 
-load(file = "Clipped/Final clipped/lc_chg_9201.RData")
+load(file = "Landcover/lc_chg_9201.RData")
 lc_chg90s <- results.par
-load(file = "Clipped/Final clipped/lc_OH2011.RData")
+load(file = "Landcover/lc_OH2011.RData")
 lc_2011 <- results.par
-load(file = "Clipped/Final clipped/lc_OH2006.RData")
+load(file = "Landcover/lc_OH2006.RData")
 lc_2006 <- results.par
-load(file = "Clipped/Final clipped/lc_OH2001.RData")
+load(file = "Landcover/lc_OH2001.RData")
 lc_2001 <- results.par
 rm(results.par)
 
 #One issue is that landcover classification is different in 1992. The change product allows comparison
 #BUT, only more general Anderson Level I classification (7 classes) will be used
-ALIclass <- read.csv("nlcd_class9201.csv", header = TRUE)
+ALIclass <- read.csv("Landcover/nlcd_class9201.csv", header = TRUE)
 
 
 CountyPixels <- function(lc){
@@ -503,16 +502,38 @@ pest_export <- pest_county[, c("GEOID", "YEAR", "pix", "COMPOUND", "high_kg_km2a
 write.csv(pest_export, file = "Pesticides/estimated_pesticides_OHcounty.csv", row.names = FALSE)
 ```
 
+
+Thought new BBS route shapefile had additional data that we missed, 
+BUT
+the fifty stop raw bird count data doesn't have any of the new routes, so I think we are fine.
+
+```{r, eval = FALSE}
+bbs <- fread('../BBS_data/fifty7_withRTENO.csv')
+bbs_OH <- bbs[RTENO >= 66000][RTENO <= 67000]
+
+#Changed .kml to shapefile in QGIS, but attributes locked up in xml format
+bbs.shp <- "BBSroutes_newer"
+bbs.rtes <- readOGR(dsn = "../GIS", layer = bbs.shp)
+
+library(stringr)
+library(PBSmapping)
+#extract RTENO from xml mess
+bbs.rtes@data$RTENO <- str_extract(bbs.rtes@data$Descriptio, "(?<=rteno = ).*?(?=<)")
+bbs.rtes@data$Descriptio <- NULL
+
+#OH only
+#problem with duplicate RTENO, routes split into segments!
+test <- bbs.rtes[bbs.rtes$RTENO >= 66000 & bbs.rtes$RTENO <= 67000, ]
+
+#nothing really merges disjoint line segments, which is what I need
+#leave as is and hope buffering deals with it OK
+```
+
+
+
 Do landcover change analysis (as done for counties) only now applied to BBS transect buffers. 
 
-RERUN STARTING HERE FOR BUFFERS AROUND BBS RTEs
-MIGHT BE MORE RECENT ONES IN NEW FILE I DOWNLOADED
-
-
-
-
 ```{r landcover change in BBS routes, eval=FALSE}
-
 
 ###############
 #2006 Landcover and pesticides by BBS buffer
@@ -533,7 +554,7 @@ OHco_p$GEOID <- as.numeric(as.character(OHco_p$GEOID))
 #Import BBS routes shapefile, obtained from DataBasin
 #These are the 1998 active routes, need to see how well they match up with routes used for population estimates
 bbs.shp <- "bbsrtsl020Copy"
-bbs_routes <- readOGR(dsn = "C:/Users/Tyson/Desktop/Box Sync/Neonicotenoids/Final GIS layers", layer = bbs.shp)
+bbs_routes <- readOGR(dsn = "GIS", layer = bbs.shp)
 # proj4string(bbs_routes) <- CRS("+init=epsg:5070")
 bbs_routes_p <- reproject(bbs_routes, proj4string(r))
 
@@ -593,6 +614,10 @@ ApportionLandcover <- function(counties, buffer, landcover){
  return(lc_out)
 }
 
+
+
+
+
 buffers <- list(bbs_buff_200, bbs_buff_400, bbs_buff_1000, bbs_buff_2000, bbs_buff_5000, bbs_buff_10000)
 buffer_LC2006 <- data.frame()
 for (i in 1:length(buffers)) {
@@ -601,7 +626,7 @@ for (i in 1:length(buffers)) {
   buffer_LC2006 <- rbind(buffer_LC2006, temp)
 }
 buffer_LC2006$year <- 2006
-save(buffer_LC2006, file = "buffer_LC2006.RData") 
+save(buffer_LC2006, file = "Landcover/buffer_LC2006.RData") 
 
 
 ###############
@@ -621,7 +646,7 @@ for (i in 1:length(buffers)) {
   buffer_LC2001 <- rbind(buffer_LC2001, temp)
 }
 buffer_LC2001$year <- 2001
-save(buffer_LC2001, file = "buffer_LC2001.RData") 
+save(buffer_LC2001, file = "Landcover/buffer_LC2001.RData") 
 
 
 ###############
@@ -642,7 +667,7 @@ for (i in 1:length(buffers)) {
 }
 
 buffer_LC2011$year <- 2011
-save(buffer_LC2011, file = "buffer_LC2011.RData") 
+save(buffer_LC2011, file = "Landcover/buffer_LC2011.RData") 
 
 
 ###############
@@ -663,13 +688,13 @@ for (i in 1:length(buffers)) {
 }
 
 buffer_LC1992$year <- 1992
-save(buffer_LC1992, file = "buffer_LC1992.RData") 
+save(buffer_LC1992, file = "Landcover/buffer_LC1992.RData") 
 
 #Now reclassify landcover so all years use ALI codes 
-load("buffer_LC1992.RData")
-load("buffer_LC2011.RData") 
-load("buffer_LC2001.RData") 
-load("buffer_LC2006.RData") 
+load("Landcover/buffer_LC1992.RData")
+load("Landcover/buffer_LC2011.RData") 
+load("Landcover/buffer_LC2001.RData") 
+load("Landcover/buffer_LC2006.RData") 
 
 #Are buffers same size over year? YES, before reclassifying to ALI
 # b92 <- data.table(buffer_LC1992)
@@ -750,7 +775,6 @@ lc_buffer_2011$year <- 2011
 #Will use 1992 estimate of landcover based on 2001 values with 1992/2001 change product pixels
 #the 1992 estimates based on 1992 classes are farther off
 lc_all_buffers <- rbind(lc_buffer_1992_backest, lc_buffer_2001, lc_buffer_2006, lc_buffer_2011)
-
 lc_all_buffers <- data.table(lc_all_buffers)
 
 #expand lc_all so that all reclass values included, 0 if missing
@@ -775,12 +799,12 @@ Estimate landcover change over time for each BBS route x buffer x county combina
 ```{r LC by buffer over time}
 # lc_all_buffers <- read.csv("C:/Users/Tyson/Desktop/landcover_buffers.csv", header = TRUE)
 LandcoverLine <- function(dat){
-  yr <- data.frame(year = c(1992:2011))
+  yr <- data.frame(year = c(1992:2012))
   obs <- sort(dat$year)
-  if(length(obs) == 1){
-    out <- data.frame(year = dat$year, pix = dat$total)
-    out <- merge(yr, out, all.x = TRUE)
-    }else{
+#   if(length(obs) == 1){
+#     out <- data.frame(year = dat$year, pix = dat$total)
+#     out <- merge(yr, out, all.x = TRUE)
+#     }else{
       test <- data.frame()
       for (i in 1:(length(obs) - 1)){
         pix.seq <- seq(from = dat$total[dat$year == obs[i]], to = dat$total[dat$year == obs[i + 1]], len = (obs[i + 1] - obs[i] + 1))
@@ -790,7 +814,7 @@ LandcoverLine <- function(dat){
       out <- test[-which(duplicated(test)), ]
       out <- merge(yr, out, all.x = TRUE)
       return(out)
-      }
+#       }
   }
 
 DT <- fread("Landcover/landcover_buffers.csv")
@@ -809,38 +833,75 @@ lc_buff_overtime <- lc_int_overtime[, sum(pix, na.rm = TRUE), by = list(RTENO, r
 setnames(lc_buff_overtime, "V1", "total_pix")
 lc_buff_overtime[, km2 := total_pix * 0.0009]
 
+
+Class = c("NoData", "Water", "Urban", "Barren", "Forest", "Grass", "Agri", "Wetlands")
+ALIcode = as.character(c(0:7))
+
+lc_buff_overtime %>% 
+  mutate(landclass = mapvalues(reclass, from = ALIcode, to = Class))
+
+
 write.csv(lc_buff_overtime, file = "Landcover/LC_buffers_overtime.csv", row.names = FALSE)
 
 
 #join pesticides with above data.table to get pesticide use in counties, then aggregate by buffers
 pest <- fread("C:/Users/Tyson/REPO/NCEAS-RENCI_2014/Pesticides/estimated_pesticides_OHcounty.csv", header = TRUE)
 setkey(pest, GEOID, YEAR)
-
-pesticides <- c("ACETAMIPRID", "CLOTHIANIDIN", "FIPRONIL", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM", "GLYPHOSATE", "ATRAZINE")
-pest.j <- pest[COMPOUND %in% pesticides, ]
+pest[,pix := NULL]
+# 
+# pesticides <- c("ACETAMIPRID", "CLOTHIANIDIN", "FIPRONIL", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM", "GLYPHOSATE", "ATRAZINE")
+# pest.j <- pest[COMPOUND %in% pesticides, ]
 
 lc.j <- lc_int_overtime[reclass == 6]
 setkey(lc.j, GEOID, YEAR)
+lc <- lc.j[pix > 0]
 
-test <- merge(lc.j, pest.j, allow.cartesian = TRUE)
+test <- merge(lc, pest, allow.cartesian = TRUE)
+
+###PROBLEM HERE
+#Need to include zero's for use of different compounds.
+#If compound isn't used in all counties the transect buffer intersects, the agri. pix total is off.
+#High.kg probably still OK, but need zeros to get proper weighted average use rate across the buffer's agri pix total.
 
 #this will aggregate counties into buffers
-pest_buff <- test[, `:=` (high.kg = pix.x * 0.0009 * high_kg_km2ag, 
-                          low.kg = pix.x * 0.0009 * low_kg_km2ag)]
-pest_buff <- pest_buff[, `:=` (high_kg_buff = sum(high.kg),
-                               low_kg_buff = sum(low.kg),
-                               ag_pix_buff = sum(pix.x)),
-                               by = list(YEAR, RTENO, buffer, COMPOUND)]
+#high_kg_buff is total pesticide kg used within a buffer x year
+pest_buff <- test[, `:=` (high.kg = pix * 0.0009 * high_kg_km2ag, 
+                          low.kg = pix * 0.0009 * low_kg_km2ag)]
+# pest_buff <- pest_buff[, `:=` (high_kg_buff = sum(high.kg),
+#                                low_kg_buff = sum(low.kg),
+#                                by = list(YEAR, RTENO, buffer, COMPOUND)]
 
-#remove county GEOID and county-specific values, then remove duplicate rows
-pest_buff2 <- pest_buff[, c("YEAR", "RTENO", "buffer", "COMPOUND", "high_kg_buff", "low_kg_buff", "ag_pix_buff"), with = FALSE]
-pest_buff3 <- pest_buff2[-which(duplicated.data.frame(pest_buff2))]
-write.csv(pest_buff3, "Pesticides/pest_buff_overtime.csv", row.names = FALSE)
+# lc_ag_byRTENO <- lc[, Ag_pix := sum(pix), by = list(YEAR, RTENO, buffer)]
+
+#NOT QUITE right, duplicates due to GEOID's not summarising, maybe use dplyr???
+
+pest_buff1 <- pest_buff %>%
+  group_by(YEAR, RTENO, buffer) %>% #figure out total agriculture land area for a RTENO across counties
+  mutate(ag_km2 = sum(pix) * 0.0009) %>%
+  group_by(YEAR, RTENO, buffer, COMPOUND, ag_km2) %>% #now figure out kg used for RTENO across counties
+  summarise(high_kg_buff = sum(high.kg), low_kg_buff = sum(low.kg)) %>%
+  mutate(meanbuff_kgkm2ag = high_kg_buff / ag_km2) #rate of use for a RTENO buffer 
+  
+
+# write.csv(pest_buff1, "Pesticides/pest_buff_overtime.csv", row.names = FALSE)
+###FILE TOO BIG, SHARE VIA BOX instead
+# what pesticides do we want for analysis?
+
+#need updated data.table for fread using url from Box.com
+library(devtools)
+install_github("Rdatatable/data.table", build_vignettes = FALSE)
+library(data.table)
+library(boxr)
+library(repmis)
+
+#Try Karthik's rdrop2 packages next
+
+
 
 #This sees if the buffer areas are consistent across years
 #There is a gain of total pixels between the 90s and 2001, probably due to the NLCD products
 #Should investigate this more, but percentages of LC over time are probably OK to use for now
-test <- lc_buff_overtime %>%
+testbuff <- lc_buff_overtime %>%
   group_by(RTENO, YEAR, buffer) %>%
   summarise(size = sum(total_pix, na.rm = TRUE)) %>%
   data.frame()
@@ -887,11 +948,19 @@ write.csv(ohio_BBS, file = "BBS_data/fifty7_withRTENO.csv", row.names = FALSE)
 
 ```
 
+
+
+
+
+
+
 Do a similar analysis, but for circular buffers around butterfly site GPS locations.
+
+
 
 ```{r butterflies}
 
-sites <- read.csv("C:/Users/Tyson/Dropbox/Ohio/GIS/OHsites_reconciled.csv", header = TRUE)
+sites <- read.csv("C:/Users/Tyson/Desktop/Box Sync/Ohio/GIS/OHsites_reconciled.csv", header = TRUE)
 
 
 
@@ -976,7 +1045,7 @@ for (i in 1:length(buffers)) {
   buffer_LC2006 <- rbind(buffer_LC2006, temp)
 }
 buffer_LC2006$year <- 2006
-save(buffer_LC2006, file = "bflybuff_LC2006.RData") 
+save(buffer_LC2006, file = "Landcover/bflybuff_LC2006.RData") 
 
 
 ###############
@@ -996,7 +1065,7 @@ for (i in 1:length(buffers)) {
   buffer_LC2001 <- rbind(buffer_LC2001, temp)
 }
 buffer_LC2001$year <- 2001
-save(buffer_LC2001, file = "bflybuff_LC2001.RData") 
+save(buffer_LC2001, file = "Landcover/bflybuff_LC2001.RData") 
 
 
 ###############
@@ -1017,7 +1086,7 @@ for (i in 1:length(buffers)) {
 }
 
 buffer_LC2011$year <- 2011
-save(buffer_LC2011, file = "bflybuff_LC2011.RData") 
+save(buffer_LC2011, file = "Landcover/bflybuff_LC2011.RData") 
 
 
 ###############
@@ -1038,13 +1107,13 @@ for (i in 1:length(buffers)) {
 }
 
 buffer_LC1992$year <- 1992
-save(buffer_LC1992, file = "bflybuff_LC1992.RData") 
+save(buffer_LC1992, file = "Landcover/bflybuff_LC1992.RData") 
 
 #Now reclassify landcover so all years use ALI codes 
-load("bflybuff_LC1992.RData")
-load("bflybuff_LC2011.RData") 
-load("bflybuff_LC2001.RData") 
-load("bflybuff_LC2006.RData") 
+load("Landcover/bflybuff_LC1992.RData")
+load("Landcover/bflybuff_LC2011.RData") 
+load("Landcover/bflybuff_LC2001.RData") 
+load("Landcover/bflybuff_LC2006.RData") 
 
 #Are buffers same size over year? YES, before reclassifying to ALI
 # b92 <- data.table(buffer_LC1992)
@@ -1060,7 +1129,6 @@ load("bflybuff_LC2006.RData")
 #translation table for 2001, 2006, 2011 ALII codes back to ALI codes
 landclass <- data.frame(Value = c(0, 11, 21, 22, 23, 24, 31, 41, 42, 43, 52, 71, 81, 82, 90, 95), Class = c("NoData", "Water", "Urban", "Urban", "Urban", "Urban", "Barren", "Forest", "Forest", "Forest", "Grass", "Grass", "Agri", "Agri", "Wet", "Wet"), ALIcode = c(0, 1, 2, 2, 2, 2, 3, 4, 4, 4, 5, 5, 6, 6, 7, 7))
 
-###CHANGE THESE TO USE RTENO INSTEAD OF BBS_ROUTE
 #these give Anderson Level I classes (total pixels) for each county
 lc_buffer_2001 <- buffer_LC2001 %>% 
   mutate(reclass = mapvalues(lc_class, from = landclass$Value, to = landclass$ALIcode)) %>% 
@@ -1125,29 +1193,49 @@ lc_buffer_2011$year <- 2011
 #Will use 1992 estimate of landcover based on 2001 values with 1992/2001 change product pixels
 #the 1992 estimates based on 1992 classes are farther off
 lc_all_buffers <- rbind(lc_buffer_1992_backest, lc_buffer_2001, lc_buffer_2006, lc_buffer_2011)
-lc_all_buffers$total[lc_all_buffers$total < 0] <- 0
-write.csv(lc_all_buffers, file = "landcover_bflybuff.csv", row.names = FALSE)
+lc_all_buffers <- data.table(lc_all_buffers)
+
+
+#expand lc_all so that all reclass values included, 0 if missing
+uniqrow <- unique(lc_all_buffers[, list(GEOID, site, year)])
+test <- CJ(unique(lc_all_buffers[,reclass]), unique(lc_all_buffers[,year]), unique(lc_all_buffers[, buffer]), sorted = FALSE)
+setnames(test, "V1", "reclass")
+setnames(test, "V2", "year")
+setnames(test, "V3", "buffer")
+
+test2 <- merge(uniqrow, test, by = "year", all = TRUE, allow.cartesian = TRUE)
+
+test3 <- merge(lc_all_buffers, test2, by = c("reclass", "year", "GEOID", "site", "buffer"), all = TRUE)
+test3$total[is.na(test3$total) == TRUE] <- 0
+
+# lc_all_buffers$total[lc_all_buffers$total < 0] <- 0
+
+write.csv(test3, file = "Landcover/landcover_bflybuff.csv", row.names = FALSE)
 
 LandcoverLine <- function(dat){
-  yr <- data.frame(year = c(1992:2011))
+  yr <- data.frame(year = c(1992:2012))
   obs <- sort(dat$year)
-  if(length(obs) == 1){
-    out <- data.frame(year = dat$year, pix = dat$total)
-    out <- merge(yr, out, all.x = TRUE)
-    }else{
+#   if(length(obs) == 1){
+#     out <- data.frame(year = dat$year, pix = dat$total)
+#     out <- merge(yr, out, all.x = TRUE)
+#     }else{
       test <- data.frame()
       for (i in 1:(length(obs) - 1)){
-        pix.seq <- seq(from = dat$total[dat$year == obs[i]], to = dat$total[dat$year == obs[i + 1]], len = (obs[i + 1] - obs[i] + 1))
+        pix.seq <- seq(from = dat$total[dat$year == obs[i]], 
+                       to = dat$total[dat$year == obs[i + 1]], 
+                       len = (obs[i + 1] - obs[i] + 1))
         yr.seq <- seq(from = obs[i], to = obs[i+1])
         test <- rbind(test, data.frame(year = yr.seq, pix = pix.seq))
         }
       out <- test[-which(duplicated(test)), ]
       out <- merge(yr, out, all.x = TRUE)
+      out$pix[out$year == 2012] <- out$pix[out$year == 2011] + (out$pix[out$year == 2011] - out$pix[out$year == 2010])
+
       return(out)
-      }
+#       }
   }
 
-DT <- fread("C:/Users/Tyson/Desktop/landcover_bflybuff.csv")
+DT <- fread("Landcover/landcover_bflybuff.csv")
 DT[, buffer:=as.character(buffer)]
 DT[, total:=as.numeric(total)]
 DT[, year:=as.numeric(year)]
@@ -1163,39 +1251,56 @@ lc_buff_overtime <- lc_int_overtime[, sum(pix, na.rm = TRUE), by = list(site, re
 setnames(lc_buff_overtime, "V1", "total_pix")
 lc_buff_overtime[, km2 := total_pix * 0.0009]
 
-write.csv(lc_buff_overtime, file = "LC_bflybuff_overtime.csv", row.names = FALSE)
+
+Class = c("NoData", "Water", "Urban", "Barren", "Forest", "Grass", "Agri", "Wetlands")
+ALIcode = as.character(c(0:7))
+
+
+lc_buff_overtime %>% 
+  mutate(landclass = mapvalues(reclass, from = ALIcode, to = Class))
+
+
+write.csv(lc_buff_overtime, file = "Landcover/LC_bflybuff_overtime.csv", row.names = FALSE)
 
 
 #join pesticides with above data.table to get pesticide use in counties, then aggregate by buffers
-pest <- fread("C:/Users/Tyson/REPO/NCEAS-RENCI_2014/Pesticides/estimated_pesticides_OHcounty.csv", header = TRUE)
+pest <- fread("Pesticides/estimated_pesticides_OHcounty.csv", header = TRUE)
 setkey(pest, GEOID, YEAR)
+pest[,pix := NULL]
 
-pesticides <- c("ACETAMIPRID", "CLOTHIANIDIN", "FIPRONIL", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM", "GLYPHOSATE", "ATRAZINE")
-pest.j <- pest[COMPOUND %in% pesticides, ]
+
+# pesticides <- c("ACETAMIPRID", "CLOTHIANIDIN", "FIPRONIL", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM", "GLYPHOSATE", "ATRAZINE")
+# pest.j <- pest[COMPOUND %in% pesticides, ]
 
 lc.j <- lc_int_overtime[reclass == 6]
 setkey(lc.j, GEOID, YEAR)
+lc <- lc.j[pix > 0]
 
-test <- merge(lc.j, pest.j, allow.cartesian = TRUE)
+
+test <- merge(lc, pest, allow.cartesian = TRUE)
 
 #this will aggregate counties into buffers
-pest_buff <- test[, `:=` (high.kg = pix.x * 0.0009 * high_kg_km2ag, 
-                          low.kg = pix.x * 0.0009 * low_kg_km2ag)]
-pest_buff <- pest_buff[, `:=` (high_kg_buff = sum(high.kg),
-                               low_kg_buff = sum(low.kg),
-                               ag_pix_buff = sum(pix.x)),
-                               by = list(YEAR, site, buffer, COMPOUND)]
+pest_buff <- test[, `:=` (high.kg = pix * 0.0009 * high_kg_km2ag, 
+                          low.kg = pix * 0.0009 * low_kg_km2ag)]
 
-#remove county GEOID and county-specific values, then remove duplicate rows
-pest_buff2 <- pest_buff[, c("YEAR", "site", "buffer", "COMPOUND", "high_kg_buff", "low_kg_buff", "ag_pix_buff"), with = FALSE]
-pest_buff3 <- pest_buff2[-which(duplicated.data.frame(pest_buff2))]
-write.csv(pest_buff3, "pest_bflybuff_overtime.csv", row.names = FALSE)
+
+pest_buff1 <- pest_buff %>%
+  group_by(YEAR, site, buffer) %>% #figure out total agriculture land area for a RTENO across counties
+  mutate(ag_km2 = sum(pix) * 0.0009) %>%
+  group_by(YEAR, site, buffer, COMPOUND, ag_km2) %>% #now figure out kg used for RTENO across counties
+  summarise(high_kg_buff = sum(high.kg), low_kg_buff = sum(low.kg)) %>%
+  mutate(meanbuff_kgkm2ag = high_kg_buff / ag_km2) #rate of use for a RTENO buffer 
+  
+
+#Too big for github 
+write.csv(pest_buff1, "Pesticides/pest_bfly_buff_overtime.csv", row.names = FALSE)
+
 
 #This sees if the buffer areas are consistent across years
 #There is a gain of total pixels between the 90s and 2001, probably due to the NLCD products
 #Should investigate this more, but percentages of LC over time are probably OK to use for now
 test <- lc_buff_overtime %>%
-  group_by(RTENO, YEAR, buffer) %>%
+  group_by(site, YEAR, buffer) %>%
   summarise(size = sum(total_pix, na.rm = TRUE)) %>%
   data.frame()
 
