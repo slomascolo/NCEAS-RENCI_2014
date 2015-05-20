@@ -1,5 +1,11 @@
 Products to use for population analysis of BBS data
 
+New classification!
+OH_pest_classes.csv
+I used Pesticide Action Network database to try and reduce complexity of pesticide compounds.
+Grouped them by chemical class and use type (herbicide, etc.) Use type can include multiple uses, separated by commas.
+We should consider using other data sources (IRAC, etc) to confirm/figure out unclassified chemicals.
+
 pest_LC_analysis.RMD
 This is the final document of the analysis I used for combining the landcover and pesticide data.
 Many chunks cannot be run because GIS data not uploaded.

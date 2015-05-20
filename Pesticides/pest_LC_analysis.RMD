@@ -78,6 +78,14 @@ county.data <- merge(pest.states.high, pest.states.low, all.x = TRUE)
 
 #######
 #How many compounds needed in this dataset? Trying to reduce size for github
+test <- county.data %>%
+  group_by(COMPOUND) %>%
+  summarise(yr_by_county_use = n(), 
+            total_kg = sum(KG_EPhigh),
+            years_used = length(unique(YEAR)),
+            counties_used = length(unique(GEOID)))
+
+write.csv(test, "OH_pest_classes.csv", row.names = FALSE)
 
 temp <- county.data %>%
   group_by(COMPOUND) %>%
@@ -886,15 +894,15 @@ pest_buff1 <- pest_buff %>%
 # write.csv(pest_buff1, "Pesticides/pest_buff_overtime.csv", row.names = FALSE)
 ###FILE TOO BIG, SHARE VIA BOX instead
 # what pesticides do we want for analysis?
-
-#need updated data.table for fread using url from Box.com
-library(devtools)
-install_github("Rdatatable/data.table", build_vignettes = FALSE)
-library(data.table)
-library(boxr)
-library(repmis)
-
-#Try Karthik's rdrop2 packages next
+# 
+# #need updated data.table for fread using url from Box.com
+# library(devtools)
+# install_github("Rdatatable/data.table", build_vignettes = FALSE)
+# library(data.table)
+# library(boxr)
+# library(repmis)
+# 
+# #Try Karthik's rdrop2 packages next
 
 
 
@@ -1306,6 +1314,49 @@ test <- lc_buff_overtime %>%
 
 
 ```
+
+
+```{r}
+#is there a good way to compress pesticide data?
+
+pest <- fread("C:/Users/Tyson/Desktop/Box Sync/Share Data/pest_buff_overtime.csv")
+library(reshape2)
+library(vegan)
+
+#make list of pesticides for classification
+test <- pest %>%
+  filter(buffer == 10000) %>%
+  group_by(COMPOUND) %>%
+  summarise(yr_by_county_use = n(), mean_rate = mean(meanbuff_kgkm2ag), total_kg = sum(high_kg_buff))
+
+
+
+#choose buffer
+pest <- pest[buffer == "5000"]
+
+
+top_pests <- pest %>%
+  group_by(COMPOUND) %>%
+  mutate(num = n()) %>%
+  filter(num > 1000, meanbuff_kgkm2ag > 0.001) 
+
+site_pest <- data.frame(cast(top_pests, RTENO + YEAR ~ COMPOUND, value = "meanbuff_kgkm2ag"))
+site_pest[is.na(site_pest)] <- 0
+
+site_pest[, -(1:2)] <- decostand(site_pest[, -(1:2)], 'standardize')
+site_pest$RTENO <- as.factor(site_pest$RTENO)
+site_pest$YEAR <- as.factor(site_pest$YEAR)
+
+pca_pest <- princomp(site_pest[, -(1:2)], scale = FALSE)
+
+test <- rda(site_pest[, -(1:2)] ~ site_pest$RTENO + site_pest$YEAR)
+
+
+```
+
+
+
+
 
 Pesticides/land-use/populations
 
