@@ -1,6 +1,10 @@
-10/22/14
+6/17/15
 
-landcover_all.csv is the one to use!
+LC_buffers_overtime.csv has estimated landcover for each buffer size and year.
+
+LC_county_overtime.csv has estimated landcover for each county and year.
+
+landcover_all.csv is an intermediate product of landcover for the 4 USGS products by county
 "GEOID" is county identifier
 "reclass" is Anderson Level I land cover: (0=nodata, 1=water, 2=developed, 3=barren, 4=forest, 5=grassland/shrub, 6=agriculture, 7=wetlands)
 "total" is the number of pixels (multiply by 0.009 to get square km)
