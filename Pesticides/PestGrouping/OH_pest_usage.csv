@@ -1,0 +1,364 @@
+COMPOUND,Chemical Class,Use Type,yr_by_county_use,total_kg,years_used,counties_used
+BENDIOCARB,N-Methyl Carbamate,Insecticide,2,0.2,1,2
+STEINERNEMA CARPOCAP,Beneficial insect,Insecticide,2,0.6,1,2
+BURKHOLDERIA CEPACIA,Microbial,Fungicide,3,1.2,3,1
+GENTAMICIN SULFATE,Antibiotic,Unknown,2,1.4,1,2
+FLUVALINATE-TAU,Pyrethroid,Insecticide,6,2.2,1,6
+ACEQUINOCYL,Unclassified,Insecticide,2,2.3,1,2
+TRIAZAMATE,Unknown,Insecticide,2,2.6,1,2
+CONIOTHYRIUM MINITANS,Microbial,Fungicide,5,2.7,3,2
+HYDRAMETHYLNON,Unclassified,Insecticide,30,4,1,30
+TETRABOROHYDRATE,Inorganic,Unknown,24,4.1,1,24
+KASUGAMYCIN,Antibiotic,"Fungicide, Microbiocide",15,4.2,1,15
+TCA,Unclassified,"Breakdown product, Herbicide",2,5,1,2
+BACILLUS PUMILIS,NA,NA,24,5.1,3,23
+CYROMAZINE,Triazine,"Insect Growth Regulator, Insecticide",3,6.3,1,3
+INDOLYL-BUTYRIC ACID,Botanical,Plant Growth Regulator,5,10.7,3,2
+EMAMECTIN,Macrocyclic Lactone,Insecticide,52,14.2,8,25
+FENPYROXIMATE,Pyrazole,Insecticide,47,14.6,9,20
+PYRAFLUFEN ETHYL,Pyrazolylphenyl,Herbicide,13,15,2,13
+CYTOKININ,Botanical,Plant Growth Regulator,14,17.3,6,7
+COPPER SULF TRIBASIC,Inorganic-Copper,"Algaecide, Fungicide, Molluscicide",1,17.3,1,1
+CHLORFENAPYR,Pyrazole,Insecticide,4,19.9,1,4
+AMITROLE,Unclassified,Herbicide,16,21,1,16
+PINOLENE,Unclassified,Insect Growth Regulator,2,21.5,1,2
+FLUOPYRAM,"Amide, Pyridine",Fungicide,27,23.1,1,27
+CYDIA POMONELLA,Insect virus,Insect Growth Regulator,100,23.3,5,44
+PENTHIOPYRAD,"Amide, Pyrazole",Fungicide,14,24.6,1,14
+ZINC,Inorganic-Zinc,Herbicide,10,24.7,4,7
+HARPIN PROTEIN,Microbial,"Fungicide, Nematicide, Plant Growth Regulator",50,31.2,4,48
+GARLIC JUICE,Botanical,Insecticide,4,33.3,2,2
+INDAZIFLAM,Triazine,Herbicide,47,38.6,1,47
+SULPROFOS,Organophosphorus,Insecticide,11,46.9,1,11
+DEMETON,Organophosphorus,"Insecticide, Nematicide",2,60,1,2
+DIENOCHLOR,Organochlorine,Insecticide,11,62.7,1,11
+NORURON,Urea,Herbicide,4,68.8,1,4
+METRAFENONE,Unclassified,Fungicide,2,73.4,1,2
+DINOSEB,Dinitrophenol derivative,"Defoliant, Herbicide",16,91.5,1,16
+FLONICAMID,Unclassified,Insecticide,97,94.4,3,67
+ACIBENZOLAR,Unclassified,Fungicide,143,95,11,25
+OXYTETRACYCLINE,Antibiotic,"Fungicide, Microbiocide",100,99,13,24
+THIABENDAZOLE,Benzimidazole,Fungicide,2,104.9,1,2
+MCPB,Chlorophenoxy acid or ester,Herbicide,22,122.3,8,4
+NAPHTHYLACETAMIDE,"Botanical, Naphthalene acetic acid derivative",Plant Growth Regulator,363,130.8,11,110
+PYRETHRINS,"Botanical, Pyrethroid",Insecticide,196,133.6,18,68
+IMAZALIL,Azole,Fungicide,129,146.2,2,78
+FLUBENDIAMIDE,Anthranilic diamide,Insecticide,110,147.7,4,101
+ISOXABEN,"Amide, Oxazole",Herbicide,85,169.2,4,69
+TRINEXAPAC,Unclassified,"Herbicide, Plant Growth Regulator",20,180.3,1,20
+DINOTEFURAN,"Guanidine , Neonicotinoid",Insecticide,38,188.1,4,35
+SPIROTETRAMAT,Keto-enol,Insecticide,137,190.2,4,67
+PROPYZAMIDE,Amide,Herbicide,17,211.7,3,16
+DINOCAP,Dinitrophenol derivative,"Fungicide, Insecticide",64,235.8,2,64
+TRALKOXYDIM,Cyclohexenone derivative,Herbicide,59,238.5,2,59
+TRIFLUSULFURON,Sulfonylurea,Herbicide,135,272.4,12,12
+BORDEAUX MIXTURE,Inorganic-Copper,"Algaecide, Fungicide, Molluscicide",75,273.7,1,75
+SULFOSULFURON,Sulfonylurea,Herbicide,47,294,1,47
+DICROTOPHOS,Organophosphorus,Insecticide,41,297.6,2,37
+FLUOMETURON,Urea,Herbicide,19,306.9,2,19
+GIBBERELLIC ACID,Botanical,Plant Growth Regulator,975,337.4,21,119
+TEBUFENOZIDE,Diacylhydrazine,Insecticide,166,340.7,7,81
+MEPIQUAT,Quaternary Ammonium Compound,Plant Growth Regulator,97,347.3,12,78
+CHINOMETHIONAT,Unclassified,"Fumigant, Fungicide, Insecticide",185,348.7,9,73
+MESOSULFURON,Sulfonylurea,Herbicide,79,351.3,5,19
+AVIGLYCINE,Unknown,Plant Growth Regulator,918,353.7,16,118
+BIFENAZATE,Unclassified,Insecticide,166,363.7,7,100
+NAPTHA,Unknown,"Chemical intermediate, Dye, Insect Repellent, Insecticide",17,374.2,1,17
+PINOXADEN,Unknown,Herbicide,56,384.5,5,19
+MEVINPHOS,Organophosphorus,Insecticide,63,452.7,4,21
+CAPTAFOL,Thiophthalimide,Fungicide,33,471.9,1,33
+IPCONAZOLE,Azole,Fungicide,267,479.8,3,104
+IMAZAMETHABENZ,Imidazolinone,Herbicide,64,480.5,2,64
+PROPOXUR,N-Methyl Carbamate,Insecticide,14,481.1,1,14
+ETOXAZOLE,Unclassified,Insecticide,435,485.9,9,89
+BROMACIL,Uracil,Herbicide,86,543.2,3,62
+6-BENZYLADENINE,Botanical,Plant Growth Regulator,1139,588.4,21,121
+FLUTOLANIL,Anilide,Fungicide,16,612.7,5,5
+AZADIRACHTIN,Botanical,"Insecticide, Nematicide",124,638.8,7,88
+BACILLUS SUBTILIS,Microbial,Fungicide,174,664.7,8,75
+PROMETRYN,Triazine,Herbicide,4,668,3,2
+FLUTHIACET-METHYL,Unknown,Herbicide,381,702.6,5,85
+PYROXSULAM,Triazolopyrimidine,Herbicide,182,708.8,4,55
+NALED,Organophosphorus,Insecticide,102,749.4,3,46
+DIFLUBENZURON,Benzoylurea,"Insect Growth Regulator, Insecticide",51,755.4,2,49
+METHIDATHION,Organophosphorus,Insecticide,245,770,7,102
+FENVALERATE,Pyrethroid,Insecticide,139,775.8,4,100
+PHOSPHAMIDON,Organophosphorus,Insecticide,26,810.1,5,19
+FLUOPICOLIDE,Unknown,Fungicide,210,840.9,5,108
+DICLORAN,Substituted Benzene,Fungicide,85,876,2,48
+FLUAZINAM,"2,6-Dinitroaniline",Fungicide,57,894.4,6,18
+SPIRODICLOFEN,Keto-enol,Insecticide,472,907.9,8,104
+MOLINATE,Thiocarbamate,Herbicide,13,917.6,2,13
+IODOSULFURON,Sulfonylurea,Herbicide,714,989.1,10,109
+PYRIPROXYFEN,Juvenile hormone mimic,Insect Growth Regulator,504,991,9,110
+PYRIDATE,Unknown,Herbicide,82,993.6,5,40
+PYMETROZINE,Triazine,Insecticide,328,1081.9,10,80
+CHLORANTRANILIPROLE,Anthranilic diamide,Insecticide,567,1127,5,125
+FLUXAPYROXAD,"Anilide, Pyrazole",Fungicide,70,1153.1,1,70
+POTASSIUM BICARBONATE,Inorganic,Fungicide,83,1164.4,10,64
+CYAZOFAMID,Azole,Fungicide,318,1169.8,7,78
+NOVALURON,Benzoylurea,Herbicide,402,1194.6,8,82
+SPINETORAM,Spinosyn,Insecticide,567,1389.6,5,123
+MANDIPROPAMID,Unknown,Fungicide,235,1432.4,5,92
+AMITRAZ,Formamidine,Insecticide,167,1476.9,6,78
+TRIFORINE,Unclassified,"Fungicide, Insecticide",381,1523.6,6,116
+HEXYTHIAZOX,Unclassified,Insect Growth Regulator,934,1567.4,13,122
+METHOXYFENOZIDE,Diacylhydrazine,Insecticide,415,1613.1,11,70
+ISOPROPALIN,"2,6-Dinitroaniline",Herbicide,111,1633.3,5,25
+ZOXAMIDE,Unknown,Fungicide,302,1731.3,12,75
+INDOXACARB,Unclassified,Insecticide,1072,1793.9,12,126
+QUINOXYFEN,Quinoline,Fungicide,315,1881.7,9,96
+NAPHTHYLACETIC ACID,"Naphthalene acetic acid derivative, Botanical",Plant Growth Regulator,1465,1899.5,21,124
+METSULFURON,Sulfonylurea,Herbicide,1763,2000.1,21,118
+THIACLOPRID,Neonicotinoid,Insecticide,516,2107.9,9,82
+BARIUM POLYSULFIDE,Inorganic,"Fungicide, Insecticide",72,2124,3,72
+DICHLONE,Unknown,Fungicide,90,2124,2,45
+DIPHENAMID,Amide,Herbicide,117,2333.9,3,66
+ZINEB,"Dithiocarbamate-ETU, Inorganic-Zinc",Fungicide,85,2440.3,3,66
+HYDROGEN PEROXIDE,"Peroxide, Inorganic","Microbiocide, Fungicide, Herbicide, Rodenticide",365,2457.9,8,103
+ACETAMIPRID,Neonicotinoid,Insecticide,1099,2507.3,10,124
+METALDEHYDE,Aldehyde,Molluscicide,206,2636.1,9,94
+METHYL ISOTHIOCYANATE,Unclassified,"Breakdown product, Fumigant, Herbicide, Insecticide, Nematicide",31,2643.4,3,30
+FATTY ALCOHOLS,Alcohol/Ether,"Plant Growth Regulator, Adjuvant",53,2663.3,3,19
+PYRIDABEN,Unclassified,Insecticide,1692,2735.9,16,124
+PROHEXADIONE,Unknown,Plant Growth Regulator,1313,2757.2,13,125
+DIMETHOMORPH,Morpholine,Fungicide,612,2978,15,110
+DIFENOCONAZOLE,Azole,Fungicide,484,3060.7,5,124
+CLOFENTEZINE,Tetrazine,Insecticide,1618,3242.5,18,125
+SPINOSYN,"Spinosyn, Macrocyclic Lactone",Insecticide,850,3277,14,103
+ABAMECTIN,"Botanical , Macrocyclic Lactone",Insecticide,1143,3340.6,21,127
+POTASSIUM OLEATE,Soap,Adjuvant,257,3479.5,7,101
+FOSAMINE,Unknown,Herbicide,41,3558.4,1,41
+TOPRAMEZONE,Oxazole,Herbicide,703,3906.6,7,122
+TRIASULFURON,Sulfonylurea,Herbicide,798,4067.9,19,47
+DELTAMETHRIN,Pyrethroid,Insecticide,394,4144.7,7,104
+FENBUCONAZOLE,Azole,Fungicide,1086,4176.2,18,115
+PYRASULFOTOLE,Unknown,Herbicide,286,4338.9,4,84
+FLUSILAZOLE,Azole,Fungicide,74,4344,2,44
+FENAMIPHOS,Organophosphorus,"Insecticide, Nematicide",146,4600.7,12,57
+PHENMEDIPHAM,Bis-Carbamate,Herbicide,221,5115,16,43
+BOSCALID,Anilide,Fungicide,787,5185.6,9,126
+CYHALOTHRIN-GAMMA,Pyrethroid,Insecticide,771,5421.4,9,123
+DESMEDIPHAM,Bis-Carbamate,Herbicide,221,5443.9,16,43
+PYRIMETHANIL,Pyrimidine,Fungicide,674,5487.2,8,112
+ROTENONE,Botanical,Insecticide,201,5552.1,7,102
+MYROTHECIUM VERRUCARIA,Microbial,"Insecticide, Nematicide",14,5632.6,1,14
+ETRIDIAZOLE,Azole,Fungicide,56,5635.1,2,56
+FENBUTATIN OXIDE,"Organotin, Heavy metal",Insecticide,430,5939.9,10,103
+CHLORSULFURON,Sulfonylurea,Herbicide,526,6226.3,20,89
+VINCLOZOLIN,Dicarboximide,Fungicide,626,6269.9,13,97
+LINDANE,Organochlorine,"Insecticide, Rodenticide",800,6677.9,10,128
+TRIFLUMIZOLE,Azole,Fungicide,603,6683.9,15,113
+CYPRODINIL,Pyrimidine,Fungicide,1574,6703.8,14,126
+BENFLURALIN,"2,6-Dinitroaniline",Herbicide,191,7102,13,27
+COPPER OXYCHLORIDE,Inorganic-Copper,Fungicide,156,7111.9,7,96
+CYPERMETHRIN,Pyrethroid,Insecticide,167,7458.7,6,89
+FAMOXADONE,Dicarboximide,Fungicide,881,7800.2,9,126
+BACILLUS FIRMUS,Microbial,Nematicide,298,8109.6,3,124
+FENHEXAMID,Anilide,Fungicide,663,8156,13,92
+FORMETANATE,N-Methyl Carbamate,Insecticide,669,8190.4,14,116
+CARFENTRAZONE-ETHYL,Triazolone,Herbicide,1250,8695.3,14,109
+KRESOXIM-METHYL,Strobin,Fungicide,1336,9006.8,14,124
+FLUDIOXONIL,Unclassified,Fungicide,1001,9087.4,11,118
+FLUOXASTROBIN,Strobin,Fungicide,119,9367.4,2,81
+TRI-ALLATE,Thiocarbamate,Herbicide,52,9747.3,2,52
+STREPTOMYCIN,Antibiotic,Microbiocide,2277,9787,21,126
+FORAMSULFURON,Sulfonylurea,Herbicide,1250,10071,11,124
+FENPROPATHRIN,Pyrethroid,Insecticide,1055,10400,14,125
+OXYDEMETON-METHYL,Organophosphorus,Insecticide,346,10419.6,9,75
+FENARIMOL,Pyrimidine,Fungicide,2406,10838.7,21,124
+FOSETYL,Unknown,Fungicide,328,10869.5,15,93
+DICOFOL,Organochlorine,Insecticide,885,11214.3,17,120
+PROMETON,Triazine,Herbicide,636,11420.6,6,114
+AMMONIUM SULFAMATE,Inorganic,Herbicide,58,11549,1,58
+METCONAZOLE,Azole,Fungicide,383,11655.7,5,121
+AMETRYN,Triazine,Herbicide,62,12120.1,2,62
+IMAZAPYR,Imidazolinone,Herbicide,1720,12260.5,16,127
+SODIUM METABORATE,Inorganic,Insecticide,50,12491.9,4,18
+CYMOXANIL,Unclassified,Fungicide,1104,12518.1,18,126
+BUTRALIN,"2,6-Dinitroaniline",Herbicide,522,12747.7,16,40
+PIPERONYL BUTOXIDE,Unclassified,"Insecticide, Synergist",427,13118.2,13,109
+DIETHATYL,Chloroacetanilide,Herbicide,102,13136.5,5,58
+FENTIN,"Organotin, Heavy metal","Fungicide, Molluscicide, Herbicide",679,13350.7,21,60
+FLUMICLORAC,Unclassified,Herbicide,1360,13475.1,18,115
+DICHLOBENIL,Substituted Benzene,Herbicide,578,14245.4,13,121
+COPPER,Inorganic-Copper,Fungicide,435,14456.5,16,79
+THIENCARBAZONE-METHYL,Unknown,Herbicide,496,14642.4,4,127
+AMINOPYRALID,Pyridinecarboxylic acid,Herbicide,833,15322.4,7,124
+CARBOXIN,Carboxamide,Fungicide,481,15785.9,7,95
+TRIMETHACARB,N-Methyl Carbamate,"Insecticide, Molluscicide, Dog and Cat Repellent",148,15790.4,4,44
+PROSULFURON,Sulfonylurea,Herbicide,2044,15838.6,18,127
+FLUMETRALIN,"2,6-Dinitroaniline",Plant Growth Regulator,713,16504.5,21,41
+ANILAZINE,Triazine,Fungicide,199,16542.2,4,78
+MECOPROP,Chlorophenoxy acid or ester,Herbicide,901,16944.8,10,128
+SAFLUFENACIL,Amide,Herbicide,372,18246.6,3,127
+TRIBENURON METHYL,Sulfonylurea,Herbicide,2401,19010.6,21,125
+HALOSULFURON,Sulfonylurea,Herbicide,2182,19429,18,128
+CHLORPROPHAM,Other Carbamate,"Herbicide, Plant Growth Regulator",62,19724.3,3,62
+HYDRATED LIME,Inorganic,"pH Adjustment, Fungicide, Microbiocide, Herbicide",102,20669.1,15,23
+TRIADIMEFON,Azole,Fungicide,1619,21031.8,18,127
+DICLOFOP,"Aryloxyphenoxy propionic acid , Chlorophenoxy acid or ester",Herbicide,249,22109.2,17,83
+ETHOFUMESATE,Unclassified,Herbicide,185,22238.7,16,14
+PRIMISULFURON,Sulfonylurea,Herbicide,2578,22311.6,21,127
+VERNOLATE,Thiocarbamate,Herbicide,10,23717.5,1,10
+TEBUTHIURON,Urea,Herbicide,1045,24743.1,16,128
+TEMBOTRIONE,Benzoylcyclohexanedione,Herbicide,542,24808.3,5,124
+OXYFLUORFEN,Diphenyl ether,Herbicide,912,25006.5,21,103
+IPRODIONE,Dicarboximide,Fungicide,830,25688.2,21,117
+PHOSPHORIC ACID,Inorganic,"Fungicide, Herbicide, Microbiocide, pH Adjustment",204,26044.1,10,49
+PROPAMOCARB HCL,Other Carbamate,Fungicide,693,26681.3,16,110
+CYPROCONAZOLE,Azole,Fungicide,202,27391.2,4,58
+RIMSULFURON,Sulfonylurea,Herbicide,2187,27767.2,18,127
+DIQUAT,Bipyridylium,"Herbicide, Dessicant",1703,27884,21,117
+ALDICARB,N-Methyl Carbamate,"Insecticide, Nematicide",190,29946.1,19,25
+BACILLUS THURINGIENSIS,Microbial,Insecticide,1609,30093.9,21,127
+PROTHIOCONAZOLE,Azole,Fungicide,528,30793.8,6,118
+ENDOTHAL,Unclassified,"Herbicide, Defoliant",222,30903.7,14,73
+TRIDIPHANE,Unknown,Herbicide,262,31153.3,5,67
+ZETA-CYPERMETHRIN,Pyrethroid,Insecticide,1390,31768.5,16,128
+MSMA,"Organoarsenic, Heavy metal","Herbicide, Defoliant",228,32347.7,7,114
+QUINTOZENE,Substituted Benzene,"Fungicide, Nematicide, Algaecide",359,33301.4,16,107
+IMAZAMOX,Imidazolinone,Herbicide,1594,33670.5,16,116
+FLUROXYPYR,Pyridinecarboxylic acid,Herbicide,390,33703.4,9,84
+MYCLOBUTANIL,Azole,Fungicide,2595,34205.6,21,127
+CYFLUTHRIN,Pyrethroid,Insecticide,2195,34659.6,19,128
+THIFENSULFURON,Sulfonylurea,"Breakdown product, Herbicide",2540,34967.1,21,127
+TETRACONAZOLE,Azole,Fungicide,743,35318.2,14,111
+PELARGONIC ACID,Fatty acid,"Herbicide, Fungicide",124,36042.9,3,82
+MEFENOXAM,Xylylalanine,Fungicide,1813,36213,16,128
+CRYOLITE,Inorganic,Insecticide,125,36256.9,8,35
+ETHEPHON,Organophosphorus,Plant Growth Regulator,1654,40694.4,21,127
+ETHOPROPHOS,Organophosphorus,"Insecticide, Nematicide",540,40934.5,19,100
+TERBACIL,Uracil,Herbicide,2515,41960.4,21,127
+ORYZALIN,"2,6-Dinitroaniline",Herbicide,1316,42178,20,126
+PROPARGITE,Unclassified,Insecticide,749,43543.1,9,126
+CALCIUM CHLORIDE,Inorganic,"Dessicant, Fungicide, Herbicide, Insecticide, Microbiocide, Molluscicide, Plant Growth Regulator, Preservative ",149,43871.4,3,85
+DIFLUFENZOPYR,Urea,Herbicide,1719,44023.2,14,127
+CLORANSULAM-METHYL,Triazolopyrimidine,Herbicide,1662,47359.7,15,121
+PICLORAM,Pyridinecarboxylic acid,Herbicide,1641,51848.8,21,120
+OXAMYL,N-Methyl Carbamate,"Insecticide, Nematicide",1689,52600,21,124
+TRIFLOXYSTROBIN,Strobin,Fungicide,1571,53321.4,13,128
+DODINE,Guanidine,"Fungicide, Microbiocide",2121,53924,21,124
+DCPA,Alkyl Phthalate,Herbicide,1040,54482.6,20,118
+ESFENVALERATE,Pyrethroid,Insecticide,2676,55163.9,21,128
+FERBAM,Dithiocarbamate-ETU,Fungicide,971,55167.6,16,125
+HEXAZINONE,Triazinone,Herbicide,843,56151.7,18,128
+METHAMIDOPHOS,Organophosphorus,"Insecticide, Breakdown product",809,56513.2,19,107
+NICOSULFURON,Sulfonylurea,Herbicide,2645,58602.2,21,128
+METHOXYCHLOR,Organochlorine,Insecticide,331,58659.6,12,115
+TEBUCONAZOLE,Azole,Fungicide,1155,58977.3,16,121
+CYCLOATE,Thiocarbamate,Herbicide,209,61034.8,16,38
+FIPRONIL,Pyrazole,Insecticide,1471,62117,15,128
+NORFLURAZON,Pyridazinone,Herbicide,1160,64440.5,21,115
+COPPER OXYCHLORIDE S,Inorganic-Copper,Fungicide,1882,64852.3,21,122
+BENOMYL,Benzimidazole,Fungicide,1783,65145.7,17,128
+KAOLIN CLAY,Inorganic,"Insecticide, Adjuvant, Fungicide, Microbiocide",68,66979.8,6,45
+CHLORIDAZON,Pyridazinone,Herbicide,259,71179.8,16,59
+BENSULIDE,Organophosphorus,Herbicide,1721,73382.8,20,115
+PEBULATE,Thiocarbamate,Herbicide,758,74478.1,15,101
+THIRAM,Dithiocarbamate,Fungicide,1441,79233.4,21,128
+BIFENTHRIN,Pyrethroid,Insecticide,1706,80193,16,128
+CHLORETHOXYFOS,Organophosphorus,Insecticide,1573,83434.1,18,128
+NAPROPAMIDE,Amide,Herbicide,2241,86644,21,126
+TRICLOPYR,Chloropyridinyl,Herbicide,2574,93344.1,21,128
+DECAN-1-OL,Alcohol/Ether,Plant Growth Regulator,757,95948.5,21,99
+QUIZALOFOP,Aryloxyphenoxy propionic acid,Herbicide,2259,97408.4,21,119
+CYHALOTHRIN-LAMBDA,Pyrethroid,Insecticide,2245,104503.2,18,128
+THIOPHANATE-METHYL,Benzimidazole precursor,Fungicide,2618,105737.1,21,128
+FENOXAPROP,Aryloxyphenoxy propionic acid,Herbicide,2154,109253.8,21,116
+METALAXYL,Xylylalanine,Fungicide,1620,111639.8,16,128
+METHOMYL,N-Methyl Carbamate,"Insecticide, Breakdown product",2533,117264.2,21,128
+DISULFOTON,Organophosphorus,"Insecticide, Nematicide",1277,117915.3,16,116
+TEBUPIRIMPHOS,Organophosphorus,Insecticide,2074,122806.9,17,128
+TETRATHIOCARBONATE,Inorganic,"Fumigant, Fungicide, Nematicide",31,134095.6,2,31
+DIAZINON,Organophosphorus,Insecticide,2385,137088.8,21,128
+THIAMETHOXAM,Neonicotinoid,Insecticide,1248,141449.2,12,128
+LACTOFEN,Diphenyl ether,Herbicide,2300,144995.7,21,121
+TRICHLORFON,Organophosphorus,Insecticide,51,148988.9,2,51
+ISOXAFLUTOLE,Oxazole,Herbicide,1765,154706,15,128
+FLUMETSULAM,Triazolopyrimidine,Herbicide,2436,159556.2,20,128
+DICHLORPROP,Chlorophenoxy acid or ester,Herbicide,1228,175551.7,18,128
+IMIDACLOPRID,Neonicotinoid,Insecticide,2242,177876.9,18,128
+DIURON,Urea,Herbicide,2589,177997.3,21,127
+FLUMIOXAZIN,Unclassified,Herbicide,1345,179220.4,12,128
+CALCIUM POLYSULFIDE,Inorganic,"Fungicide, Insecticide",1130,182237.5,19,111
+CHLORAMBEN,Benzoic acid,Herbicide,528,185317.3,6,113
+AZOXYSTROBIN,Strobin,Fungicide,1895,190740.1,16,128
+ACEPHATE,Organophosphorus,Insecticide,2096,193196.7,21,127
+PYRACLOSTROBIN,Strobin,Fungicide,1251,211682.6,10,128
+PROPICONAZOLE,Azole,Fungicide,2597,225506.6,21,128
+TEFLUTHRIN,Pyrethroid,Insecticide,2640,228211.9,21,128
+CLOPYRALID,Pyridinecarboxylic acid,Herbicide,2491,234442.3,21,128
+CLOTHIANIDIN,Neonicotinoid,Insecticide,1137,237376.6,9,128
+PARATHION,Organophosphorus,Insecticide,434,238260.7,6,126
+PETROLEUM DISTILLATE,Petroleum derivative-Saturated,"Herbicide, Plant Growth Regulator, Insecticide, Adjuvant, Solvent",851,244584.3,14,122
+AZINPHOS-METHYL,Organophosphorus,Insecticide,2604,253321.2,21,128
+NAPTALAM,Amide,Herbicide,1589,255628.6,19,120
+CHLORIMURON,Sulfonylurea,Herbicide,2407,259280.9,21,123
+SODIUM CHLORATE,Inorganic,"Defoliant, Herbicide, Microbiocide",174,259798.9,6,103
+THIODICARB,N-Methyl Carbamate,"Molluscicide, Insecticide",2163,268700.3,21,124
+ENDOSULFAN,Organochlorine,Insecticide,2645,271456.7,21,128
+COPPER SULFATE,Inorganic-Copper,"Algaecide, Fungicide, Molluscicide",2565,274634.8,21,128
+PERMETHRIN,Pyrethroid,Insecticide,2688,286833,21,128
+FLUAZIFOP,Aryloxyphenoxy propionic acid,Herbicide,2355,286994.2,21,128
+METHYL PARATHION,Organophosphorus,"Insecticide, Nematicide",1594,292380.3,19,128
+IMAZETHAPYR,Imidazolinone,"Herbicide, Plant Growth Regulator",2642,297121.1,21,128
+CLETHODIM,Cyclohexenone derivative,Herbicide,2457,309741.5,21,125
+SULFENTRAZONE,Triazolone,Herbicide,1909,327584,16,124
+MALATHION,Organophosphorus,Insecticide,2243,336257,21,128
+ACIFLUORFEN,Diphenyl ether,Herbicide,2106,336521.9,21,118
+"2,4-DB",Chlorophenoxy acid or ester,Herbicide,2585,346313,21,128
+MCPA,Chlorophenoxy acid or ester,Herbicide,2199,346421.8,21,128
+FOMESAFEN,Diphenyl ether,Herbicide,2450,351572,21,126
+MALEIC HYDRAZIDE,Unclassified,Plant Growth Regulator,1581,364019.8,21,111
+SETHOXYDIM,Cyclohexenone derivative,Herbicide,2568,369272.9,21,128
+MANEB,Dithiocarbamate-ETU,Fungicide,1744,377822.3,21,127
+GLUFOSINATE,Phosphonoglycine,Herbicide,2121,382581.8,17,128
+ETHALFLURALIN,"2,6-Dinitroaniline",Herbicide,2494,502086.9,21,127
+PROPACHLOR,Chloroacetanilide,Herbicide,743,529620.8,10,112
+MESOTRIONE,Benzoylcyclohexanedione,Herbicide,1497,532660.6,12,128
+ZIRAM,"Dithiocarbamate, Inorganic-Zinc","Fungicide, Microbiocide, Dog and Cat Repellent",2460,536384.4,21,127
+IMAZAQUIN,Imidazolinone,"Herbicide, Plant Growth Regulator",2418,539089.2,21,125
+DIMETHOATE,Organophosphorus,Insecticide,2605,546961.4,21,128
+FLUFENACET,Anilide,Herbicide,1644,584023.3,15,128
+FONOFOS,Organophosphorus,Insecticide,927,594534.4,8,128
+BROMOXYNIL,Hydroxybenzonitrile,Herbicide,2392,602871.9,21,128
+CARBOFURAN,N-Methyl Carbamate,"Insecticide, Nematicide",2290,609191.4,19,128
+DIMETHENAMID-P,Amide,Herbicide,1365,621718.7,13,128
+COPPER HYDROXIDE,Inorganic-Copper,"Fungicide, Microbiocide, Nematicide",2631,686345,21,128
+PHOSMET,Organophosphorus,Insecticide,2604,706747.4,21,128
+PHORATE,Organophosphorus,"Insecticide, Nematicide",1787,718710.3,20,128
+CLOMAZONE,Unclassified,Herbicide,2571,762006.1,21,127
+METIRAM,"Dithiocarbamate-ETU, Inorganic-Zinc",Fungicide,2587,769987.5,21,127
+CHLOROPICRIN,Inorganic,"Fumigant, Nematicide",734,917378.3,18,120
+LINURON,Urea,Herbicide,2402,1030474.2,21,128
+SULFOSATE,Phosphonoglycine,Herbicide,1233,1122307.9,13,128
+CARBARYL,N-Methyl Carbamate,"Insecticide, Nematicide, Plant Growth Regulator",2682,1171738.5,21,128
+TRIFLURALIN,"2,6-Dinitroaniline",Herbicide,2463,1353364.2,21,128
+CAPTAN,Thiophthalimide,Fungicide,2644,1365545.4,21,128
+TERBUFOS,Organophosphorus,"Insecticide, Nematicide",2472,1498759.6,21,128
+SULFUR,Inorganic,"Fungicide, Insecticide",2589,1509903.3,21,127
+CHLOROTHALONIL,Substituted Benzene,Fungicide,2643,1624765.3,21,128
+DICHLOROPROPENE,Halogenated organic,"Fumigant, Nematicide",466,1656128.3,17,121
+METAM,Dithiocarbamate-MITC,"Fumigant, Fungicide, Microbiocide, Algaecide, Nematicide",291,1827624.5,20,91
+PARAQUAT,Bipyridylium,Herbicide,2687,2027365.9,21,128
+BENTAZONE,Unclassified,Herbicide,2609,2048776,21,128
+MANCOZEB,"Dithiocarbamate-ETU, Inorganic-Zinc",Fungicide,2670,2089802.9,21,128
+BUTYLATE,Thiocarbamate,Herbicide,1206,2184933.2,13,128
+DICAMBA,Benzoic acid,Herbicide,2686,2192175.6,21,128
+EPTC,Thiocarbamate,Herbicide,2022,2479982.5,21,128
+METRIBUZIN,Triazinone,Herbicide,2677,2548609.5,21,128
+PETROLEUM OIL,Petroleum derivative-Aromatic,"Insecticide, Adjuvant, Herbicide, Fungicide",2613,2628190.7,21,128
+METHYL BROMIDE,Halogenated organic,"Fumigant, Insecticide, Herbicide, Nematicide",1113,2899248.5,17,125
+DIMETHENAMID,Amide,Herbicide,2520,3026954.8,20,128
+CHLORPYRIFOS,Organophosphorus,"Insecticide, Nematicide",2688,3937095,21,128
+SIMAZINE,Triazine,Herbicide,2687,4161160.5,21,128
+CYANAZINE,Triazine,Herbicide,1608,6145781.3,15,128
+PENDIMETHALIN,"2,6-Dinitroaniline",Herbicide,2688,7049014.1,21,128
+"2,4-D",Chlorophenoxy acid or ester,"Herbicide, Plant Growth Regulator",2688,9099827.8,21,128
+METOLACHLOR-S,Chloroacetanilide,Herbicide,1920,12319860.4,15,128
+ALACHLOR,Chloroacetanilide,Herbicide,2654,12659403.2,21,128
+ACETOCHLOR,Chloroacetanilide,Herbicide,2432,18569278.9,19,128
+METOLACHLOR,Chloroacetanilide,Herbicide,2588,19880691.2,21,128
+ATRAZINE,Triazine,Herbicide,2688,45236779.2,21,128
+GLYPHOSATE,Phosphonoglycine,Herbicide,2688,54182537.5,21,128

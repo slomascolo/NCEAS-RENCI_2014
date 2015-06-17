@@ -1,0 +1,80 @@
+1,"Inhibition of acetyl CoA carboxylase (ACCase)","Aryloxyphenoxy-propionate ‘FOPs’","clodinafop-propargyl cyhalofop-butyl diclofop-methyl fenoxaprop-P-ethyl fluazifop-P-butyl haloxyfop-R-methyl propaquizafop quizalofop-P-ethyl"
+1,,"Cyclohexanedione ‘DIMs’","alloxydim butroxydim clethodim cycloxydim profoxydim sethoxydim tepraloxydin tralkoxydim"
+1,,Phenylpyrazoline 'DEN',pinoxaden
+2,"Inhibition of acetolactate synthase ALS (acetohydroxyacid synthase AHAS)",Sulfonylurea,"amidosulfuron azimsulfuron bensulfuron-methyl chlorimuron-ethyl chlorsulfuron cinosulfuron cyclosulfamuron ethametsulfuron-methyl ethoxysulfuron flazasulfuron flupyrsulfuron-methyl-Na foramsulfuron halosulfuron-methyl imazosulfuron iodosulfuron mesosulfuron metsulfuron-methyl nicosulfuron oxasulfuron primisulfuron-methyl prosulfuron pyrazosulfuron-ethyl rimsulfuron sulfometuron-methyl sulfosulfuron thifensulfuron-methyl triasulfuron tribenuron-methyl trifloxysulfuron triflusulfuron-methyl tritosulfuron"
+2,,Imidazolinone,"imazapic imazamethabenz-methyl imazamox imazapyr imazaquin imazethapyr"
+2,,Triazolopyrimidine,"cloransulam-methyl diclosulam florasulam flumetsulam metosulam penoxsulam"
+2,,Pyrimidinyl(thio)benzoate,"bispyribac-Na pyribenzoxim pyriftalid pyrithiobac-Na pyriminobac-methyl"
+2,,"Sulfonylaminocarbonyl-triazolinone","flucarbazone-Na propoxycarbazone-Na"
+3,"Microtubule assembly inhibition",Dinitroaniline,"benefin = benfluralin butralin dinitramine ethalfluralin oryzalin pendimethalin trifluralin"
+3,,Phosphoroamidate,"amiprophos-methyl butamiphos"
+3,,Pyridine,"dithiopyr thiazopyr"
+3,,Benzamide,"propyzamide = pronamide tebutam"
+3,,Benzoic acid,DCPA = chlorthal-dimethyl
+4,"Action like indole acetic acid (synthetic auxins)",Phenoxy-carboxylic-acid,"clomeprop 2,4-D 2,4-DB dichlorprop = 2,4-DP MCPA MCPB mecoprop = MCPP = CMPP"
+4,,Benzoic acid,"chloramben dicamba TBA"
+4,,Pyridine carboxylic acid,"clopyralid fluroxypyr picloram triclopyr"
+4,,Quinoline carboxylic acid,"quinclorac (also group L) quinmerac"
+4,,Other,benazolin-ethyl
+5,"Inhibition of photosynthesis at photosystem II",Triazine,"ametryne atrazine cyanazine desmetryne dimethametryne prometon prometryne propazine simazine simetryne terbumeton terbuthylazine terbutryne trietazine"
+5,,Triazinone,"hexazinone metamitron metribuzin"
+5,,Triazolinone,amicarbazone
+5,,Uracil,"bromacil lenacil terbacil"
+5,,Pyridazinone,pyrazon = chloridazon
+5,,Phenyl-carbamate,"desmedipham phenmedipham"
+6,"Inhibition of photosynthesis at photosystem II",Nitrile,"bromofenoxim bromoxynil ioxynil"
+6,,Benzothiadiazinone,bentazon
+6,,Phenyl-pyridazine,"pyridate pyridafol"
+7,"Inhibition of photosynthesis at photosystem II",Urea,"chlorobromuron chlorotoluron chloroxuron dimefuron diuron ethidimuron fenuron fluometuron (see F3) isoproturon isouron linuron methabenzthiazuron metobromuron metoxuron monolinuron neburon siduron tebuthiuron"
+7,,Amide,"propanil pentanochlor"
+8,"Inhibition of lipid synthesis - not ACCase inhibition",Thiocarbamate,"butylate cycloate dimepiperate EPTC esprocarb molinate orbencarb pebulate prosulfocarb thiobencarb = benthiocarb tiocarbazil triallate vernolate"
+8,,Phosphorodithioate,bensulide
+8,,Benzofuran,"benfuresate ethofumesate"
+9,Inhibition of EPSP synthase,Glycine,"glyphosate sulfosate"
+10,"Inhibition of glutamine synthetase",Phosphinic acid,"glufosinate-ammonium bialaphos = bilanaphos"
+11,"Bleaching: Inhibition of carotenoid biosynthesis (unknown target)",Triazole,"amitrole (in vivo inhibition of  lycopene cyclase)"
+12,"Bleaching: Inhibition of carotenoid biosynthesis at the phytoene desaturase step (PDS)",Pyridazinone,norflurazon
+12,,Pyridinecarboxamide,"diflufenican picolinafen"
+12,,Other,"beflubutamid fluridone flurochloridone flurtamone"
+13,,Isoxazolidinone,clomazone
+13,,Urea,fluometuron (see C2)
+13,,Diphenylether,aclonifen
+14,"Inhibition of protoporphyrinogen oxidase (PPO)",Diphenylether,"acifluorfen-Na bifenox chlomethoxyfen fluoroglycofen-ethyl fomesafen halosafen lactofen oxyfluorfen"
+14,,Phenylpyrazole,"fluazolate pyraflufen-ethyl"
+14,,N-phenylphthalimide,"cinidon-ethyl flumioxazin flumiclorac-pentyl"
+14,,Thiadiazole,"fluthiacet-methyl thidiazimin"
+14,,Oxadiazole,"oxadiazon oxadiargyl"
+14,,Triazolinone,"azafenidin carfentrazone-ethyl sulfentrazone"
+14,,Oxazolidinedione,Pentoxazone
+14,,Pyrimidindione,"benzfendizone butafenacil"
+14,,Other,"pyraclonil profluazol flufenpyr-ethyl"
+15,"Inhibition of VLCFAs ( see Remarks) (Inhibition of cell division)",Chloroacetamide,"acetochlor alachlor butachlor"
+15,,,"dimethachlor dimethanamid metazachlor metolachlor pethoxamid"
+15,,,"pretilachlor propachlor propisochlor thenylchlor"
+15,,Acetamide,"diphenamid napropamide naproanilide"
+15,,Oxyacetamide,"flufenacet mefenacet"
+15,,Tetrazolinone,fentrazamide
+15,,Other,"anilofos cafenstrole piperophos"
+17,,Organoarsenical,"DSMA MSMA"
+18,"Inhibition of DHP (dihydropteroate) synthase",Carbamate,asulam
+19,Inhibition of auxin transport,"Phthalamate Semicarbazone","naptalam diflufenzopyr-Na"
+20,"Inhibition of cell wall (cellulose) synthesis",Nitrile,"dichlobenil chlorthiamid"
+21,,Benzamide,isoxaben
+21,,Triazolocarboxamide,flupoxam
+22,"Photosystem-I-electron diversion",Bipyridylium,"diquat paraquat"
+23,"Inhibition of mitosis / microtubule organisation",Carbamate,"chlorpropham propham carbetamide"
+24,"Uncoupling (Membrane disruption)",Dinitrophenol,"DNOC dinoseb dinoterb"
+25,"Unknown Note:  While the mode of action of herbicides in Group Z is unknown it is likely that they differ in mode of action between themselves and from other groups.",Arylaminopropionic acid,"Flamprop-M-methyl /-isopropyl"
+26,,Quinoline carboxylic acid,"quinclorac (for  monocots) (also group O)"
+26,,Chloro-Carbonic-acid,"TCA dalapon flupropanate"
+26,,Pyrazolium,difenzoquat
+27,"Bleaching: Inhibition of 4-hydroxyphenyl-pyruvate-dioxygenase (4-HPPD)",Triketone,"mesotrione sulcotrione"
+27,,Isoxazole,"isoxachlortole isoxaflutole"
+27,,Pyrazole,"benzofenap pyrazolynate pyrazoxyfen"
+27,,Other,Benzobicyclon
+27,,Other,"bromobutide (chloro)-flurenol"
+27,,,Cinmethylin
+27,,,Cumyluron
+27,,,Dazomet
+27,,,"dymron = daimuron methyl-dimuron= methyl-dymron etobenzanid fosamine indanofan metam oxaziclomefone oleic acid"
+27,,,"pelargonic acid pyributicarb"
