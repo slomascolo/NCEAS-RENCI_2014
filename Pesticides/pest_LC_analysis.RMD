@@ -501,7 +501,7 @@ pest_county[,`:=`(high_kg_km2ag = KGbyMOA / (pix * 0.0009))]
 
 
 # pest_export <- pest_county[, c("GEOID", "YEAR", "pix", "COMPOUND", "high_kg_km2ag", "low_kg_km2ag"), with = FALSE]
-pest_export <- pest_county[, c("GEOID", "YEAR", "pix", "MOAuse", "high_kg_km2ag"), with = FALSE]
+pest_export <- pest_county[, c("GEOID", "YEAR", "pix", "MOAuse", "KGbyMOA", "high_kg_km2ag"), with = FALSE]
 
 # write.csv(pest_export, file = "Pesticides/estimated_pesticides_OHcounty.csv", row.names = FALSE)
 write.csv(pest_export, file = "Pesticides/estimated_pesticides_OHcounty_MOA.csv", row.names = FALSE)
@@ -1346,7 +1346,7 @@ spec_site <- merge(env[, c(1:2)], spec_site_mat, by = c("SiteID", "Year"))
 #scale pesticides by column, standardize?
 # env[, 3:9] <- decostand(env[, 3:9], 'total')
 # env[, 10:17] <- decostand(env[, 10:17], 'standardize')
-env[, 3:31] <- decostand(env[, 3:31], 'standardize')
+env[, 3:22] <- decostand(env[, 3:22], 'standardize')
 env$SiteID <- as.factor(env$SiteID)
 env$Year <- as.factor(env$Year)
 
@@ -1355,7 +1355,7 @@ spec_site_wisc <- wisconsin(spec_site[, -c(1:2)])
 
 #trying out different unconstrained and constrained rdas
 test <- rda(spec_site_hell)
-test <- rda(spec_site_hell ~ ., env[,c(3:31)])
+test <- rda(spec_site_hell ~ ., env[,c(3:22)])
 test <- rda(spec_site_hell ~ env[,2])
 
 #try out site and year as factors in species ordination
@@ -1382,9 +1382,9 @@ ado <- adonis(spec_site[3:42] ~ as.factor(SiteID), data = spec_site, strata = sp
 
 
 #How much does pesticide use vary over time and space?
-ado <- adonis(env[, 10:17] ~ as.factor(Year), data = env, strata = env$SiteID, permutations = 999,
+ado <- adonis(env[, 3:31] ~ as.factor(Year), data = env, strata = env$SiteID, permutations = 999,
               method = "euclidean")
-ado <- adonis(env[,10:17] ~ as.factor(SiteID), data = env, strata = env$Year, permutations = 999,
+ado <- adonis(env[,3:31] ~ as.factor(SiteID), data = env, strata = env$Year, permutations = 999,
               method = "euclidean")
 
 #Trying to figure out a way to plot means/SEs of groups (like sites or years)
