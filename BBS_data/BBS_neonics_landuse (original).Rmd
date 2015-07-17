@@ -7,6 +7,7 @@ output: html_document
 
 ````{r, warning = FALSE, message = FALSE, results='hide'}
 require(ggthemes)
+require(wesanderson)
 require(ggplot2)
 require(vegan)
 require(dplyr)
@@ -18,11 +19,13 @@ require(tidyr)
 From Tyson's csv. Creates a column for the abundance of birds by route (data is by stop).
 ````{r}
 setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/BBS_data/")
-new_bbs <- read.csv("fifty7_withRTENO.csv")
+new_bbs <- read.csv("fifty7_withRTENO.csv")# 
 new_bbs$sum_route_abundance <- rowSums(new_bbs[grep("^Stop[0-9]+", names(new_bbs))])
 head(new_bbs)
 names(new_bbs)
 new_bbs <- new_bbs[ , c(1:7, 58, 59)] #selects everything except the individual stop abundances
+length(unique(new_bbs$Route))
+head(new_bbs)
 ````
 
 # Bird trait data
@@ -56,9 +59,9 @@ AOU_codes$SCIENTIFIC_NAME <- toupper(AOU_codes$SCIENTIFIC_NAME)
 #testing that all our traits at leat are in the new AOU codes:
 bird_traits$SCIENTIFIC_NAME %in% AOU_codes$SCIENTIFIC_NAME # = not all true.
 AOU_codes$SCIENTIFIC_NAME %in% bird_traits$SCIENTIFIC_NAME # many many falses
-
+bird_traits$COMMON_NAME <- toupper(bird_traits$COMMON_NAME)
 head(bird_traits)
-bird_traits$COMMON_NAME %in% AOU_codes$English_Common_Name # = all true!
+bird_traits$COMMON_NAME %in% AOU_codes$COMMON_NAME # = all true!
 AOU_codes$English_Common_Name %in% bird_traits$COMMON_NAME # many many falses
 
 unique(new_bbs$AOU) %in% unique(AOU_codes$AOU) # good.
@@ -72,7 +75,6 @@ Putting the trait and AOU codes together -
 ```{r}
 head(AOU_codes)
 head(new_bbs)
-AOU_codes$COMMON_NAME <- AOU_codes$English_Common_Name
 
 traits_aou <- inner_join(bird_traits, AOU_codes)
 
@@ -84,8 +86,16 @@ names(BBS_traits)
 Based on Tyson's GIS analysis.
 ````{r}
 neonics_buffers <- read.csv("../Pesticides/pest_buff_overtime.csv")
+neonics_buffers$NEONIC <- ifelse(neonics_buffers$COMPOUND %in% c("ACETAMIPRID", "CLOTHIANIDIN", "FIPRONIL", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM"), "neonic", "pesticide")
 head(neonics_buffers)
 tail(neonics_buffers)
+
+neonics_buffers_short <- neonics_buffers %>%
+  group_by(YEAR, RTENO, buffer, NEONIC) %>%
+  summarise(SUM_high_kg = sum(high_kg_buff))
+head(neonics_buffers_short)
+#neonics_buffers[is.na(neonics_buffers)]
+# quite a few NAs in hte low kg buff col
 ````
 
 # Merge BBS_traits and neonics
@@ -97,14 +107,14 @@ sort(unique(BBS_traits$YEAR))
 Therefore, we need to select the period 1995 - 2011 for merging.
 
 ```{r}
-BBS_neonics <- inner_join(BBS_traits[ BBS_traits$YEAR < 2012, ], neonics_buffers[ neonics_buffers$YEAR > 1994, ]) # joins by RTENO and YEAR which works. 
+BBS_neonics <- inner_join(BBS_traits[ BBS_traits$YEAR < 2012, ], neonics_buffers_short[ neonics_buffers$YEAR > 1994, ]) # joins by RTENO and YEAR which works. 
 ````
 
 # Landuse data by route
 Based on Tyson's GIS analysis. Notes for the csv: `reclass` is Anderson Level I land cover: (0=nodata, 1=water, 2=developed, 3=barren, 4=forest, 5=grassland/shrub, 6=agriculture, 7=wetlands).
 `total` is the number of pixels (multiply by 0.009 to get square km).
 ````{r}
-landuse_buffers <- read.csv("../Pesticides/LC_buffers_overtime.csv")
+landuse_buffers <- read.csv("../Landcover/LC_buffers_overtime.csv")
 head(landuse_buffers)
 
 reclass_table <- data.frame("reclass" = 0:7, "land_cover" = c("nodata", "water", "developed", "barren", "forest", "grassland_shrub", "agriculture", "wetlands"))
@@ -118,25 +128,32 @@ tail(landuse_buffers)
 ````
 ````{r}
 names(landuse_buffers)
-landuse_buffers2 <- landuse_buffers[c(2, 3, 4, 5, 7, 8)]
-names(landuse_buffers2)
-class(landuse_buffers2$total_pix)
-str(landuse_buffers2)
-head(landuse_buffers2)
 
-landuse_buffers_wide <- spread(landuse_buffers2, land_cover, total_pix)
-tail(landuse_buffers_wide, 50)
+# dropping this second one as it doesn't have the old cols
 
+# landuse_buffers2 <- landuse_buffers[c(2, 3, 4, 5, 7, 8)]
+# names(landuse_buffers2)
+# class(landuse_buffers2$total_pix)
+# str(landuse_buffers2)
+# head(landuse_buffers2)
+
+landuse_buffers_wide <- spread(landuse_buffers[, c(2:5, 7)], land_cover, total_pix)
+
+tail(subset(landuse_buffers_wide,YEAR == 2012), 50)
+# we'll need to exclude the 2012 ata from here
 names(landuse_buffers_wide)
 ````
 # Merging BBS_neonics with landuse
 ```{r}
 sort(unique(landuse_buffers$YEAR)) # 1992 - 2011
 
+
+
 BBS_ln <- inner_join(BBS_neonics, landuse_buffers_wide[ landuse_buffers_wide$YEAR > 1994, ])
 # joins by: c("YEAR", "RTENO", "BBS_route", "buffer")
 
 tail(BBS_ln)
+sort(unique(BBS_ln$YEAR))
 ```
 
 # Maybe a baby model?
@@ -146,45 +163,56 @@ names(BBS_ln)
 unique(BBS_ln$buffer)
 
 
-
-BBS_ln$agriculture_scaled <- as.numeric(scale(BBS_ln$agriculture))
-BBS_ln$high_kg_buff_scaled <- as.numeric(scale(BBS_ln$high_kg_buff))
+# 
+# BBS_ln$agriculture_scaled <- as.numeric(scale(BBS_ln$agriculture))
+# BBS_ln$high_kg_buff_scaled <- as.numeric(scale(BBS_ln$high_kg_buff))
 head(BBS_ln)
 levels(BBS_ln$COMPOUND)
 BBS_ln_scale <- BBS_ln %>%
   group_by(buffer) %>%
   mutate(ag_scaled = as.numeric(scale(agriculture)), 
-         forest_scaled = as.numeric(scale(high_kg_buff)))
+         forest_scaled = as.numeric(scale(forest)))
 
 names(BBS_ln_scale)
-BBS_ln_scale <- BBS_ln_scale %>%
-  group_by(COMPOUND, buffer) %>%
-  mutate(high_kg_buff_scaled = as.numeric(scale(high_kg_buff)))
 names(BBS_ln_scale) <- toupper(names(BBS_ln_scale))
+BBS_ln_scale <- BBS_ln_scale %>%
+  ungroup()%>%
+  group_by(NEONIC, BUFFER) %>%
+  mutate(high_kg_buff_scaled = as.numeric(scale(SUM_HIGH_KG)))
+names(BBS_ln_scale) <- toupper(names(BBS_ln_scale))
+```
 
-BBS_ln_scale$NEONIC <- ifelse(BBS_ln_scale$COMPOUND %in% c("GLYPHOSATE", "ATRAZINE"), "pesticide", ifelse(BBS_ln_scale$COMPOUND %in% c("ACETAMIPRID", "CLOTHIANIDIN", "FIPRONIL", "IMIDACLOPRID", "THIACLOPRID", "THIAMETHOXAM"), "neonic", "ERROR"))
+```{r}
+levels(BBS_ln_scale$DIET)
 BBS_ln_scale$DIET_VULN <- ifelse(BBS_ln$DIET %in% c("insects", "seeds", 'nectar', "birds"), "diet_vuln", "diet_invuln")
-BBS_ln_scale$DIET_VULN <- factor(BBS_ln$DIET_VULN)
+BBS_ln_scale$DIET_VULN <- factor(BBS_ln_scale$DIET_VULN)
 
-BBS_ln_scale$DIET_INSECTS <- ifelse(BBS_ln$DIET == "insects", "diet_insects", "diet_not_insects")
-BBS_ln_scale$DIET_INSECTS <- factor(BBS_ln$DIET_INSECTS)
+BBS_ln_scale$DIET_INSECTS <- ifelse(BBS_ln_scale$DIET == "insects", "diet_insects", "diet_not_insects")
+BBS_ln_scale$DIET_INSECTS <- factor(BBS_ln_scale$DIET_INSECTS)
 
 names(BBS_ln_scale)
+BBS_ln_scale <- data.frame(BBS_ln_scale)
+head(BBS_ln_scale)
+
 BBS_ln_scale2 <- BBS_ln_scale %>%
   ungroup() %>%
-  group_by(YEAR, RTENO, BBS_ROUTE, BUFFER, AOU, 
+  group_by(YEAR, RTENO, BUFFER, AOU, 
           HABITAT, DIET, NESTING, BEHAVIOR, COMMON_NAME,
           CONSERVATION, AGRICULTURE, BARREN, 
           FOREST, DEVELOPED, GRASSLAND_SHRUB, WATER,
           WETLANDS, AG_SCALED, FOREST_SCALED,
           DIET_VULN, DIET_INSECTS, NEONIC) %>%
-  dplyr::summarise(sum_abundance = sum(SUM_ROUTE_ABUNDANCE),
-            sum_KG_HIGH = sum(HIGH_KG_BUFF))
+  dplyr::summarise(sum_abundance = sum(SUM_ROUTE_ABUNDANCE), 
+                   sum_neonics = sum(SUM_HIGH_KG))
+dim(BBS_ln_scale)
+dim(BBS_ln_scale2)
+BBS_ln_scale2[!complete.cases(BBS_ln_scale2),]
   
+names(BBS_ln_scale2)
 BBS_ln_scale2 <- BBS_ln_scale2 %>% 
   ungroup() %>%
   group_by(NEONIC, BUFFER) %>%
-  mutate(scale_scale_ = as.numeric(scale(sum_KG_HIGH))) %>%
+  mutate(scale_neonics = as.numeric(scale(sum_neonics))) %>%
   ungroup() %>%
   group_by(BUFFER) %>%
   mutate(year_scaled = as.numeric(scale(YEAR)))
@@ -192,8 +220,8 @@ BBS_ln_scale2 <- BBS_ln_scale2 %>%
 ##### next model -scaled and neonics 
 names(BBS_ln_scale2)
 unique(BBS_ln_scale2$BUFFER)
-class(BBS_ln_scale2$BBS_ROUTE)
-BBS_ln_scale2$ROUTE_FAC<- as.factor(BBS_ln_scale2$BBS_ROUTE)
+range(BBS_ln_scale2$RTENO)
+BBS_ln_scale2$ROUTE_FAC<- as.factor(BBS_ln_scale2$RTENO)
 BBS_ln_scale3 <- BBS_ln_scale2[BBS_ln_scale2$BUFFER == 200 , ]
 BBS_ln_scale3$obs <- 1:nrow(BBS_ln_scale3)
 
@@ -202,6 +230,200 @@ BBS_ln_scale3$NEONIC <- factor(BBS_ln_scale3$NEONIC,
                                   levels = c("pesticide", "neonic"))  # changes the levels
 BBS_ln_scale3$NEONIC <- relevel(BBS_ln_scale3$NEONIC, ref = "pesticide") #changes the ereference level
 names(BBS_ln_scale3)
+
+### up to here
+#save.image("ohhai.Rdata")
+#load("ohhai.Rdata")
+
+```
+
+```{r multivariate}
+names(BBS_ln)
+sort(unique(BBS_ln$YEAR))
+
+length(unique(BBS_ln$RTENO))
+length(unique(BBS_ln[BBS_ln$YEAR == 1998,"RTENO"]))
+
+routes <- BBS_ln %>% group_by(YEAR) %>% summarise(num_routes = length(unique((RTENO))))
+
+routes_plot <- ggplot(routes, aes(x = YEAR, y = num_routes)) +
+  geom_line() +theme_bw() + labs(y = "Number of UNIQUE routes counted") +
+  geom_vline(aes(xintercept = 1998), colour = "darkblue",
+             linetype = "dashed") +
+  annotate("text", x = 1998.3, y = 20, 
+           hjust = 0,
+           label = "1998 = suggested date from \n which to take bird obs",
+           colour = "darkblue") +
+  ggtitle("BBS data: number of routes counted by year")
+ggsave(plot = routes_plot, "unique routes by year.pdf",
+       width = 210, height = 148.5, units = "mm")
+
+### multivariate landuse #####
+
+multi_env <- BBS_ln  %>% filter(YEAR %in% c(1998, 2011)) %>% 
+  group_by(YEAR, buffer, RTENO, NEONIC) %>% 
+  slice(1)  %>% 
+  ungroup() %>%
+  select(RTENO, buffer, NEONIC, SUM_high_kg, forest, agriculture, developed, water, barren, grassland_shrub, wetlands, YEAR) %>%
+  spread(NEONIC, SUM_high_kg)
+
+multi_env1000_11$RTENO %in% multi_env1000_98$RTENO
+
+
+multi_env1000_98 <- multi_env %>%
+  filter(YEAR ==1998)
+
+multi_env1000_11 <- multi_env %>%
+  filter(YEAR ==2011)
+
+#buffers <- c(200, 400, 1000, 2000, 5000, 10000)
+multi_env$buffer2 <- as.factor(multi_env$buffer)
+multi_env <- data.frame(multi_env)
+
+lists98 <- split(multi_env[multi_env$YEAR == 1998,], 
+                 f = multi_env[multi_env$YEAR == 1998,"buffer"])
+str(lists98)
+lists11 <-  split(multi_env[multi_env$YEAR == 2011,], 
+                 f = multi_env[multi_env$YEAR == 2011,"buffer"])
+
+multi_env1000_98_pro <- multi_env1000_98[multi_env1000_98$RTENO %in% multi_env1000_11$RTENO, ] %>% arrange(RTENO)
+multi_env1000_11_pro <- multi_env1000_11[multi_env1000_11$RTENO %in% multi_env1000_98_pro$RTENO , ] %>% arrange(RTENO)
+
+
+save(lists98, file = "lists98.Rdata")
+for (dt in seq(along = lists98)){
+  metas98 = list()
+  meta_n = metaMDS(lists98[[dt]][3:9])
+  metas98[[dt]] <- meta_n
+  names(metas98)[[dt]] = paste("buffer_", names(lists98)[dt], sep = "")
+    }
+metas98
+
+
+
+meta11 <- metaMDS(multi_env1000_11_pro[3:9])
+meta98 <- metaMDS(multi_env1000_98_pro[3:9])
+
+plot(meta11)
+text(meta11, display = "species")
+ordisurf(meta11, multi_env1000_11_pro$neonic, add = T)
+ordisurf(meta11, multi_env1000_11_pro$pesticide, 
+         col = "darkblue", add = T)
+
+plot(meta98)
+text(meta98, display = "species")
+ordisurf(meta98, multi_env1000_98_pro$neonic, add = T)
+ordisurf(meta98, multi_env1000_98_pro$pesticide, 
+         col = "darkblue", add = T)
+
+plot(procrustes(meta11, meta98))
+
+
+## multivariate pesticides #####
+
+````
+
+```{r}
+scale_glm <- glm(data = BBS_ln_scale3,
+                     sum_abundance ~ scale_neonics:NEONIC * AG_SCALED + factor(YEAR) , family = poisson)
+summary(scale_glmer)
+coefplot2(scale_glmer, intercept = T)
+
+names(BBS_ln_scale3)
+levels(BBS_ln_scale3$ROUTE_FAC)
+class(BBS_ln_scale3$YEAR)
+BBS_ln_scale3$YEAR_FAC <- as.factor(BBS_ln_scale3$YEAR)
+
+BBS_ln_scale3$AG_SCALED <- as.numeric(scale(BBS_ln_scale3$AGRICULTURE))
+BBS_ln_scale3$FOREST_SCALED <- as.numeric(scale(BBS_ln_scale3$FOREST))
+
+scale_glmer <- glmer(data = BBS_ln_scale3,
+                     sum_abundance ~ scale_neonics:NEONIC * AG_SCALED + (1|ROUTE_FAC) + (1|YEAR_FAC), family = poisson)
+summary(scale_glmer)
+coefplot2(scale_glmer, intercept = T)
+
+scale_glmer2 <- glmer(data = BBS_ln_scale3,
+                     sum_abundance ~ FOREST_SCALED + scale_neonics:NEONIC * AG_SCALED + (1|ROUTE_FAC) + (1|YEAR_FAC), family = poisson)
+summary(scale_glmer2)
+coefplot2(scale_glmer2, intercept = T)
+```
+Now for the bigger buffers
+```{r}
+unique(BBS_ln_scale2$BUFFER)
+BBS_ln_scale4 <- BBS_ln_scale2[BBS_ln_scale2$BUFFER == 10000 , ]
+BBS_ln_scale4$obs <- 1:nrow(BBS_ln_scale4)
+
+unique(BBS_ln_scale4$NEONIC)
+BBS_ln_scale4$NEONIC <- factor(BBS_ln_scale4$NEONIC,
+                                  levels = c("pesticide", "neonic"))  # changes the levels
+BBS_ln_scale4$NEONIC <- relevel(BBS_ln_scale4$NEONIC, ref = "pesticide") #changes the ereference level
+names(BBS_ln_scale4)
+
+BBS_ln_scale4$YEAR_FAC <- as.factor(BBS_ln_scale4$YEAR)
+
+BBS_ln_scale4$AG_SCALED <- as.numeric(scale(BBS_ln_scale4$AGRICULTURE))
+BBS_ln_scale4$FOREST_SCALED <- as.numeric(scale(BBS_ln_scale4$FOREST))
+
+
+scale_glmer_ten <- glmer(data = BBS_ln_scale4,
+                     sum_abundance ~ scale_neonics:NEONIC * AG_SCALED + (1|ROUTE_FAC) + (1|YEAR_FAC), family = poisson)
+summary(scale_glmer_ten)
+coefplot2(scale_glmer_ten, intercept = T)
+
+scale_glmer2_ten <- glmer(data = BBS_ln_scale4,
+                     sum_abundance ~ FOREST_SCALED + scale_neonics:NEONIC * AG_SCALED + (1|ROUTE_FAC) + (1|YEAR_FAC), family = poisson)
+summary(scale_glmer2_ten)
+coefplot2(scale_glmer2_ten, intercept = T)
+
+names(BBS_ln_scale4)
+levels(BBS_ln_scale4$CONSERVATION)
+levels(BBS_ln_scale4$BEHAVIOR)
+BBS_ln_scale4$BEHAVIOR2 <- 
+  ifelse(BBS_ln_scale4$BEHAVIOR == "ground_forager", 
+         "ground_forager", 
+         ifelse(BBS_ln_scale4$BEHAVIOR %in% c("aerial_diver","aerial_forager", "hovering", "soaring"), 
+                "aerial", "other"))
+
+
+scale_glmer3_ten <- glmer(data = BBS_ln_scale4,
+                     sum_abundance ~ FOREST_SCALED   + scale_neonics:NEONIC * AG_SCALED + (1|ROUTE_FAC) + (1|YEAR_FAC), family = poisson)
+summary(scale_glmer3_ten)
+coefplot2(scale_glmer3_ten)
+```
+
+now to see what happens for different groups::
+
+```{r}
+steepdeclinebirds <- read.csv("raw_data/commonbirds_steepdecline_traits.csv")
+steepdeclinebirds <- subset(steepdeclinebirds, ohio_presence > 0)
+
+unique(BBS_ln_scale4$COMMON_NAME) %in% (steepdeclinebirds$common_name)
+
+steepdeclinebirds <- steepdeclinebirds[steepdeclinebirds$common_name  %in%  sort(unique(BBS_ln_scale4$COMMON_NAME)), ]
+#####
+
+steepdecline_bbs2<- subset(BBS_ln_scale4, COMMON_NAME %in% steepdeclinebirds$common_name)
+names(steepdecline_bbs)
+steepdecline_bbs2 <- steepdecline_bbs %>%
+  group_by(YEAR, COMMON_NAME, NESTING, BEHAVIOR, DIET, DIET_VULN, DIET_INSECTS) %>%
+  summarise(mean_abund = mean(sum_abundance),
+            se_abund = sd(sum_abundance)/sqrt(length(sum_abundance)))
+
+ggplot(steepdecline_bbs2, aes(x = YEAR, y = mean_abund)) +
+  geom_line(aes(colour = COMMON_NAME)) +theme_bw() +
+  facet_wrap(~ COMMON_NAME, scales = "free")
+
+
+
+scale_glmer2_steep <- glmer(data = subset(BBS_ln_scale3, COMMON_NAME %in% c("Eastern Meadowlark", "Field Sparrow", "Common Grackle", "Chimney Swift", "Northern Bobwhite")),
+                     sum_abundance ~ FOREST_SCALED + scale_neonics:NEONIC * AG_SCALED + YEAR:AG_SCALED + YEAR:scale_neonics:NEONIC+ (1|ROUTE_FAC) + (1|YEAR_FAC) + (1|COMMON_NAME), family = poisson)
+summary(scale_glmer2_steep)
+coefplot2(scale_glmer2_steep)
+
+```
+
+
+```{r}
 scale_glmer <- glmer(data = BBS_ln_scale3,
                      sum_abundance ~ scale_scale_:NEONIC +
                        scale_scale_ + AG_SCALED + FOREST_SCALED +
@@ -219,7 +441,30 @@ BBS_ln_scale3 %>%
 
 BBS_ln_scale3$DIET2 <- factor(ifelse(BBS_ln_scale3$DIET == "seeds", "seedeater", ifelse(BBS_ln_scale3$DIET == "omnivore", "omnivorous", "eatsother")))
 
+# 
+# save(BBS_ln_scale3, file = "BBS_ln_scales.Rdata")
+# save(BBS_ln_scale2, file = "BBS_ln_scales2.Rdata")
+
 names(BBS_ln_scale3)
+````
+
+
+```{r}
+
+scale_glmA <- glm(data = BBS_ln_scale3,
+                     sum_abundance ~ factor(YEAR) * FOREST_SCALED * AG_SCALED, family = poisson)
+
+summary(scale_glmA)
+
+scale_glmerA <- glmer(data = BBS_ln_scale3,
+                     sum_abundance ~ factor(YEAR) * FOREST_SCALED * AG_SCALED +
+                       (1|ROUTE_FAC), family = poisson)
+
+summary(scale_glmerA)
+```
+
+
+````{r}
 scale_glmer2 <- glmer(data = BBS_ln_scale3,
                      sum_abundance ~ scale_scale_:NEONIC +
                        scale_scale_ + AG_SCALED +
