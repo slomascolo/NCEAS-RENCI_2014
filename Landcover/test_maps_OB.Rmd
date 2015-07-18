@@ -1,0 +1,146 @@
+---
+title: "County landuse change"
+author: "Olivia Burge"
+date: "1 July 2015"
+output: html_document
+---
+
+# Data read-in
+
+`LC_county_overtime.csv` has estimated landcover for each OH county and year.
+
+columns descriptions for these 3:
+"reclass" is Anderson Level I land cover: (0=nodata, 1=water, 2=developed, 3=barren, 4=forest, 5=grassland/shrub, 6=agriculture, 7=wetlands)
+"buffer" is the length of the radius in meters used around transects or sites
+"total_pix" is the number of Landsat 30x30m pixels in a grouping
+"km2" is derived by multiplying pixels by 0.009 to get square kilometers.
+"RTENO" is BBS unique ID for transects
+```{r}
+setwd("/Users/Liv/Documents/NCEAS_GIT/NCEAS-RENCI_2014/Landcover/")
+require(ggplot2); theme_set(theme_bw())
+require(gridExtra)
+require(tidyr)
+require(dplyr)
+require(maps)
+
+LC_county <- read.csv("OH_LC_time.csv")
+head(LC_county)
+geoids <- LC_county %>%
+  group_by(GEOID) %>%
+  select(GEOID, NAME) %>%
+  slice(1)
+tail(geoids)
+geoids$NAME <- tolower(geoids$NAME)
+
+map_data_ohio <- map_data("county", "ohio")
+head(map_data_ohio)
+head(geoids)
+base_map <- merge(geoids, map_data_ohio, by.x = "NAME", by.y = "subregion", all.y = FALSE)
+
+LC_county_overtime <- read.csv("LC_county_overtime.csv", row.names = 1)
+LC_county_overtime$landclass <- ifelse(LC_county_overtime$reclass == 1, "water",
+                                       ifelse(LC_county_overtime$reclass == 2, "developed",
+                                              ifelse(LC_county_overtime$reclass == 3, "barren",
+                                                     ifelse(LC_county_overtime$reclass==4, "forest",
+                                                            ifelse(LC_county_overtime$reclass == 5, "grass_shrub", ifelse(LC_county_overtime$reclass == 6, "agriculture", ifelse(LC_county_overtime$reclass == 7, "wetlands", "nodata")))))))
+head(LC_county_overtime)
+LC_county_overtime_wide <- LC_county_overtime %>% 
+  select(GEOID, YEAR, pix, landclass) %>% 
+  spread(landclass, pix) 
+names(LC_county_overtime_wide)
+LC_county_overtime_wide$total <- rowSums(LC_county_overtime_wide[3:9])
+
+geoids2 <- data.frame(LC_county_overtime %>% group_by(GEOID) %>% slice(1))
+
+
+map_data_LC <- merge(LC_county_overtime_wide,geoids)
+map_data_LC$NAME <- tolower(map_data_LC$NAME)
+
+
+```
+
+```{r}
+require(maps)
+
+map_data_merged <- merge(map_data_LC, map_data_ohio, by.x = "NAME", by.y = "subregion")
+names(map_data_merged)
+
+map_data_merged_summary_forest<- map_data_merged %>%
+  filter(YEAR %in% c(1992, 1997, 2002, 2012)) %>%
+  select(NAME, GEOID, YEAR, forest, lat, long, group, order) %>%
+  spread(YEAR, forest) %>%
+  mutate(change_9297 =  `1997` / `1992`,
+         change_9202 =  `2002` / `1992`,
+         change_9212 = `2012` / `1992`) %>%
+  select(NAME, GEOID, lat, long, group, order, change_9297,change_9202, change_9212) %>%
+  gather(key = year, value = change_from_92, change_9297:change_9212)
+map_data_merged_summary_agri<- map_data_merged %>%
+  filter(YEAR %in% c(1992, 1997, 2002, 2012)) %>%
+  select(NAME, GEOID, YEAR, agriculture, lat, long, group, order) %>%
+  spread(YEAR, agriculture) %>%
+  mutate(change_9297 =  `1997` / `1992`,
+         change_9202 =  `2002` / `1992`,
+         change_9212 = `2012` / `1992`) %>%
+  select(NAME, GEOID, lat, long, group, order, change_9297,change_9202, change_9212) %>%
+  gather(key = year, value = change_from_92, change_9297:change_9212)
+  
+  
+head(map_data_merged)
+
+forest_change <- ggplot(map_data_merged_summary_forest, aes(x = long, y = lat, group = NAME)) +
+  facet_wrap(~year) +
+  geom_polygon(aes(fill = change_from_92)) +
+  scale_fill_gradient2(low = "red", mid="grey", high = "forestgreen", midpoint = 1)+
+  coord_map()
+head(map_data_merged_summary_agri)
+agri_change <- ggplot(map_data_merged_summary_agri, aes(x = long, y = lat, group = NAME)) +
+  facet_wrap(~year) +
+  geom_polygon(aes(fill = change_from_92)) +
+  scale_fill_gradient2(low = "blue", mid = "grey", midpoint = 1, high = "orange")+
+  coord_map()
+
+agri_forest <- arrangeGrob(forest_change, agri_change, nrow = 2)
+agri_forest
+
+```
+
+```{r, echo=FALSE}
+pest_intensity <- read.csv("../Pesticides/estimated_pesticides_OHcounty_MOA.csv")
+
+pest_intensity2 <- pest_intensity %>% select(GEOID, YEAR, MOAuse, high_kg_km2ag) %>% ungroup() %>%
+  filter(YEAR%in% c(1992, 1997, 2002, 2012)) %>%
+  group_by(GEOID, YEAR, MOAuse)%>%
+  summarise(mean_application = mean(high_kg_km2ag))
+
+
+base_map_short <- base_map %>% select(GEOID, NAME, long, lat, group)
+head(base_map_short)
+head(pest_intensity2)
+pest_intensity3 <-   pest_intensity2 %>% ungroup() %>% filter (pest_intensity2$GEOID %in% base_map$GEOID & MOAuse == "her_K")%>%
+  select(GEOID, YEAR, MOAuse, mean_application) %>%
+                                left_join(., base_map_short)
+
+head(pest_intensity3)
+map_data_merged_summary_pest <- pest_intensity3 %>%
+    select(NAME, GEOID, YEAR, mean_application, lat, long, group) %>%
+  ungroup() %>%
+  filter(YEAR %in% c(1992, 1997, 2002, 2012)) %>%
+    group_by(GEOID, YEAR, long, lat) %>%
+  slice(1) %>%
+    ungroup() %>%
+  spread(YEAR, mean_application) %>%
+  mutate(change_9297 =  `1997` / `1992`,
+         change_9202 =  `2002` / `1992`,
+         change_9212 = `2012` / `1992`) %>%
+  select(NAME, GEOID, lat, long, group, order, change_9297,change_9202, change_9212) %>%
+  gather(key = year, value = change_from_92, change_9297:change_9212)
+
+head(base_map)
+county_mouse <- ggplot(base_map, aes(x = long, y = lat, group = GEOID)) +
+  geom_polygon(aes(mean_application))+
+  #facet_wrap(~YEAR) +
+  coord_map()
+county_mouse
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
