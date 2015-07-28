@@ -1,0 +1,26 @@
+model {
+for (i in 1:n){
+y[i] ~ dnorm (y.hat[i], tau.y)
+y.hat[i] <- a[geo[i],year[i]] + b[geo[i],year[i]]*x[i]
+}
+tau.y <- pow(sigma.y, -2)
+sigma.y ~ dunif(0, 1000)
+for (z in 1:Z){
+mu.a[z] ~ dnorm(my.a, tauy.a)
+mu.b[z] ~ dnorm(my.b, tauy.b)
+for(j in 1:J){
+a[j,z] ~ dnorm(mu.a[z], tau.a)
+b[j,z] ~ dnorm(mu.b[z], tau.b)
+}
+}
+my.a ~ dnorm (0, .0001)
+my.b ~ dnorm (0, .0001)
+s.a ~ dunif (0, 100)
+s.b ~ dunif (0, 100)
+sy.a ~ dunif (0, 100)
+sy.b ~ dunif (0, 100)
+tauy.a <- pow(sy.a, -2)
+tauy.b <- pow(sy.b, -2)
+tau.a <- pow(s.a, -2)
+tau.b <- pow(s.b, -2)
+}

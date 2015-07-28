@@ -14,9 +14,9 @@ This seemed to give reasonable extrapolations of landcover in each county over t
 
 I emailed Nancy Baker, who is a USGS scientist involved in the county-level pesticide estimates, after I noticed that Fipronil 
 use in OH ended abruptly in 2010. She says the 2008-2012 pesticide use is under review and should be finalized by the end of the year.
-
-```{r libraries}
 #I'll update with Olivia's fancy code to install missing packages later
+```{r libraries}
+
 library(rgdal)
 library(raster)
 library(parallel)

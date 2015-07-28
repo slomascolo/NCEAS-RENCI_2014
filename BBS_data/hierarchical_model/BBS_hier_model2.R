@@ -22,38 +22,45 @@ ohio_BBS_routes_countiesraw2 <- ohio_BBS_routes_countiesraw[!duplicated(ohio_BBS
 ohio_BBS_birds <- merge(ohio_BBS_steep, ohio_BBS_routes_countiesraw2)
 head(ohio_BBS_birds)
 ohio_BBS_birds$route_abundance <- rowSums(ohio_BBS_birds[grep("^Stop[0-9]+", names(ohio_BBS_birds))])
-head(ohio_BBS_birds) # the names thing above doesn't seem to be doing anything? I hope that's not an artefact from me!!
+head(ohio_BBS_birds) 
 
-birdsXdiet=aggregate(ohio_BBS_birds$route_abundance, by = list(ohio_BBS_birds$GEOID, ohio_BBS_birds$year, ohio_BBS_birds$diet), sum)
-names(birdsXdiet)= c("GEOID", "YEAR", "diet", "abundance")
+
+birdsXdiet=aggregate(ohio_BBS_birds$route_abundance, by = list(ohio_BBS_birds$RTENO, ohio_BBS_birds$year, ohio_BBS_birds$diet), sum)
+names(birdsXdiet)= c("RTENO", "YEAR", "diet", "abundance")
 head(birdsXdiet)
 
 plot(birdsXdiet$YEAR, birdsXdiet$abundance)
-#Geo points
-geo = read.csv("../OH.neonicotinoids.csv", header=TRUE)
-neonicXyear = aggregate (geo$density_high, by = list(geo$GEOID, geo$YEAR), sum)
-names(neonicXyear)=c("GEOID", "YEAR","density_high")
-plot(neonicXyear$YEAR, neonicXyear$density_high)
-birdsXgeo = merge (birdsXdiet, neonicXyear, by = c("GEOID", "YEAR"))
-birdsXgeo$func.group= ifelse(birdsXgeo$diet=="insects", "insectivore", "other")
-head(birdsXgeo)
-birdsXgeo1997 = birdsXgeo[-c(birdsXgeo$YEAR=="1996"),]
+
+#Adding pesticide info 
+pest <- read.csv("C:/Users/silvia/Documents/NCEAS-RENCI_2014/Pesticides/pest_buff_overtime.csv", na.string="NA")
+birds_pest <- merge(birdsXdiet, pest, by = c("RTENO", "YEAR"), na.rm=TRUE)
+birds_pest400 = birds_pest[birds_pest$buffer=="400",]
+birds_pest10000 = birds_pest[birds_pest$buffer=="10000",]
+
+#pestXyear = aggregate (birds_pest$high_kg_buff, by = list(birds_pest$RTENO, birds_pest$YEAR, birds_pest$buffer, birds_pest$COMPOUND), sum)
+#names(neonicXyear)=c("GEOID", "YEAR","density_high")
+plot(birds_pest400$YEAR, birds_pest400$high_kg_buff)
+#birdsXgeo = merge (birdsXdiet, neonicXyear, by = c("GEOID", "YEAR"))
+birds_pest$func.group= ifelse(birds_pest$diet=="insects", "insectivore", "other")
+head(birds_pest)
+
 
 #Plot of abundance related to neonics by diet
-ins = subset(birdsXgeo1997, birdsXgeo1997$diet =="insects")
-mam = subset(birdsXgeo1997, birdsXgeo1997$diet =="mammals")
-omn = subset(birdsXgeo1997, birdsXgeo1997$diet =="omnivore")
-pla = subset(birdsXgeo1997, birdsXgeo1997$diet =="plants")
-see = subset(birdsXgeo1997, birdsXgeo1997$diet =="seeds")
-others= subset(birdsXgeo1997, birdsXgeo1997$diet!="insects")
+ins400 = subset(birds_pest400, birds_pest400$diet =="insects") 
+mam400 = subset(birds_pest400, birds_pest400$diet =="mammals")
+omn400 = subset(birds_pest400, birds_pest400$diet =="omnivore")
+pla400 = subset(birds_pest400, birds_pest400$diet =="plants")
+see400 = subset(birds_pest400, birds_pest400$diet =="seeds")
+others400= subset(birds_pest400, birds_pest400$diet!="insects")
 
-y = log(ins$abundance + 1)
-n = length(ins$abundance)
-x = (ins$density_high-mean(ins$density_high))/sd(ins$density_high) #centered x, to see if it helps running the model
+y = log(ins400$abundance + 1)
+#y=ins400$abundance
+n = length(ins400$abundance)
+x = (ins400$high_kg_buff - mean(ins400$high_kg_buff, na.rm=T))/sd(ins400$high_kg_buff, na.rm=T) #centered x, to see if it helps running the model
 
-#coding GeoIDs
+#coding RTENO
 
-geoid = as.vector(ins$GEOID)
+geoid = as.vector(ins400$RTENO)
 uniq.name = unique(geoid)
 J = length(uniq.name)
 geo = rep(NA, J)
@@ -74,7 +81,7 @@ summary(lm.unpooled.0)
 lm.unpooled = lm(formula = y ~ x + factor(geo)-1)
 summary(lm.unpooled)
 
-#The model, varying intercept per GEOID
+#The model, varying intercept per RTENO
 library(R2WinBUGS)
 bird.data = list("n", "J", "y", "geo", "x")
 bird.inits <-function(){
@@ -86,7 +93,7 @@ bird.1 = bugs(bird.data, bird.inits, bird.parameters, bugs.directory="C:/Program
 plot(bird.1)
 print(bird.1)
 
-#The model, varying intercept and slope per GEOID using Wishart distribution
+#The model, varying intercept and slope per RTENO using Wishart distribution
 W <- diag (2)
 birdW.data <- list("n", "J", "y", "geo", "x", "W")
 birdW.inits <- function(){
@@ -95,12 +102,12 @@ birdW.inits <- function(){
         xi.a=runif(1), xi.b=runif(1))}
 birdW.parameters <- c("a", "b", "mu.a", "mu.b", "sigma.y", "sigma.a", "sigma.b", "rho")
 birdW <- bugs (birdW.data, birdW.inits, birdW.parameters,  bugs.directory="C:/Program Files (x86)/WinBUGS14",
-               "C:/Users/silvia/Documents/NCEAS-RENCI_2014/BBS_data/hierarchical_model/wishart1.bug", n.chains=3, n.iter=1000000, debug=TRUE)
+               "C:/Users/silvia/Documents/NCEAS-RENCI_2014/BBS_data/hierarchical_model/wishart1.bug", n.chains=3, n.iter=1000, debug=TRUE)
 
 plot(birdW)
 print(birdW)
 
-
+##########################Models down to here########################
 
 #Summarizing classical and multilevel inferences graphically
 
