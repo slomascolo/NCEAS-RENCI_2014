@@ -1,70 +1,145 @@
+Target journal(s): Ecological Applications or Ecology & Evolution could be a good open access option...
+
 ---
 title: "Draft outline for birds & butterflies proof-of-concept paper"
-author: " OB, KG, SL, TW - suggest alpha order by last name...happy to update. Could switch for next paper with TW first on a write up w butterfly data"
-date: "March 18, 2015"
+author: " OB,  SL, TW, KG – folks with more modeling time investment should talk about who’d like to be first on this. I can lead writing and be the last author…
+date: "April 28, 2015"
 output: html_document
 ---
-
-This is an R Markdown document! 
-
+ 
+This is an R Markdown document!
+ 
 ### **Introduction**
-Large-scale, industrial agriculture is recognized as a main driver of biodiversity decline worldwide (Butler et al. 2007, Donald et al. 2001). In the United States, industrial farming has become widespread in the Midwest and other regions, which has resulted in habitat destruction (State of the Birds 2014) as well as degradation or contamination of critical resources. The rise of the Corn Belt (including Illinois, Indiana, Iowa, Missouri, and Ohio) as an agricultural region in the Midwest (Medley et al. 1995), increasing industrialized corn production to support expanding ethanol production (Wallander et al. 2011), and extensive grain production for use in livestock feed (Fernandez-Cornejo et al. 2014) have drawn considerable attention to the outcomes for biodiversity.  In particular, there is growing interest in the roles that agricultural pesticides play in decline of species of conservation concern (Hallmann et al 2014; can add US citation).
-
-Some calculations suggest that less than 0.1% of pesticides applied to crops reach target pests and the excess moves through throughout agricultural and adjacent ecosystems, contaminating soil, water, and biota (Pimentel & Levitan 1986). Pesticide application rates have increased markedly in recent decades (Pimentel & Levitan 1986): an estimated 3-fold increase in total U.S. application across twenty-one major crops between 1960—1980, before leveling off in the early 21st century (Fernandez-Cornejo et al. 2014). Insecticides account for a diminishing amount of the overall total pesticide applications in U.S. agriculture (including herbicides, fungicides, soil fumigants), accounting for 6% in 2008, compared to 58% of total applications in 1960 (Fernandez-Cornejo et al. 2014). However, newer insecticides applied at low rates, including synthetic pyrethroids (e.g., permethin, cypermethrin) and neonicotinoids (e.g., imidicloprid, clothianidin, thiamethoxam), have become widely used (Fernandez-Cornejo et al. 2014). Neonicotinoid use may be underestimated, as these chemicals are often applied as seed treatments, which are not generally captured by pesticide use surveys (Fernandez-Cornejo et al. 2014). Nearly all conventional corn seed and approximately half of the soybeans in the U.S. are treated with neonicotinoids (Stoksad 2013, Stevens & Jenkins 2014) as are 90% of canola seeds (Sokora et al. 2008, Stevens & Jenkins 2014). 
-
-Their active pathway and systematic nature have made neonicitiniods a favored agrichemical worldwide (Pollack 2011); imidacloprid is the most widely used insecticide in the world in recent decades (Yamamoto 1999).
-Despite their widespread role in U.S. industrial agriculture, relationships among neonicitinoid use and outcomes for species of conservation concern are not well understood. Some concerns have been raised about direct effects of neonicotinoids on non-target vertebrate species (Goulson 2013). In general, these pesticides expected to be less harmful to mammals and birds than invertebrates, as neonicotinoids work by by blocking nicotinic acetylcholine receptors (Matsuda et al. 2001) and bind with considerably less affinity to receptors in the central nervous system of vertebrates (Tomizawa & Casida 2005) and more affinity in invertebrates (Matsuda et al. 2001). 
-Pesticides in this class are systemic, present throughout treated plants, as they are distributed through vascular systems(as water moves through plant tissues. Thus, treating plants, or coating (seeds, with neonicotinoids can render roots, leaves, stems, flowers, nectar, pollen, and guttation fluid—toxic to insects (Stevens & Jenkins 2014). 
-However, recent field and laboratory studies show that neonicotinoid insecticides can have deleterious effects on non-target invertebrate species (can add some cites from Hallmann paper: Gill et al. 2012 bees, Henry et al. 2012 honey bees, Whitehorn et al. 2012 bumblebees, VanDijk et al. 2013 macro-inverts in surface waters; Easton et al. 2013 pollinating flies & beetles, Roessink et al. 2013 mayfly nymphs). Invertebrates comprise a significant part of the diet of insectivorous bird species throughout the year and others during the breeding season (Sibley 2009 “Guide to bird life and behavior”).   
-
-Brainstorms: 
-
-Imidacloprid was registered and approved for use in 1994 by the U.S. Environmental Protection Agency (Index of Cleared Science Reviews for Imidacloprid (Pc Code 129099) U.S. EPA.)
-
-Investigate Years of Agricultural Census: 
-1992
-1997
-2002
-2007
-2012
-
-http://www.agcensus.usda.gov/Publications/ 
-
-### **Research question and study area** 
+Large-scale, industrial agriculture is recognized as a main driver of biodiversity decline worldwide (Butler et al. 2007, Donald et al. 2001). In the United States, industrial farming has become widespread in the Midwest and other regions, which has resulted in habitat destruction (State of the Birds 2014) as well as degradation or contamination of critical resources. Several main factors have drawn considerable attention to the influence of industrial agriculture on biodiversity decline including, the rise of the Corn Belt (Ohio, Illinois, Indiana, Iowa, Missouri) as an agricultural region (Medley et al. 1995), increasing industrialized corn production to support expanding ethanol production (Wallander et al. 2011), and extensive grain production for use in livestock feed (Fernandez-Cornejo et al. 2014). In particular, there is growing interest in the roles that widely used agricultural pesticides play in decline of species of conservation concern (Stevens & Jenkins 2013 “Heavy Costs”, Goulson 2013 “Overvie of Environmental Risks” Minneau & Palmer 2013 “Impact of Nation’s Most Widely Used Insecticides on Birds)
+ 
+Pesticide application rates have increased markedly in recent decades (Pimentel & Levitan 1986) with an estimated 3-fold increase in total U.S. application across twenty-one major commodity crops between 1960—1980, before leveling off in the early 21st century (Fernandez-Cornejo et al. 2014). While insecticides account for a diminishing amount of the overall total pesticide applications—including herbicides, fungicides, soil fumigants—in U.S. agriculture, (Fernandez-Cornejo et al. 2014), there is growing concern about the cascading effects of newer insecticides that are applied at low rates and those likely to be underrepresented in pesticide use estimates.
+ 
+Neonicotinoids (e.g., imidicloprid, clothianidin, thiamethoxam) are a class of insecticides that is widely used in used in industrial crops and is particularly likely to be underestimated as these chemicals are often applied as seed treatments, which are not generally captured by pesticide use surveys (Fernandez-Cornejo et al. 2014). Nearly all conventional corn seed and approximately half of the soybeans in the U.S. are treated with neonicotinoids (Stoksad 2013, Stevens & Jenkins 2014) as are 90% of canola seeds (Sokora et al. 2008, Stevens & Jenkins 2014).
+ 
+Their active pathway and systematic nature have made neonicitiniods a preferred class of agrichemicals (Pollack 2011); Imidacloprid has been estimated as the most widely used insecticide in the world in recent decades (Yamamoto 1999). Neonicitinoids are intended for application as a seed treatment or “dressing”, which is designed to be dissolved around the seed after planting, and then absorbed by the growing plant and distributed through the vasucular system as water moves through the plant, rendering plant tissues, nectar, and pollen toxic to insects (Goulson 2014, Stevens & Jenkins 2014).
+Despite their widespread role in U.S. industrial agriculture, relationships among neonicitinoid use and outcomes for non-target species remain poorly understood (Goulson 2013). Recent analyses has found that only about 5% of the active ingredient is taken up by the crop (Sur & Stork 2003 in Goulson 2014); a small amount, <1%, is lost as chemical-laden dust, which may land on non-target crops or be encountered by flying insects (Tapparo et al. 2012). The majority of neonicitinoids, 80-98%, enter soil and water and due to their long residence time— the half-life can exceeding 1,000 days in some soil types—neonicitinoids can accumulate over time (Goulson 2014).
+In general, their direct effects on vertebrates, including mammals and birds, are expected to be far less harmful than invertebrates because neonicotinoids work by blocking nicotinic acetylcholine receptors and bind with considerably more affinity to receptors in the central nervous system of invertebrates (Matsuda et al. 2001) and less affinity in the systems of vertebrates (Tomizawa & Casida 2005). However, recent field and laboratory studies show that neonicotinoid insecticides can have deleterious effects on non-target invertebrate species (can add some cites from Hallmann paper: Gill et al. 2012 bees, Henry et al. 2012 honey bees, Whitehorn et al. 2012 bumblebees, VanDijk et al. 2013 macro-inverts in surface waters; Easton et al. 2013 pollinating flies & beetles, Roessink et al. 2013 mayfly nymphs).
+Neonicitinoids can have unintended effects on vertebrates by affecting lower trophic levels. For example, neonics can move from soils into surface waters, where they are likely to affect aquatic insects (Van Dijk et al 2013), which are key food resources for birds and fish. Analysis of long-term data on bird populations in the Netherlands revealed that declines in insect-eating bird populations were accurately predicted by levels of imidaclporid concentrations in surface waters following the chemical’s introduction in the mid-1990s (Hallmann 2014).
+ 
+Add transition paragraph here
+·       
+ 
+### **Research question and study area**
   We investigated two hypotheses: 1)  agricultural industrialization is positively correlated with increased use of neonicotinoid pesticides and 2)  three of the most widely used neonicotinoids in U.S. corn and soy-- clothiadidin, imidacloprid, and thiamethoxam-- (Hladik et al. 2014, Table 1) had a negative impact on insectivorous bird populations. For this proof-of-concept paper, we targeted the U.S. State of Ohio, as it illustrates nationwide trends in industrialization of agriculture and has comprehensive data available for pesticide applications (available from the U.S. and Ohio Departments of Agriculture, data 19XX- 201X) and bird populations (Breeding Bird Survey, data 19XX- 201X). Also, Tyson has butterfly data here, so we’re headed for phase 2 with invertebrates. Boom!   
 
-Key discussion points: 
-Imidacloprid, thiamethoxam, and clothianidin are applied to seeds at seed treating facilities prior to distribution to growers for planting. The Biological and Economic Analysis Division (BEAD) of the U.S. EPA concluded “that these seed treatments provide negligible overall benefits to soybean production in most situations” (EPA 2014). 
+
+
+### **Methods**
+
+Key considerations: description of approach tease apart land use intensity and pesticide application? Multilevel models? 
+
+
+Key datasets: 
+BBS: Kelly write up paragraph
+OH butterflies: Tyson
+LULC data from USGS NLCD: Tyson
+Pesticides from USGS NAWQA: Tyson
+
+Reserve datasets: 
+Climate data for OH (TW has) 
+
+Model:
+We analysed trends in bird abundance with generalised linear mixed effects models in lme4 [cite] in R version 3.1.3 [cite].  Numeric predictor variables were scaled and centred. Land use data was obtain from [Tyson] and [Tyson] in QGIS before being converted to buffers around routes. Pesticide data was obtained from [Tyson] and prepared in the same manner. Count data for each species were derived from the breeding bird survey dataset for the years 1997 - 2011 for all the routes in Ohio and were square-root transformed. We modelled count data as a function of agriculture land use; neonicotinoids as they interacted with agricultural land use; forest land area; the interaction between neonicotinoids and bird vulnerability (diet type); and the interaction between diet, neonicotinoid type and bird vulnerability. We used random intercepts for each route and year to account for temporal and spatial autocorrelation. 
+
+Tyson’s modeling ideas:
+The above paragraph looks good to me, although interactions are always tough for me to follow. Thoughts about environmental variables:
+-Buffers! I calculated land use and pesticide use at different spatial scales. It’s important to filter the data by the buffer radius before analysis. I also think you need to scale variables only within a particular buffer (otherwise I’d expect all pesticide scores in 10km buffers to be scaled to be much larger than those from 500m buffers, which would minimize the variation between the 10km buffers that we’re interested in).
+-It’d be easy to separate land use into two PCA scores (1st loading is primarily forest cover, 2nd loading is mostly urban vs. farm).
+-Maybe we could step back from neonics as a first run at the model, separating into insecticide/herbicide/other total kg of use. I’d expect insecticide use (neonic or other) to interact with bird diet type. Then, if we see interesting results try to dive into separating out specific compounds. (Did you do this Liv in your latest RMD with glmer model visualizations?)
+-As far as temporal components. I’m not sure including a trend over time makes sense when the pesticide use also trends over time. A numeric year parameter might soak up some of the temporal signal of pesticide use (if it’s clearly increasing over time). However, I would advocate for year as a factor included in the random effects (I was thinking about this mostly for butterflies) because there is a lot of interannual climate differences (that we don’t want to get into) that would likely affect most populations of a species similarly across the state. Year as a random effect could account for a lot of this variation.
+-Do you think a moving average approach to pesticide use would make sense? We don’t know whether a particular year’s pesticide application happens before or after the bird/butterfly counts. This makes it hard to argue for a direct causal effect.
+-Spatial random effect, route is probably fine. However, this might account for a lot of the land-use signal we’re looking for. Maybe lat/long distance would work, too (although land-use, especially agriculture, is spatially correlated). So complicated!
+-If we keep the model simple, I think Bayesian approaches like Silvia’s could also function well. I’d move them over to JAGS at some point (I could try and translate) just because it can be used on Macs too.
+-Right now, are all species modeled at the same time in the GLMM? Another approach would be to run the model for each species (without traits), then take the outputted model parameters and do a secondary analysis on species traits (or phylogenetics if you want to get extra fancy). This tests for the influence of traits on the species’ responses. A co-author did this in a butterfly phenology paper. This approach is super-popular right now, which I have mixed feelings about. It’s easy and people seem to gets results, but I personally care more about what particular species are doing (from conservation standpoint) rather than what the typical response is for an “insectivorous, urban obligate, passerine, brown, ground-nester”.
+-I’d still like to talk more about what a multivariate approach would look like and whether it could tell us about the responses of different species to the whole swath of chemicals we throw into the environment (while controlling for land-use and time).
+-No matter what we decide, I think sometime like Liv’s GLMM approach would work with butterflies as well, which would make a sweet paper. I like the idea of using the same stats for both taxa. Although species traits for butterflies might be annoying to obtain for non-naturalist me (as far as traits relevant to vulnerability to farm pesticide use). Host plant, habitat association, migratory behavior, dispersal ability are ones that come to mind. 
+
+
+Needed: change in industrialization of agriculture reference: KG to ask Natalia
+
+This is where each of us is doing our own thing, maybe it’s time to unify! 
 
 
 
-References
-Baker, N.T., and Stone, W.W., 2015, Estimated annual agricultural pesticide use for counties of the conterminous United States, 2008–12: U.S. Geological Survey Data Series 907, 9 p., http://dx.doi.org/10.3133/ds907 Note that for this file these are application rates, which are measured as follows: “Annual county-level pesticide use was estimated for 423 herbicides, insecticides, and fungicides applied to agricultural crops grown in the conterminous United States during 2008–12. For all States except California, pesticide-use data were compiled from proprietary surveys of farm operations located within U.S. Department of Agriculture Crop Reporting Districts (CRDs). Surveyed pesticide-use data were used in conjunction with county annual harvested-crop acres reported by the U.S. Department of Agriculture 2007 and 2012 Censuses of Agriculture and the 2008–11 County Agricultural Production Survey to calculate use rates per harvested-crop acre, or an “estimated pesticide use” (EPest) rate, for each crop by year. County-use estimates were then calculated by multiplying EPest rates by harvested-crop acres for each pesticide crop combination…”
-EPA [Environmental Protection Agency]. 2014. Memorandum “Benefits of Neonicotinoid Seed Treatments to Soybean Production” From Myers, C and E. Hill, through Jones, A. and T. Kiely, to Anderson, N. peer review date October 13, 2014. United States EPA. Washington, D.C.
-Hallmann, C. et al. 2014. Declines in insectivorous birds are associated with high neonicotinoid concentrations. Nature: 
-Soroka, JJ, LF Grenkow, and RB Irvine. 2008. Impact of decreasing ratios of insecticide-treated seed on flea beetle feeding levels and canola seed yields. Journal of Economic Entomology, 101(6): 1811-1820.
-Stevens, S. and P. Jenkins. 2014. Heavy Costs: Weighing the Value of neonicotinoid insecticides in agriculture. Center for Food Safety. Washington, D.C.
-Stokstad, E. 2013. How big a role should neonicotinoids play in food security? Science, 340: 675.
-Yamamoto, Izuru (1999). "Nicotine to Nicotinoids: 1962 to 1997". In Yamamoto, Izuru; Casida, John. Nicotinoid Insecticides and the Nicotinic Acetylcholine Receptor. Tokyo: Springer-Verlag. pp. 3–27.
-
-Notes & useful links: 
-Super useful link on ag pesticides: https://water.usgs.gov/nawqa/pnsp/usage/maps/about.php 
-The companion county-level pesticide use dataset Estimated Annual Agricultural Pesticide Use for Counties of the Conterminous United States, 1992–2009 (Stone, 2013) and Estimated Annual Agricultural Pesticide Use for Counties of the Conterminous United States, 2008-12 (Baker and Stone, 2015) was used to create the maps. County-level estimates of total agricultural use for each pesticide were allocated to agricultural land within each county, as defined in the National Land Cover Database 2011 (Jin and others, 2013). National Land Cover Database 2011 (NLCD11) Planted/Cultivated categories 81 (Pasture/Hay) and 82 (Cultivated Crops) were combined to simply differentiate agricultural land from non-agricultural land. The NLCD11 was then generalized to one square kilometer cell size and the percentage of agricultural land for each cell was calculated. The proportion of county agricultural land included in each one square kilometer cell was multiplied by the total county use for each pesticide to calculate the proportional amount of use allocated to each cell. To display pesticide use on the annual maps for each compound, all of the cell values nationwide for the entire period were divided into quartiles and a color-coded map was generated for each year; the quartile classes were converted to pounds per square mile. 
-
-http://www.epa.gov/caddis/ssr_herb_int.html Herbicide introduction tab from US EPA
-This notes that glyphosphate and atrazine are the most commonly used herbicides – note this draws on 2001 data. 
 
 
 
 
-```{r}
+Notes on key articles & follow-up research on neonics : 
+The main action of neonics occurs through binding nicotinic acetylcholine receptors in the central nervous system of invertebrates (Mastuda 2001, from the Hallman article); neonics bind  with much less affinity to  receptors in the central nervous system of vertebrates (Tomizawa & Casida 2005, from the Hallman article). And this action/attribute has made neonics highly favored agrochemicals in  the past two decades worldwide (Pollak, P. 2011 Fine Chemicals  and the Business Way). In the United States, 
 
-```
+  	 	 	 		
+		 	 	 		
+			
+				
+					
+USGS led study 2014: The use of organophosphate (e.g., chlorpyrifos, methyl parathion, phorate, terbufos) and carbamate (e.g., carbaryl, carbofuran) insecticides on corn and soybeans has declined while use of neonicotinoid insecticides across the U.S., particularly in the Midwestern U.S., has dramatically increased over the last decade (USGS, 2014; Fig. SI-1). The most commonly-used neonicotinoids on corn and soybeans include clothianidin, imidacloprid, and thiamethoxam (Table 1). Imidacloprid also has a variety of other uses including lawn and garden and topical flea medicines (Jeschke et al., 2011). In addition to changes in active ingredients, there has also been a corresponding change in insecticide management techniques. This is primarily reflected in a switch from broadcast applications for insect control to the use of pesticide-treated seeds, coinciding with a push in precision agriculture (Elbert et al., 2008). The use of treated seeds in the U.S. has tripled in the last decade (Haire, 2014) to the point where nearly all corn and soybeans planted in the U.S. have a seed treatment (i.e., coating), many of which include neonicotinoids. This rapidly growing neonicotinoid use is clearly shown for both Iowa (Fig. 1) and the Midwestern U.S. (Fig. SI-1). 
+				
 
-Add graphics later on...like this lovely example from the rmd folks:
+Baker, N.T., and Stone, W.W., 2015, Estimated annual agricultural pesticide use for counties of the conterminous United States, 2008-12: U.S. Geological Survey Data Series 907, 9 p.  DOI:10.3133/ds907  Available Online
+Baker, N.T., and Stone,W.W., 2014, Annual agricultural pesticide use for midwest stream-quality assessment, 2012-13: U.S. Geological Survey Data Series 863, pamphlet, 4 tables, 17 p.   Available Online
+			
+		
+			
+				
+					
+US EPA (Oct 2014) Memo entitled “Benefits of Neonicotinoid Seed Treatments to Soybean Production” found that “Published data indicate that in most cases there is no difference in soybean yield when soybean seed was treated with neonicotinoids versus not receiving any insect control treatment. Furthermore, neonicotinoid seed treatments as currently applied are only bioactive in soybean foliage for a period within the first 3-4 weeks of planting, which does not overlap with typical periods of activity for some target pests of concern...much of the existing usage on soybeans is prophylactic in nature. Multiple foliar insecticides are available in instances where pest pressure necessitates a pest management tactic and such foliar insecticides have been found to be as efficacious as neonicotinoid seed treatments for target pests. These alternatives to neonicotinoid seed treatments include foliar sprays of organo-phosphates (acephate, chlorpyrifos), synthetic pyrethroids (bifenthrin, cyfluthrin, gamma-cyhalothrin, lamba-cyhalothrin, deltamethrin, esfenvalerate, zeta- cypermethrin, permethrin), neonicotinoids (imidacloprid, thiamethoxam, clothianidin), and the recently registered sulfoxaflor, which works in a similar way to neonicotinoids. In most cases, these alternatives are comparable in cost to one another and to neonicotinoid seed treatments. The cost of application was considered in this comparison, although because these alternatives can be tank-mixed with other chemicals that are typically applied to soybeans, additional passes over a field would not be necessary. In comparison to the next best alternative pest control measures, neonicotinoid seed treatments likely provide $0 in benefits to growers and at most $6 per acre in benefits(i.e., a 0% - 1.7% difference in net operating revenue). Some neonicotinoid seed treatment usage could provide an insurance benefit against sporadic and unpredictable pests, particularly in the southern United States. However, EPA’s Biological and Economic Analysis Division (BEAD) did not find information to support the real-world significance of this benefit, and overall evidence indicates that any such potential benefit is not likely to be large or widespread in the United States. 
+				
 
-```{r, echo=FALSE}
-plot(cars)
-```
+Bayer Bee-care website (aka Crazy town): could be used to illustrate how strong the agrochemical lobby is and indicate strength of promotion even in the face of major questions and studies from the science community. 
 
 
+
+From Wiki: In 1985, Bayer patented imidacloprid as the first commercial neonicotinoid.[3]
+During the late 1990s, primarily imidacloprid became widely used. Beginning in the early 2000s, two other neonicotinoids, clothianidin and thiamethoxam entered the market[where?]. As of 2013, virtually all corn planted in the United States was treated with one of these two insecticides and various fungicides.[8] As of 2014, about a third of US soybean acreage was planted with neonicotinoid treated seeds, usually imidacloprid or thiamethoxam.
+
+
+
+
+OLDER STUFF: 
+Intro: 
+Importance of agriculture and productive landscapes to support both common spp and species of conservation concern. US Fish & Wildlife service estimates that approximately 70% of habitat for US fish and wildlife is on privately owned lands, much of which is agriculture. Thus management of agricultural areas has potentially far-reaching impacts for conservation policy and practice.
+
+Some compelling evidence that declines in insectivorous birds are associated with high neonic concentrations (Hallmann paper from the Netherlands). 
+
+Yet little is known about responses differ across bird functional groups (e.g., feeding guilds) to increasing insecticide concentrations, or whether common species’ responses differ from species that have already been in steep decline http://www.stateofthebirds.org/2014%20SotB_FINAL_low-res.pdf 
+
+Consider Link to inverts and pesticide applications http://www.centerforfoodsafety.org/files/cfs-monarch-report_2-4-15_design_05341.pdf
+ (note this is report is on glyphosate to the decline of Monarch butterflies; also some evidence from Russia and bees in the US) 
+
+ 
+
+
+Research questions and approach: 
+
+Are there significant declines in insectivorous birds associated with increasing levels of neonic concentrations? Are there detectable differences in responses of insectivorous birds relative to those in other functional groups? Do common species’ responses differ from species in steep decline? 
+
+
+Are increasing insecticide concentrations associated with declines in butterflies (a charismatic and relatively well studied group of invertebrates)? 
+
+
+
+(Notes below From Ben Bolker Rmd file)
+Patterns: We are investigating the influence of land use type, measured across a gradient of increasing intensity, on bird diversity and butterfly 
+Patterns Approach: We will map land use change over the past 10 years to evaluate changes in patch size, arrangement, and proportion of total area dedicated to natural areas, agriculture, suburban, and urban land (increasing listed in increasing order) and associated correlations with bird diversity (an easily observable indicator of vertebrate diversity, gathered through citizen science data). This analysis will be done at the county scale.
+Process: How does land use intensification—measured as crop yield & pesticide application rates—influence bird species richness and composition in different feeding guilds (functional groups)?
+Process Approach: We will map USDA agricultural land use data to evaluate changes in crop groups (e.g., orchards, major grains, vegetables, pasture, etc.), considering both crop production, and pesticide application rate as indicators of intensity. This analysis will be done at the county scale.
+
+
+
+
+More papers: 
+Effects of non-cropped landscape diversity on spatial dynamics of farmland birds in intensive farming systems
+F Chiron,
+
+Pesticide doses, landscape structure and their relative effects on farmland birds
+
+
+Discussion Points:
+
+Conclusions:

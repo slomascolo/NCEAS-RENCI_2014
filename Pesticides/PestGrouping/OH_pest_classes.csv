@@ -1,0 +1,364 @@
+COMPOUND,ChemClassPAN,UseTypePAN,MOA,MOA_source,AlanWoodChemClass
+SPINETORAM,Spinosyn,Insecticide,5,IRAC,Macrocyclic Lactone
+ABAMECTIN,"Botanical , Macrocyclic Lactone",Insecticide,6,IRAC,Macrocyclic Lactone
+EMAMECTIN,Macrocyclic Lactone,Insecticide,6,IRAC,Macrocyclic Lactone
+CHLORFENAPYR,Pyrazole,Insecticide,13,IRAC,Pyrrole
+DIFLUBENZURON,Benzoylurea,"Insect Growth Regulator, Insecticide",15,IRAC,Insect Growth Regulator
+CYROMAZINE,Triazine,"Insect Growth Regulator, Insecticide",17,IRAC,Insect Growth Regulator
+METHOXYFENOZIDE,Diacylhydrazine,Insecticide,18,IRAC,Insect Growth Regulator
+TEBUFENOZIDE,Diacylhydrazine,Insecticide,18,IRAC,Insect Growth Regulator
+AMITRAZ,Formamidine,Insecticide,19,IRAC,Formamidine
+SPIRODICLOFEN,Keto-enol,Insecticide,23,IRAC,Tetronic Acid
+SPIROTETRAMAT,Keto-enol,Insecticide,23,IRAC,Tetramic Acid
+CHLORANTRANILIPROLE,Anthranilic diamide,Insecticide,28,IRAC,Diamide
+FLUBENDIAMIDE,Anthranilic diamide,Insecticide,28,IRAC,Diamide
+CLOFENTEZINE,Tetrazine,Insecticide,10A,IRAC,Tetrazine
+ETOXAZOLE,Unclassified,Insecticide,10B,IRAC,Unclassified
+BACILLUS THURINGIENSIS,Microbial,Insecticide,11A,IRAC,Unclassified
+FENBUTATIN OXIDE,"Organotin, Heavy metal",Insecticide,12B,IRAC,Organotin
+PROPARGITE,Unclassified,Insecticide,12C,IRAC,Sulfite Ester
+BENDIOCARB,N-Methyl Carbamate,Insecticide,1A,IRAC,Carbamate
+FORMETANATE,N-Methyl Carbamate,Insecticide,1A,IRAC,Formamidine
+PROPOXUR,N-Methyl Carbamate,Insecticide,1A,IRAC,Carbamate
+TRIAZAMATE,Unknown,Insecticide,1A,IRAC,Unclassified
+METHOMYL,N-Methyl Carbamate,"Insecticide, Breakdown product",1A,IRAC,Carbamate
+TRIMETHACARB,N-Methyl Carbamate,"Insecticide, Molluscicide, Dog and Cat Repellent",1A,IRAC,Carbamate
+ALDICARB,N-Methyl Carbamate,"Insecticide, Nematicide",1A,IRAC,Carbamate
+CARBOFURAN,N-Methyl Carbamate,"Insecticide, Nematicide",1A,IRAC,Carbamate
+OXAMYL,N-Methyl Carbamate,"Insecticide, Nematicide",1A,IRAC,Carbamate
+CARBARYL,N-Methyl Carbamate,"Insecticide, Nematicide, Plant Growth Regulator",1A,IRAC,Carbamate
+THIODICARB,N-Methyl Carbamate,"Molluscicide, Insecticide",1A,IRAC,Carbamate
+ACEPHATE,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+AZINPHOS-METHYL,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+CHLORETHOXYFOS,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+DIAZINON,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+DICROTOPHOS,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+DIMETHOATE,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+MALATHION,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+METHIDATHION,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+MEVINPHOS,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+NALED,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+OXYDEMETON-METHYL,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+PARATHION,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+PHOSMET,Organophosphorus,Insecticide,1B,IRAC,Phthalimide
+PHOSPHAMIDON,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+TEBUPIRIMPHOS,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+TRICHLORFON,Organophosphorus,Insecticide,1B,IRAC,Organophosphorus
+METHAMIDOPHOS,Organophosphorus,"Insecticide, Breakdown product",1B,IRAC,Organophosphorus
+CHLORPYRIFOS,Organophosphorus,"Insecticide, Nematicide",1B,IRAC,Organophosphorus
+DEMETON,Organophosphorus,"Insecticide, Nematicide",1B,IRAC,Organophosphorus
+DISULFOTON,Organophosphorus,"Insecticide, Nematicide",1B,IRAC,Organophosphorus
+ETHOPROPHOS,Organophosphorus,"Insecticide, Nematicide",1B,IRAC,Organophosphorus
+FENAMIPHOS,Organophosphorus,"Insecticide, Nematicide",1B,IRAC,Organophosphorus
+METHYL PARATHION,Organophosphorus,"Insecticide, Nematicide",1B,IRAC,Organophosphorus
+PHORATE,Organophosphorus,"Insecticide, Nematicide",1B,IRAC,Organophosphorus
+TERBUFOS,Organophosphorus,"Insecticide, Nematicide",1B,IRAC,Organophosphorus
+HYDRAMETHYLNON,Unclassified,Insecticide,20A,IRAC,Unclassified
+ACEQUINOCYL,Unclassified,"Insecticide, acaricide",20B,IRAC,Unclassified
+FENPYROXIMATE,Pyrazole,Insecticide,21A,IRAC,Pyrazole
+PYRIDABEN,Unclassified,Insecticide,21A,IRAC,Unclassified
+ROTENONE,Botanical,Insecticide,21B,IRAC,Botanical
+INDOXACARB,Unclassified,Insecticide,22A,IRAC,Oxadiazine
+ENDOSULFAN,Organochlorine,Insecticide,2A,IRAC,Organochlorine
+FIPRONIL,Pyrazole,Insecticide,2B,IRAC,Pyrazole
+BIFENTHRIN,Pyrethroid,Insecticide,3A,IRAC,Pyrethroid
+CYFLUTHRIN,Pyrethroid,Insecticide,3A,IRAC,Pyrethroid
+CYHALOTHRIN-GAMMA,Pyrethroid,Insecticide,3A,IRAC,Pyrethroid
+CYHALOTHRIN-LAMBDA,Pyrethroid,Insecticide,3A,IRAC,Pyrethroid
+CYPERMETHRIN,Pyrethroid,Insecticide,3A,IRAC,Pyrethroid
+DELTAMETHRIN,Pyrethroid,Insecticide,3A,IRAC,Pyrethroid
+ESFENVALERATE,Pyrethroid,Insecticide,3A,IRAC,Pyrethroid
+FENPROPATHRIN,Pyrethroid,Insecticide,3A,IRAC,Pyrethroid
+FENVALERATE,Pyrethroid,Insecticide,3A,IRAC,Pyrethroid
+PERMETHRIN,Pyrethroid,Insecticide,3A,IRAC,Pyrethroid
+PYRETHRINS,"Botanical, Pyrethroid",Insecticide,3A,IRAC,Botanical
+TEFLUTHRIN,Pyrethroid,Insecticide,3A,IRAC,Pyrethroid
+ZETA-CYPERMETHRIN,Pyrethroid,Insecticide,3A,IRAC,Pyrethroid
+METHOXYCHLOR,Organochlorine,Insecticide,3B,IRAC,Organochlorine
+ACETAMIPRID,Neonicotinoid,Insecticide,4A,IRAC,Neonicotinoid
+CLOTHIANIDIN,Neonicotinoid,Insecticide,4A,IRAC,Neonicotinoid
+DINOTEFURAN,"Guanidine , Neonicotinoid",Insecticide,4A,IRAC,Neonicotinoid
+IMIDACLOPRID,Neonicotinoid,Insecticide,4A,IRAC,Neonicotinoid
+THIACLOPRID,Neonicotinoid,Insecticide,4A,IRAC,Neonicotinoid
+THIAMETHOXAM,Neonicotinoid,Insecticide,4A,IRAC,Neonicotinoid
+SODIUM METABORATE,Inorganic,Insecticide,8D,IRAC,Inorganic
+PYMETROZINE,Triazine,Insecticide,9B,IRAC,Antifeedants
+FLONICAMID,Unclassified,Insecticide,9C,IRAC,Unclassified
+CLETHODIM,Cyclohexenone derivative,Herbicide,A,HRAC,Cyclohexene oxime
+DICLOFOP,"Aryloxyphenoxy propionic acid , Chlorophenoxy acid or ester",Herbicide,A,HRAC,Phenoxy
+FENOXAPROP,Aryloxyphenoxy propionic acid,Herbicide,A,HRAC,Phenoxy
+FLUAZIFOP,Aryloxyphenoxy propionic acid,Herbicide,A,HRAC,Phenoxy
+PINOXADEN,Unknown,Herbicide,A,HRAC,Pyrazole
+QUIZALOFOP,Aryloxyphenoxy propionic acid,Herbicide,A,HRAC,Phenoxy
+SETHOXYDIM,Cyclohexenone derivative,Herbicide,A,HRAC,Cyclohexene oxime
+TRALKOXYDIM,Cyclohexenone derivative,Herbicide,A,HRAC,Cyclohexene oxime
+MEFENOXAM,Xylylalanine,Fungicide,A1,FRAC,Amide
+METALAXYL,Xylylalanine,Fungicide,A1,FRAC,Amide
+THIFENSULFURON,Sulfonylurea,"Breakdown product, Herbicide",B,HRAC,Urea
+CHLORIMURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+CHLORSULFURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+CLORANSULAM-METHYL,Triazolopyrimidine,Herbicide,B,HRAC,"Triazolopyrimidine, amide"
+FLUMETSULAM,Triazolopyrimidine,Herbicide,B,HRAC,"Triazolopyrimidine, amide"
+FORAMSULFURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+HALOSULFURON,Sulfonylurea,Herbicide,B,HRAC,"Urea, pyrazole"
+IMAZAMETHABENZ,Imidazolinone,Herbicide,B,HRAC,Imidazolinone
+IMAZAMOX,Imidazolinone,Herbicide,B,HRAC,Imidazolinone
+IMAZAPYR,Imidazolinone,Herbicide,B,HRAC,Imidazolinone
+IODOSULFURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+MESOSULFURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+METSULFURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+NICOSULFURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+PRIMISULFURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+PROSULFURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+PYROXSULAM,Triazolopyrimidine,Herbicide,B,HRAC,"Triazolopyrimidine, amide, pyridine"
+RIMSULFURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+SULFOSULFURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+TRIASULFURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+TRIBENURON METHYL,Sulfonylurea,Herbicide,B,HRAC,Urea
+TRIFLUSULFURON,Sulfonylurea,Herbicide,B,HRAC,Urea
+IMAZAQUIN,Imidazolinone,"Herbicide, Plant Growth Regulator",B,HRAC,Imidazolinone
+IMAZETHAPYR,Imidazolinone,"Herbicide, Plant Growth Regulator",B,HRAC,Imidazolinone
+BENOMYL,Benzimidazole,Fungicide,B1,FRAC,"Benzimidazole, Carbamate"
+THIABENDAZOLE,Benzimidazole,Fungicide,B1,FRAC,"Thiazole, Benzimidazole"
+THIOPHANATE-METHYL,Benzimidazole precursor,Fungicide,B1,FRAC,"Carbamate, Benzimidazole precursor"
+ZOXAMIDE,Unknown,Fungicide,B3,FRAC,Amide
+FLUOPICOLIDE,Unknown,Fungicide,B5,FRAC,Amide
+AMETRYN,Triazine,Herbicide,C1,HRAC,Triazine
+ATRAZINE,Triazine,Herbicide,C1,HRAC,Triazine
+BROMACIL,Uracil,Herbicide,C1,HRAC,Uracil
+CHLORIDAZON,Pyridazinone,Herbicide,C1,HRAC,Pyridazinone
+CYANAZINE,Triazine,Herbicide,C1,HRAC,Triazine
+DESMEDIPHAM,Bis-Carbamate,Herbicide,C1,HRAC,Carbamate
+HEXAZINONE,Triazinone,Herbicide,C1,HRAC,Triazinone
+METRIBUZIN,Triazinone,Herbicide,C1,HRAC,Triazinone
+PHENMEDIPHAM,Bis-Carbamate,Herbicide,C1,HRAC,Carbamate
+PROMETON,Triazine,Herbicide,C1,HRAC,Triazine
+PROMETRYN,Triazine,Herbicide,C1,HRAC,Triazine
+SIMAZINE,Triazine,Herbicide,C1,HRAC,Triazine
+TERBACIL,Uracil,Herbicide,C1,HRAC,Uracil
+BOSCALID,Anilide,Fungicide,C2,FRAC,"Amide, Pyridine"
+CARBOXIN,Carboxamide,Fungicide,C2,FRAC,"Amide, Oxathiin"
+FLUTOLANIL,Anilide,Fungicide,C2,FRAC,Amide
+PENTHIOPYRAD,"Amide, Pyrazole",Fungicide,C2,FRAC,"Amide, Pyrazole"
+DIURON,Urea,Herbicide,C2,HRAC,Urea
+LINURON,Urea,Herbicide,C2,HRAC,Urea
+TEBUTHIURON,Urea,Herbicide,C2,HRAC,Urea
+FLUOMETURON,Urea,Herbicide,"C2,F3",HRAC,Urea
+AZOXYSTROBIN,Strobin,Fungicide,C3,FRAC,Antibiotic
+FAMOXADONE,Dicarboximide,Fungicide,C3,FRAC,"Oxazole, Dicarboximide"
+FLUOXASTROBIN,Strobin,Fungicide,C3,FRAC,Antibiotic
+KRESOXIM-METHYL,Strobin,Fungicide,C3,FRAC,Antibiotic
+PYRACLOSTROBIN,Strobin,Fungicide,C3,FRAC,Antibiotic
+TRIFLOXYSTROBIN,Strobin,Fungicide,C3,FRAC,Antibiotic
+BENTAZONE,Unclassified,Herbicide,C3,HRAC,Unclassified
+BROMOXYNIL,Hydroxybenzonitrile,Herbicide,C3,HRAC,Nitrile
+PYRIDATE,Unknown,Herbicide,C3,HRAC,Pyridazine
+CYAZOFAMID,Azole,Fungicide,C4,FRAC,"Amide, imidazole"
+FLUAZINAM,"2,6-Dinitroaniline",Fungicide,C5,FRAC,Pyridine
+DINOCAP,Dinitrophenol derivative,"Fungicide, Insecticide",C5,FRAC,Dinitrophenol
+FENTIN,"Organotin, Heavy metal","Fungicide, Molluscicide, Herbicide",C6,FRAC,Organotin
+PARAQUAT,Bipyridylium,Herbicide,D,HRAC,Quaternary ammonium
+DIQUAT,Bipyridylium,"Herbicide, Dessicant",D,HRAC,Quaternary ammonium
+CYPRODINIL,Pyrimidine,Fungicide,D1,FRAC,Pyrimidine
+PYRIMETHANIL,Pyrimidine,Fungicide,D1,FRAC,Pyrimidine
+KASUGAMYCIN,Antibiotic,"Fungicide, Microbiocide",D3,FRAC,Antibiotic
+OXYTETRACYCLINE,Antibiotic,"Fungicide, Microbiocide",D5,FRAC,Bactericides
+ACIFLUORFEN,Diphenyl ether,Herbicide,E,HRAC,Diphenyl ether
+CARFENTRAZONE-ETHYL,Triazolone,Herbicide,E,HRAC,Triazolone
+FLUMICLORAC,Unclassified,Herbicide,E,HRAC,Dicarboximide
+FLUMIOXAZIN,Unclassified,Herbicide,E,HRAC,Dicarboximide
+FLUTHIACET-METHYL,Unknown,Herbicide,E,HRAC,Unclassified
+FOMESAFEN,Diphenyl ether,Herbicide,E,HRAC,Diphenyl ether
+LACTOFEN,Diphenyl ether,Herbicide,E,HRAC,Diphenyl ether
+OXYFLUORFEN,Diphenyl ether,Herbicide,E,HRAC,Diphenyl ether
+PYRAFLUFEN ETHYL,Pyrazolylphenyl,Herbicide,E,HRAC,Pyrazole
+SULFENTRAZONE,Triazolone,Herbicide,E,HRAC,"Triazolone, amide"
+QUINOXYFEN,Quinoline,Fungicide,E1,FRAC,Quinoline
+FLUDIOXONIL,Unclassified,Fungicide,E2,FRAC,Pyrrole
+IPRODIONE,Dicarboximide,Fungicide,E3,FRAC,"Dicarboximide, Imidazole"
+VINCLOZOLIN,Dicarboximide,Fungicide,E3,FRAC,"Oxazole, Dicarboximide"
+NORFLURAZON,Pyridazinone,Herbicide,F1,HRAC,Pyridazinone
+ISOXAFLUTOLE,Oxazole,Herbicide,F2,HRAC,"Oxazole, Cyclopropylisoxazole"
+MESOTRIONE,Benzoylcyclohexanedione,Herbicide,F2,HRAC,Benzoylcyclohexanedione
+DICLORAN,Substituted Benzene,Fungicide,F3,FRAC,Aromatic
+ETRIDIAZOLE,Azole,Fungicide,F3,FRAC,Thiadiazole
+QUINTOZENE,Substituted Benzene,"Fungicide, Nematicide, Algaecide",F3,FRAC,Aromatic
+AMITROLE,Unclassified,Herbicide,F3,HRAC,Triazole
+CLOMAZONE,Unclassified,Herbicide,F3,HRAC,Unclassified
+PROPAMOCARB HCL,Other Carbamate,Fungicide,F4,FRAC,Carbamate
+DIMETHOMORPH,Morpholine,Fungicide,F5,FRAC,Morpholine
+MANDIPROPAMID,Unknown,Fungicide,F5,FRAC,Amide
+BACILLUS SUBTILIS,Microbial,Fungicide,F6,FRAC,NA
+GLYPHOSATE,Phosphonoglycine,Herbicide,G,HRAC,Organophosphorus
+SULFOSATE,Phosphonoglycine,Herbicide,G,HRAC,"Organophosphorus, glyphosate derivative"
+CYPROCONAZOLE,Azole,Fungicide,G1,FRAC,"Conazole, triazole"
+DIFENOCONAZOLE,Azole,Fungicide,G1,FRAC,"Conazole, triazole"
+FENARIMOL,Pyrimidine,Fungicide,G1,FRAC,Pyrimidine
+FENBUCONAZOLE,Azole,Fungicide,G1,FRAC,"Conazole, triazole"
+FLUSILAZOLE,Azole,Fungicide,G1,FRAC,"Conazole, triazole"
+IMAZALIL,Azole,Fungicide,G1,FRAC,"Conazole, Imidazole"
+IPCONAZOLE,Azole,Fungicide,G1,FRAC,"Conazole, triazole"
+METCONAZOLE,Azole,Fungicide,G1,FRAC,"Conazole, triazole"
+MYCLOBUTANIL,Azole,Fungicide,G1,FRAC,"Conazole, triazole"
+PROPICONAZOLE,Azole,Fungicide,G1,FRAC,"Conazole, triazole"
+PROTHIOCONAZOLE,Azole,Fungicide,G1,FRAC,"Conazole, triazole"
+TEBUCONAZOLE,Azole,Fungicide,G1,FRAC,"Conazole, triazole"
+TETRACONAZOLE,Azole,Fungicide,G1,FRAC,"Conazole, triazole"
+TRIADIMEFON,Azole,Fungicide,G1,FRAC,"Conazole, triazole"
+TRIFLUMIZOLE,Azole,Fungicide,G1,FRAC,"Conazole, Imidazole"
+TRIFORINE,Unclassified,"Fungicide, Insecticide",G1,FRAC,Amide
+FENHEXAMID,Anilide,Fungicide,G3,FRAC,Amide
+GLUFOSINATE,Phosphonoglycine,Herbicide,H,HRAC,Organophosphorus
+BENFLURALIN,"2,6-Dinitroaniline",Herbicide,K1,HRAC,Dinitroaniline
+BUTRALIN,"2,6-Dinitroaniline",Herbicide,K1,HRAC,Dinitroaniline
+DCPA,Alkyl Phthalate,Herbicide,K1,HRAC,Aromatic Acid
+ETHALFLURALIN,"2,6-Dinitroaniline",Herbicide,K1,HRAC,Dinitroaniline
+ORYZALIN,"2,6-Dinitroaniline",Herbicide,K1,HRAC,Dinitroaniline
+PENDIMETHALIN,"2,6-Dinitroaniline",Herbicide,K1,HRAC,Dinitroaniline
+PROPYZAMIDE,Amide,Herbicide,K1,HRAC,Amide
+TRIFLURALIN,"2,6-Dinitroaniline",Herbicide,K1,HRAC,Dinitroaniline
+CHLORPROPHAM,Other Carbamate,"Herbicide, Plant Growth Regulator",K2,HRAC,Carbamate
+ACETOCHLOR,Chloroacetanilide,Herbicide,K3,HRAC,Amide
+ALACHLOR,Chloroacetanilide,Herbicide,K3,HRAC,Amide
+DIMETHENAMID,Amide,Herbicide,K3,HRAC,Amide
+DIMETHENAMID-P,Amide,Herbicide,K3,HRAC,Amide
+DIPHENAMID,Amide,Herbicide,K3,HRAC,Amide
+FLUFENACET,Anilide,Herbicide,K3,HRAC,Amide
+METOLACHLOR,Chloroacetanilide,Herbicide,K3,HRAC,Amide
+METOLACHLOR-S,Chloroacetanilide,Herbicide,K3,HRAC,Amide
+NAPROPAMIDE,Amide,Herbicide,K3,HRAC,Amide
+PROPACHLOR,Chloroacetanilide,Herbicide,K3,HRAC,Amide
+DICHLOBENIL,Substituted Benzene,Herbicide,L,HRAC,Nitrile
+ISOXABEN,"Amide, Oxazole",Herbicide,L,HRAC,"Amide, Oxazole"
+DINOSEB,Dinitrophenol derivative,"Defoliant, Herbicide",M,HRAC,Dinitrophenol
+ANILAZINE,Triazine,Fungicide,Multi-site,FRAC,Triazine
+CAPTAFOL,Thiophthalimide,Fungicide,Multi-site,FRAC,Dicarboximide
+CAPTAN,Thiophthalimide,Fungicide,Multi-site,FRAC,Dicarboximide
+CHLOROTHALONIL,Substituted Benzene,Fungicide,Multi-site,FRAC,Aromatic
+COPPER,Inorganic-Copper,Fungicide,Multi-site,FRAC,Copper
+FERBAM,Dithiocarbamate-ETU,Fungicide,Multi-site,FRAC,Dithiocarbamate
+MANCOZEB,"Dithiocarbamate-ETU, Inorganic-Zinc",Fungicide,Multi-site,FRAC,"Dithiocarbamate, zinc"
+MANEB,Dithiocarbamate-ETU,Fungicide,Multi-site,FRAC,Dithiocarbamate
+METIRAM,"Dithiocarbamate-ETU, Inorganic-Zinc",Fungicide,Multi-site,FRAC,"Dithiocarbamate, zinc"
+THIRAM,Dithiocarbamate,Fungicide,Multi-site,FRAC,Dithiocarbamate
+ZINEB,"Dithiocarbamate-ETU, Inorganic-Zinc",Fungicide,Multi-site,FRAC,"Dithiocarbamate, zinc"
+SULFUR,Inorganic,"Fungicide, Insecticide",Multi-site,FRAC,Inorganic
+ZIRAM,"Dithiocarbamate, Inorganic-Zinc","Fungicide, Microbiocide, Dog and Cat Repellent",Multi-site,FRAC,Dithiocarbamate
+TCA,Unclassified,"Breakdown product, Herbicide",N,HRAC,Halogenated aliphatic
+BENSULIDE,Organophosphorus,Herbicide,N,HRAC,Organophosphorus
+BUTYLATE,Thiocarbamate,Herbicide,N,HRAC,Thiocarbamate
+CYCLOATE,Thiocarbamate,Herbicide,N,HRAC,Thiocarbamate
+EPTC,Thiocarbamate,Herbicide,N,HRAC,Thiocarbamate
+ETHOFUMESATE,Unclassified,Herbicide,N,HRAC,Benzofuranyl alkylsulfonate
+MOLINATE,Thiocarbamate,Herbicide,N,HRAC,Thiocarbamate
+PEBULATE,Thiocarbamate,Herbicide,N,HRAC,Thiocarbamate
+TRI-ALLATE,Thiocarbamate,Herbicide,N,HRAC,Thiocarbamate
+VERNOLATE,Thiocarbamate,Herbicide,N,HRAC,Thiocarbamate
+"2,4-DB",Chlorophenoxy acid or ester,Herbicide,O,HRAC,Phenoxy
+AMINOPYRALID,Pyridinecarboxylic acid,Herbicide,O,HRAC,"Pyridine, Aromatic acid"
+CHLORAMBEN,Benzoic acid,Herbicide,O,HRAC,Aromatic acid
+CLOPYRALID,Pyridinecarboxylic acid,Herbicide,O,HRAC,"Pyridine, Aromatic acid"
+DICAMBA,Benzoic acid,Herbicide,O,HRAC,Aromatic acid
+DICHLORPROP,Chlorophenoxy acid or ester,Herbicide,O,HRAC,Phenoxy
+FLUROXYPYR,Pyridinecarboxylic acid,Herbicide,O,HRAC,Pyridine
+MCPA,Chlorophenoxy acid or ester,Herbicide,O,HRAC,Phenoxy
+MCPB,Chlorophenoxy acid or ester,Herbicide,O,HRAC,Phenoxy
+MECOPROP,Chlorophenoxy acid or ester,Herbicide,O,HRAC,Phenoxy
+PICLORAM,Pyridinecarboxylic acid,Herbicide,O,HRAC,"Pyridine, Aromatic acid"
+TRICLOPYR,Chloropyridinyl,Herbicide,O,HRAC,Pyridine
+"2,4-D",Chlorophenoxy acid or ester,"Herbicide, Plant Growth Regulator",O,HRAC,Phenoxy
+DIFLUFENZOPYR,Urea,Herbicide,P,HRAC,Urea
+NAPTALAM,Amide,Herbicide,P,HRAC,Amide
+ACIBENZOLAR,Unclassified,Fungicide,P1,FRAC,Unclassified
+CYMOXANIL,Unclassified,Fungicide,UN,FRAC,Aliphatic nitrogen
+FOSETYL,Unknown,Fungicide,UN,FRAC,Organophosphorus
+METRAFENONE,Unclassified,Fungicide,UN,FRAC,Aryl Phenyl Ketone
+PHOSPHORIC ACID,Inorganic,"Fungicide, Herbicide, Microbiocide, pH Adjustment",UN,FRAC,NA
+DODINE,Guanidine,"Fungicide, Microbiocide",UN,FRAC,Aliphatic nitrogen
+BIFENAZATE,Unclassified,Insecticide,UN,IRAC,Carbazate
+CRYOLITE,Inorganic,Insecticide,UN,IRAC,Fluorine
+DICOFOL,Organochlorine,"Insecticide, acaricide",UN,IRAC,Bridged diphenyl
+AZADIRACHTIN,Botanical,"Insecticide, Nematicide",UN,IRAC,Botanical
+METAM,Dithiocarbamate-MITC,"Fumigant, Fungicide, Microbiocide, Algaecide, Nematicide",UN,HRAC,Dithiocarbamate
+FOSAMINE,Unknown,Herbicide,Z,HRAC,Organophosphorus
+MSMA,"Organoarsenic, Heavy metal","Herbicide, Defoliant",Z,HRAC,Arsenical
+PELARGONIC ACID,Fatty acid,"Herbicide, Fungicide",Z,HRAC,Unclassified
+POTASSIUM OLEATE,Soap,Adjuvant,,,NA
+BORDEAUX MIXTURE,Inorganic-Copper,"Algaecide, Fungicide, Molluscicide",,,Copper
+COPPER SULF TRIBASIC,Inorganic-Copper,"Algaecide, Fungicide, Molluscicide",,,Copper
+COPPER SULFATE,Inorganic-Copper,"Algaecide, Fungicide, Molluscicide",,,Copper
+METHYL ISOTHIOCYANATE,Unclassified,"Breakdown product, Fumigant, Herbicide, Insecticide, Nematicide",,,Inorganic
+NAPTHA,Unknown,"Chemical intermediate, Dye, Insect Repellent, Insecticide",,,NA
+SODIUM CHLORATE,Inorganic,"Defoliant, Herbicide, Microbiocide",,,Inorganic
+CALCIUM CHLORIDE,Inorganic,"Dessicant, Fungicide, Herbicide, Insecticide, Microbiocide, Molluscicide, Plant Growth Regulator, Preservative ",,,NA
+CHINOMETHIONAT,Unclassified,"Fumigant, Fungicide, Insecticide",,,Quinoxaline
+TETRATHIOCARBONATE,Inorganic,"Fumigant, Fungicide, Nematicide",,,Fumigant
+METHYL BROMIDE,Halogenated organic,"Fumigant, Insecticide, Herbicide, Nematicide",,,Fumigant
+CHLOROPICRIN,Inorganic,"Fumigant, Nematicide",,,Fumigant
+DICHLOROPROPENE,Halogenated organic,"Fumigant, Nematicide",,,Fumigant
+BURKHOLDERIA CEPACIA,Microbial,Fungicide,,,NA
+CONIOTHYRIUM MINITANS,Microbial,Fungicide,,,NA
+COPPER OXYCHLORIDE,Inorganic-Copper,Fungicide,,,Copper
+COPPER OXYCHLORIDE S,Inorganic-Copper,Fungicide,,,Copper
+DICHLONE,Unknown,Fungicide,,,Quinone
+FLUOPYRAM,"Amide, Pyridine",Fungicide,,,"Amide, Pyridine"
+FLUXAPYROXAD,"Anilide, Pyrazole",Fungicide,,,"Amide, Pyrazole"
+POTASSIUM BICARBONATE,Inorganic,Fungicide,,,NA
+BARIUM POLYSULFIDE,Inorganic,"Fungicide, Insecticide",,,Polysulfide
+CALCIUM POLYSULFIDE,Inorganic,"Fungicide, Insecticide",,,"Inorganic, polysulfide"
+COPPER HYDROXIDE,Inorganic-Copper,"Fungicide, Microbiocide, Nematicide",,,Copper
+HARPIN PROTEIN,Microbial,"Fungicide, Nematicide, Plant Growth Regulator",,,NA
+AMMONIUM SULFAMATE,Inorganic,Herbicide,,,Inorganic
+DIETHATYL,Chloroacetanilide,Herbicide,,,Amide
+INDAZIFLAM,Triazine,Herbicide,,,Triazine
+ISOPROPALIN,"2,6-Dinitroaniline",Herbicide,,,Dinitroaniline
+NORURON,Urea,Herbicide,,,Urea
+PYRASULFOTOLE,Unknown,Herbicide,,,Pyrazole
+SAFLUFENACIL,Amide,Herbicide,,,"Amide, Uracil"
+TEMBOTRIONE,Benzoylcyclohexanedione,Herbicide,,,Benzoylcyclohexanedione
+THIENCARBAZONE-METHYL,Unknown,Herbicide,,,Triazolone
+TOPRAMEZONE,Oxazole,Herbicide,,,"Oxazole, Pyrazole"
+TRIDIPHANE,Unknown,Herbicide,,,Unclassified
+ZINC,Inorganic-Zinc,Herbicide,,,NA
+ENDOTHAL,Unclassified,"Herbicide, Defoliant",,,Unclassified
+NOVALURON,Benzoylurea,"Herbicide, Insecticide",,,Insect Growth Regulator
+TRINEXAPAC,Unclassified,"Herbicide, Plant Growth Regulator",,,Unclassified
+PETROLEUM DISTILLATE,Petroleum derivative-Saturated,"Herbicide, Plant Growth Regulator, Insecticide, Adjuvant, Solvent",,,NA
+CYDIA POMONELLA,Insect virus,Insect Growth Regulator,,,Lepidopteran attractant
+HEXYTHIAZOX,Unclassified,Insect Growth Regulator,,,"Thiazolidine, Mite Growth Regulator"
+PINOLENE,Unclassified,Insect Growth Regulator,,,NA
+PYRIPROXYFEN,Juvenile hormone mimic,Insect Growth Regulator,,,Insect Growth Regulator
+DIENOCHLOR,Organochlorine,Insecticide,,,Organochlorine
+FLUVALINATE-TAU,Pyrethroid,Insecticide,,,Pyrethroid
+FONOFOS,Organophosphorus,Insecticide,,,Organophosphorus
+GARLIC JUICE,Botanical,Insecticide,,,NA
+SPINOSYN,"Spinosyn, Macrocyclic Lactone",Insecticide,,,Macrocyclic Lactone
+STEINERNEMA CARPOCAP,Beneficial insect,Insecticide,,,NA
+SULPROFOS,Organophosphorus,Insecticide,,,Organophosphorus
+KAOLIN CLAY,Inorganic,"Insecticide, Adjuvant, Fungicide, Microbiocide",,,NA
+PETROLEUM OIL,Petroleum derivative-Aromatic,"Insecticide, Adjuvant, Herbicide, Fungicide",,,NA
+MYROTHECIUM VERRUCARIA,Microbial,"Insecticide, Nematicide",,,NA
+LINDANE,Organochlorine,"Insecticide, Rodenticide",,,Organochlorine
+PIPERONYL BUTOXIDE,Unclassified,"Insecticide, Synergist",,,Synergist
+STREPTOMYCIN,Antibiotic,Microbiocide,,,Antibiotic
+HYDROGEN PEROXIDE,"Peroxide, Inorganic","Microbiocide, Fungicide, Herbicide, Rodenticide",,,NA
+METALDEHYDE,Aldehyde,Molluscicide,,,Molluscicide
+BACILLUS PUMILIS,NA,NA,,,NA
+BACILLUS FIRMUS,Microbial,Nematicide,,,NA
+HYDRATED LIME,Inorganic,"pH Adjustment, Fungicide, Microbiocide, Herbicide",,,Algicide
+6-BENZYLADENINE,Botanical,Plant Growth Regulator,,,Cytokinin
+AVIGLYCINE,Unknown,Plant Growth Regulator,,,Ethylene inhibitor
+CYTOKININ,Botanical,Plant Growth Regulator,,,Cytokinin
+DECAN-1-OL,Alcohol/Ether,Plant Growth Regulator,,,NA
+ETHEPHON,Organophosphorus,Plant Growth Regulator,,,"Defoliant, ethylene releaser"
+FLUMETRALIN,"2,6-Dinitroaniline",Plant Growth Regulator,,,Growth inhibitor
+GIBBERELLIC ACID,Botanical,Plant Growth Regulator,,,Gibberellins
+INDOLYL-BUTYRIC ACID,Botanical,Plant Growth Regulator,,,Auxin
+MALEIC HYDRAZIDE,Unclassified,Plant Growth Regulator,,,"Gametocide, growth inhibitor"
+MEPIQUAT,Quaternary Ammonium Compound,Plant Growth Regulator,,,Growth inhibitor
+NAPHTHYLACETAMIDE,"Botanical, Naphthalene acetic acid derivative",Plant Growth Regulator,,,Auxin
+NAPHTHYLACETIC ACID,"Naphthalene acetic acid derivative, Botanical",Plant Growth Regulator,,,Auxin
+PROHEXADIONE,Unknown,Plant Growth Regulator,,,Unclassified
+FATTY ALCOHOLS,Alcohol/Ether,"Plant Growth Regulator, Adjuvant",,,NA
+GENTAMICIN SULFATE,Antibiotic,Unknown,,,NA
+TETRABOROHYDRATE,Inorganic,Unknown,,,NA

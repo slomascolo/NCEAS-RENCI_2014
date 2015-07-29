@@ -1,0 +1,90 @@
+A,"Inhibition of acetyl CoA carboxylase (ACCase)","Aryloxyphenoxy-propionate ‘FOPs’","clodinafop-propargyl cyhalofop-butyl diclofop-methyl fenoxaprop-P-ethyl fluazifop-P-butyl haloxyfop-R-methyl propaquizafop quizalofop-P-ethyl",1
+,,"Cyclohexanedione ‘DIMs’","alloxydim butroxydim clethodim cycloxydim profoxydim sethoxydim tepraloxydin tralkoxydim",
+,,"Phenylpyrazoline ‘DEN’",pinoxaden,
+B,"Inhibition of acetolactate synthase ALS (acetohydroxyacid synthase AHAS)",Sulfonylurea,"amidosulfuron azimsulfuron bensulfuron-methyl chlorimuron-ethyl chlorsulfuron cinosulfuron cyclosulfamuron ethametsulfuron-methyl ethoxysulfuron flazasulfuron flupyrsulfuron-methyl-Na foramsulfuron halosulfuron-methyl imazosulfuron iodosulfuron mesosulfuron",2
+,,,"metsulfuron-methyl nicosulfuron oxasulfuron primisulfuron-methyl prosulfuron pyrazosulfuron-ethyl rimsulfuron sulfometuron-methyl sulfosulfuron thifensulfuron-methyl triasulfuron tribenuron-methyl trifloxysulfuron triflusulfuron-methyl tritosulfuron",
+,,Imidazolinone,"imazapic imazamethabenz-methyl imazamox imazapyr imazaquin imazethapyr",
+,,Triazolopyrimidine,"cloransulam-methyl diclosulam florasulam flumetsulam metosulam penoxsulam",
+,,Pyrimidinyl(thio)benzoate,"bispyribac-Na pyribenzoxim pyriftalid pyrithiobac-Na pyriminobac-methyl",
+,,"Sulfonylaminocarbonyl-triazolinone","flucarbazone-Na propoxycarbazone-Na",
+C1,"Inhibition of photosynthesis at photosystem II",Triazine,"ametryne atrazine cyanazine desmetryne dimethametryne prometon prometryne propazine simazine simetryne terbumeton terbuthylazine terbutryne trietazine",5
+,,Triazinone,"hexazinone metamitron metribuzin",
+,,Triazolinone,amicarbazone,
+,,Uracil,"bromacil lenacil terbacil",
+,,Pyridazinone,"pyrazon = chloridazon",
+,,Phenyl-carbamate,"desmedipham phenmedipham",
+C2,"Inhibition of photosynthesis at photosystem II",Urea,"chlorobromuron chlorotoluron chloroxuron dimefuron diuron ethidimuron fenuron fluometuron (see F3) isoproturon isouron linuron methabenzthiazuron metobromuron metoxuron monolinuron neburon",7
+,,,"siduron tebuthiuron",
+,,Amide,"propanil pentanochlor",
+C3,"Inhibition of photosynthesis at photosystem II",Nitrile,"bromofenoxim bromoxynil ioxynil",6
+,,Benzothiadiazinone,bentazon,
+,,Phenyl-pyridazine,"pyridate pyridafol",
+D,"Photosystem-I-electron diversion",Bipyridylium,"diquat paraquat",22
+"HRAC Group",Site of Action,Chemical Family,Active Ingredient,"WSSA Group"
+E,"Inhibition of protoporphyrinogen oxidase (PPO)",Diphenylether,"acifluorfen-Na bifenox chlomethoxyfen fluoroglycofen-ethyl fomesafen halosafen lactofen oxyfluorfen",14
+,,Phenylpyrazole,"fluazolate pyraflufen-ethyl",
+,,N-phenylphthalimide,"cinidon-ethyl flumioxazin flumiclorac-pentyl",
+,,Thiadiazole,"fluthiacet-methyl thidiazimin",
+,,Oxadiazole,"oxadiazon oxadiargyl",
+,,Triazolinone,"azafenidin carfentrazone-ethyl sulfentrazone",
+,,Oxazolidinedione,pentoxazone,
+,,Pyrimidindione,"benzfendizone butafenacil",
+,,Other,"pyraclonil profluazol flufenpyr-ethyl",
+F1,"Bleaching: Inhibition of carotenoid biosynthesis at the phytoene desaturase step (PDS)",Pyridazinone,norflurazon,12
+,,Pyridinecarboxamide,"diflufenican picolinafen",
+,,Other,"beflubutamid fluridone flurochloridone flurtamone",
+F2,"Bleaching: Inhibition of 4-hydroxyphenyl-pyruvate-dioxygenase (4-HPPD)",Triketone,"mesotrione sulcotrione",27
+,,Isoxazole,"isoxachlortole isoxaflutole",
+,,Pyrazole,"benzofenap pyrazolynate pyrazoxyfen",
+,,Other,benzobicyclon,
+F3,"Bleaching: Inhibition of carotenoid biosynthesis (unknown target)",Triazole,"amitrole (in vivo inhibition of  lycopene cyclase)",11
+,,Isoxazolidinone,clomazone,13
+,,Urea,"fluometuron (see C2)",
+,,Diphenylether,aclonifen,
+G,Inhibition of EPSP synthase,Glycine,"glyphosate sulfosate",9
+H,"Inhibition of glutamine synthetase",Phosphinic acid,"glufosinate-ammonium",10
+,,,"bialaphos = bilanaphos",
+"HRAC Group",Site of Action,Chemical Family,Active Ingredient,"WSSA Group"
+I,"Inhibition of DHP (dihydropteroate) synthase",Carbamate,asulam,18
+K1,"Microtubule assembly inhibition",Dinitroaniline,"benefin = benfluralin butralin dinitramine ethalfluralin oryzalin pendimethalin trifluralin",3
+,,Phosphoroamidate,"amiprophos-methyl butamiphos",
+,,Pyridine,"dithiopyr thiazopyr",
+,,Benzamide,"propyzamide = pronamide tebutam",
+,,Benzoic acid,"DCPA = chlorthal-dimethyl",3
+K2,"Inhibition of mitosis / microtubule organisation",Carbamate,"chlorpropham propham carbetamide",23
+K3,"Inhibition of VLCFAs ( see Remarks) (Inhibition of cell division)",Chloroacetamide,"acetochlor alachlor butachlor",15
+,,,"dimethachlor dimethanamid metazachlor metolachlor pethoxamid",
+,,,"pretilachlor propachlor propisochlor thenylchlor",
+,,Acetamide,"diphenamid napropamide naproanilide",
+,,Oxyacetamide,"flufenacet mefenacet",
+,,Tetrazolinone,fentrazamide,
+,,Other,"anilofos cafenstrole piperophos",
+L,"Inhibition of cell wall (cellulose) synthesis",Nitrile,"dichlobenil chlorthiamid",20
+,,Benzamide,isoxaben,21
+,,Triazolocarboxamide,flupoxam,
+,,Quinoline carboxylic acid,"quinclorac (for  monocots) (also group O)",26
+"HRAC Group",Site of Action,Chemical Family,Active Ingredient,"WSSA Group"
+M,"Uncoupling (Membrane disruption)",Dinitrophenol,"DNOC dinoseb dinoterb",24
+N,"Inhibition of lipid synthesis - not ACCase inhibition",Thiocarbamate,"butylate cycloate dimepiperate EPTC esprocarb molinate orbencarb pebulate prosulfocarb thiobencarb = benthiocarb tiocarbazil triallate vernolate",8
+,,Phosphorodithioate,bensulide,
+,,Benzofuran,"benfuresate ethofumesate",
+,,Chloro-Carbonic-acid,"TCA dalapon flupropanate",26
+O,"Action like indole acetic acid (synthetic auxins)",Phenoxy-carboxylic-acid,"clomeprop 2,4-D 2,4-DB dichlorprop = 2,4-DP MCPA MCPB mecoprop = MCPP = CMPP",4
+,,Benzoic acid,"chloramben dicamba TBA",
+,,Pyridine carboxylic acid,"clopyralid fluroxypyr picloram triclopyr",
+,,Quinoline carboxylic acid,"quinclorac (also group L) quinmerac",
+,,Other,benazolin-ethyl,
+P,"Inhibition of auxin transport","Phthalamate Semicarbazone","naptalam diflufenzopyr-Na",19
+"HRAC Group",Site of Action,Chemical Family,Active Ingredient,"WSSA Group"
+R,....,...,...,
+S,...,...,...,
+.,...,...,...,
+Z,"Unknown Note:  While the site of action of herbicides in Group Z is unknown it is likely that they differ in site of action between themselves and from other groups.",Arylaminopropionic acid,"Flamprop-M-methyl /-isopropyl",25
+,,Pyrazolium,difenzoquat,26
+,,Organoarsenical,"DSMA MSMA",17
+,,Other,"bromobutide (chloro)-flurenol",
+,,,cinmethylin,
+,,,cumyluron,
+,,,dazomet,
+,,,"dymron = daimuron methyl-dimuron= methyl-dymron etobenzanid fosamine indanofan metam oxaziclomefone oleic acid",
+,,,"pelargonic acid pyributicarb",

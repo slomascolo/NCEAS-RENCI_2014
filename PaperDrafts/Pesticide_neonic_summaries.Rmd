@@ -115,7 +115,7 @@ I don't print the tables, but that's where the good data are. Graphs for illustr
 names(pesticidesna)
 
 counties_sum <- pesticidesna %>% 
-  group_by(County.Name) %>% 
+  group_by(NAME) %>% 
   summarise(high_applic = mean(KG_EPhigh),
             low_applic = mean(KG_EPlow)) %>%
   gather(., rate, kg, high_applic:low_applic) %>%
@@ -127,7 +127,7 @@ head(counties_sum)
 counties_sum$rate <- factor(counties_sum$rate, 
                             levels = c("low_applic", "high_applic"),
                             ordered = TRUE)
-counties_sum$county <- gsub(" County", "", as.character(counties_sum$County.Name))
+counties_sum$county <- gsub(" County", "", as.character(counties_sum$NAME))
 
 ggplot(counties_sum, aes(x = reorder(county, -kg), alpha = rate, y = kg)) +
   geom_bar(stat = "identity", position = position_dodge()) +
@@ -143,18 +143,18 @@ ggplot(counties_sum, aes(x = reorder(county, -kg), alpha = rate, y = kg)) +
 ```{r rates of change}
 counties_sum_table <- pesticidesna %>% 
   filter(YEAR > 1996) %>%  ## remove this if wanted
-  group_by(County.Name) %>% 
+  group_by(NAME) %>% 
   summarise(high_applic = mean(KG_EPhigh),
             low_applic = mean(KG_EPlow)) %>%
-  mutate(county = gsub(" County", "", as.character(County.Name))) %>%
+  mutate(county = gsub(" County", "", as.character(NAME))) %>%
   select(county, low_applic, high_applic)
 
 counties_change_table <- pesticidesna %>% 
   filter(YEAR %in% c(1997, 2011)) %>%  ## remove this if wanted
-  group_by(County.Name, YEAR) %>% 
+  group_by(NAME, YEAR) %>% 
   summarise(high_applic = mean(KG_EPhigh),
             low_applic = mean(KG_EPlow)) %>%
-  mutate(county = gsub(" County", "", as.character(County.Name))) %>%
+  mutate(county = gsub(" County", "", as.character(NAME))) %>%
   gather(., rate, kg, high_applic:low_applic) %>%
   spread(., YEAR, kg)%>% 
   rename(start97 = `1997`, end11 = `2011`) %>%
@@ -172,7 +172,7 @@ ggplot(counties_change_table, aes(x = rate, y = log_change)) +
 ```{r start to end,warning=FALSE}
 counties_change_table_long <- counties_change_table %>%
   gather(., year, kg, start97:end11) %>%
-  select(County.Name, county, rate, year, kg) %>%
+  select(NAME, county, rate, year, kg) %>%
   mutate(county_rate = interaction(county, rate))  ## this line is for ggplot grouping
 
 
@@ -202,10 +202,13 @@ neonics_year <- neonics %>%
   group_by(YEAR, COMPOUND) %>%
   summarise(mean_applic = mean(density_high), na.rm = TRUE)
 
+range(neonics$YEAR)
+
 ggplot(neonics_year, aes(x = YEAR, y = mean_applic)) +
   geom_line(aes(colour = COMPOUND)) +
   scale_colour_colorblind() +
-  theme(legend.key = element_blank())
+  theme(legend.key = element_blank()) +
+  labs(y = "Application Rate", x= "Year")
 
 # and using a smoothed version
 ggplot(neonics, aes(x = YEAR, y = density_high)) +
