@@ -1337,11 +1337,14 @@ library(dplyr)
 library(stringr)
 #landuse with 1000 and 5000m buffer NMDS scores
 #scores are different at the different scales
-landuse <- readRDS('C:/Users/Tyson/REPO/NCEAS-RENCI_2014/bflyLC_NMDS.rds')
+landuse <- readRDS('bflyLC_NMDS.rds')
 names(landuse)[1] <- "SiteID"
 landuse$SiteID <- as.character(landuse$SiteID)
 
+#correlations of landuse proportions and the 2 NMDS axes.
 cor(landuse[landuse$buffer == 5000, 10:18])
+
+
 # 
 # #weather data
 # climate <- readRDS('C:/Users/Tyson/Desktop/Box Sync/Ohio/daymet/siteDaymet.rds')
@@ -1350,7 +1353,7 @@ cor(landuse[landuse$buffer == 5000, 10:18])
 
 # pesticide data
 
-pest <- read.csv("C:/Users/Tyson/REPO/NCEAS-RENCI_2014/Pesticides/pest_bfly_buff_overtime_MOA.csv", header = TRUE)
+pest <- read.csv("Pesticides/pest_bfly_buff_overtime_MOA.csv", header = TRUE)
 names(pest) <- c("Year", "SiteID", "buffer", "MOAuse", "ag_km2_buff", "kg_buff", "meanbuff_kgkm2ag")
 pest$SiteID <- as.character(pest$SiteID)
 
@@ -1383,7 +1386,7 @@ names(pest_rate)[4:7] <- c("funRate", "herRate", "insRate", "neonicRate")
 all_pest <- merge(pest_use, pest_rate)
 
 #population data
-pops <- readRDS('C:/Users/Tyson/Desktop/Box Sync/Ohio/data2012/AllSpeciesPops.rds')
+pops <- readRDS('OhioLepidopterans_data/AllSpeciesPops.rds')
 
 #filters for population data
 #weird results with only requirement that one count (either Nt or Nt-1 nonzero)
@@ -1434,15 +1437,16 @@ M5 <- lmer(AdjLogLam ~ logNprev + insUse + herUse + neonicUse + NMDS1 + NMDS2 +
              (1 + logNprev | CommonName) + 
              (1|SiteID) + (1|YearFact), data = data)
  
+#use this for R2 from mixed models
 library(MuMIn)
+
+#new package for visualizing lmer results
 library(sjPlot)
 library(ggplot2)
 sjp.setTheme(theme = theme_classic())
 
-
 sjt.lmer(M1)
 r.squaredGLMM(M6)
-
 
 sjp.lmer(M1, facet.grid = FALSE,
          sort.coef = "sort.all")
@@ -1455,7 +1459,7 @@ sjp.int(M1, type = "eff")
  
 #Hallmann 2014 uses trends, not interannual growth rate
 #Also, lagged effects of pesticides
-pops <- readRDS('C:/Users/Tyson/Desktop/Box Sync/Ohio/data2012/AllSpeciesPops.rds')
+pops <- readRDS('OhioLepidopterans_data/AllSpeciesPops.rds')
 
 
 #this takes some time! calculates population trend
