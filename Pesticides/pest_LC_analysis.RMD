@@ -1168,6 +1168,8 @@ Overlay all and see patterns?
 
 Profit
 
+Multivariate attempted below
+
 ```{r population analysis}
 setwd("C:/Users/Tyson/REPO/NCEAS-RENCI_2014")
 
@@ -1320,6 +1322,179 @@ lc.dis <- vegdist(pc, method = "euclid")
   bflydis <- vegdist(spec_site_hell)
   man <- mantel.partial(bflydis, pest.dis, lc.dis)
 ```
+
+
+Now trying lmer random slopes models to see how species respond to pesticides and landuse.
+
+```{r species responses to pesticides x landuse}
+ 
+library(data.table)
+library(lme4)
+library(arm)
+library(reshape)
+library(tidyr)
+library(dplyr)
+library(stringr)
+#landuse with 1000 and 5000m buffer NMDS scores
+#scores are different at the different scales
+landuse <- readRDS('C:/Users/Tyson/REPO/NCEAS-RENCI_2014/bflyLC_NMDS.rds')
+names(landuse)[1] <- "SiteID"
+landuse$SiteID <- as.character(landuse$SiteID)
+
+cor(landuse[landuse$buffer == 5000, 10:18])
+# 
+# #weather data
+# climate <- readRDS('C:/Users/Tyson/Desktop/Box Sync/Ohio/daymet/siteDaymet.rds')
+# climate <- rbindlist(climate)
+# temps <- climate[, 1:3, with = FALSE]
+
+# pesticide data
+
+pest <- read.csv("C:/Users/Tyson/REPO/NCEAS-RENCI_2014/Pesticides/pest_bfly_buff_overtime_MOA.csv", header = TRUE)
+names(pest) <- c("Year", "SiteID", "buffer", "MOAuse", "ag_km2_buff", "kg_buff", "meanbuff_kgkm2ag")
+pest$SiteID <- as.character(pest$SiteID)
+
+pest$ChemClass <- str_split_fixed(pest$MOAuse, pattern = "_", 2)[,1]
+
+pest_site <- pest %>%
+  group_by(Year, SiteID, buffer, ChemClass) %>%
+  summarise(ClassUse = sum(kg_buff), ClassRate = sum(kg_buff)/mean(ag_km2_buff))
+
+neonic_site <- pest %>%
+  group_by(Year, SiteID, buffer) %>%
+  filter(MOAuse == "ins_4") %>%
+  summarise(ClassUse = sum(kg_buff), ClassRate = sum(kg_buff)/mean(ag_km2_buff)) %>%
+  mutate(ChemClass = "neonic")
+
+pest_site <- rbind(pest_site, neonic_site)
+
+all_pest_site <- expand.grid(unique(pest_site$Year), unique(pest_site$SiteID), unique(pest_site$buffer), unique(pest_site$ChemClass), 
+                             stringsAsFactors = FALSE)
+names(all_pest_site) <- c("Year", "SiteID", "buffer", "ChemClass")
+all_pest_site <- merge(all_pest_site, pest_site, all.x = TRUE)
+all_pest_site[is.na(all_pest_site)] <- 0
+
+pest_use <- cast(all_pest_site[, -6], Year + SiteID + buffer ~ ChemClass)
+names(pest_use)[4:7] <- c("funUse", "herUse", "insUse", "neonicUse")
+
+pest_rate <- cast(all_pest_site[, -5], Year + SiteID + buffer ~ ChemClass)
+names(pest_rate)[4:7] <- c("funRate", "herRate", "insRate", "neonicRate")
+
+all_pest <- merge(pest_use, pest_rate)
+
+#population data
+pops <- readRDS('C:/Users/Tyson/Desktop/Box Sync/Ohio/data2012/AllSpeciesPops.rds')
+
+#filters for population data
+#weird results with only requirement that one count (either Nt or Nt-1 nonzero)
+#this makes strange nonnormal distribution of GrowthRate as zeros exaggerate extremes
+
+pops <- pops[TrpzInd > 0 | TrpzNt1 > 0] #remove rows where both Nt and Nt-1 are zero.
+pops[, AdjLogLam := log(TrpzInd + 1) - log(TrpzNt1 + 1)]
+
+# filter by RawSum
+# pops <- pops[RawSum > 5]
+# pops <- pops[TrpzNt1 > 0]
+
+pops <- pops[complete.cases(pops)] #remove rows where Nt-1 missing
+pops$SiteID <- as.character(pops$SiteID)
+
+buff <- 5000
+env <- merge(all_pest[all_pest$buffer == buff, ], landuse[landuse$buffer == buff, c("SiteID", "NMDS1", "NMDS2")])
+
+data <- merge(pops, env, all.x = TRUE, by = c("SiteID", "Year"))
+ 
+#missing 2 sites!
+data <- data.frame(data[complete.cases(data)])
+ 
+#scale numeric variables
+data[, c(12:21)] <- scale(data[, c(12:21)]) 
+ 
+data$YearFact <- as.factor(data$Year)
+data$logNprev <- scale(log(data$TrpzNt1 + 1))
+
+ 
+M1 <- lmer(AdjLogLam ~ logNprev + insRate*NMDS1 + NMDS2 +
+             (1 + logNprev + insRate + NMDS1 + NMDS2|CommonName) + 
+             (1|SiteID) + (1|YearFact), data = data)
+ 
+M2 <- lmer(AdjLogLam ~ logNprev + insRate*NMDS1*NMDS2 +
+             (1 + logNprev|CommonName) + 
+             (1|SiteID) + (1|YearFact), data = data)
+
+M3 <- lmer(AdjLogLam ~ logNprev + herRate*NMDS1*NMDS2 +
+             (1 + logNprev|CommonName) + 
+             (1|SiteID) + (1|YearFact), data = data)
+
+M4 <- lmer(AdjLogLam ~ logNprev + insUse+
+             (1 + logNprev + insUse | CommonName) + 
+             (1|SiteID) + (1|YearFact), data = data)
+
+M5 <- lmer(AdjLogLam ~ logNprev + insUse + herUse + neonicUse + NMDS1 + NMDS2 +
+             (1 + logNprev | CommonName) + 
+             (1|SiteID) + (1|YearFact), data = data)
+ 
+library(MuMIn)
+library(sjPlot)
+library(ggplot2)
+sjp.setTheme(theme = theme_classic())
+
+
+sjt.lmer(M1)
+r.squaredGLMM(M6)
+
+
+sjp.lmer(M1, facet.grid = FALSE,
+         sort.coef = "sort.all")
+# sjp.lmer(M1, "coef")
+
+# sjp.lmer(weather, type = "poly", poly.term = "Zwinter")
+sjp.int(M1, type = "eff")
+ 
+ 
+ 
+#Hallmann 2014 uses trends, not interannual growth rate
+#Also, lagged effects of pesticides
+pops <- readRDS('C:/Users/Tyson/Desktop/Box Sync/Ohio/data2012/AllSpeciesPops.rds')
+
+
+#this takes some time! calculates population trend
+trends <- pops %>%
+  data.frame() %>%
+  group_by(SiteID, CommonName) %>%
+  filter(length(Year) >= 10) %>%
+  do(mod = glm(TrpzInd ~ Year, family = poisson(link = "log"), data = .))
+
+what <- trends %>% do(as.data.frame(coef(.$mod)[2]))
+trends$logtrend <- what$`coef(.$mod)[2]`
+
+trends %>% group_by(CommonName) %>%
+  summarise(num = n())
+
+trends <- trends[, -3]
+
+mean_env <- env %>%
+  filter(Year > 1995) %>%
+  group_by(SiteID) %>%
+  summarise(meanIns = mean(insUse),
+            meanNeonc = mean(neonicUse),
+            NMDS1 = NMDS1[1],
+            NMDS2 = NMDS2[1])
+
+data = merge(trends, mean_env, all.x = TRUE)
+data <- data[complete.cases(data),]
+data$Ins <- scale(data$meanIns)
+data$Neo <- scale(data$meanNeonc)
+
+data <- data[abs(data$logtrend) < 5, ]
+
+M6 <- lmer(logtrend ~ Neo*NMDS1*NMDS2 +
+             (1 + Neo + NMDS1 + NMDS2|CommonName), data = data)
+```
+
+
+
+
 
 
 
